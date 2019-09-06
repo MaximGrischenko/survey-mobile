@@ -169,6 +169,7 @@ export function changeSettings(data: any) {
 }
 
 export function signOut() {
+    console.log('Sign Out');
     return {
         type: SIGN_OUT,
     };
@@ -329,7 +330,6 @@ const reqResetPswSaga = function* (action: any) {
 };
 
 const loadUserSaga = function* () {
-    console.log('load user saga');
     try {
         yield loadInfo();
     } catch (error) {
@@ -364,7 +364,6 @@ const loadInfo = function* () {
         });
     }
 };
-
 
 export const saga = function* () {
     yield all([

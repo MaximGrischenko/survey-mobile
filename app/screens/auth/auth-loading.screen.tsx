@@ -19,29 +19,22 @@ interface IMapProps {
 }
 
 class AuthLoadingScreen extends Component<IMapProps> {
-    // static defaultProps = {
-    //     navigation: () => 1
-    // };
+    static defaultProps = {
+        navigation: () => 1
+    };
 
     constructor(props) {
         super(props);
         this._bootstrapAsync();
     }
 
-    componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
-        if(nextProps.isChecked && nextProps.isChecked !== this.props.isChecked) {
-            this.props.navigation.navigate(nextProps.user ? 'App' : 'Auth');
-        }
+    componentDidUpdate(): void {
+        this.props.navigation.navigate(this.props.user ? 'App' : 'Auth');
     }
 
-    // componentDidUpdate(): void {
-    //     console.log('in updated');
-    //     this.props.navigation.navigate(this.props.user ? 'App' : 'Auth');
-    // }
-
     _bootstrapAsync = async () => {
-       // const token = await AsyncStorage.getItem('access_token');
-       // await applyHeader(token);
+        const token = await AsyncStorage.getItem('access_token');
+        await applyHeader(token);
         this.props.loadUser();
     };
 

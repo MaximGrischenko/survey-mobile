@@ -1,15 +1,14 @@
 import React from 'react';
 import {bindActionCreators} from "redux";
 import {connect} from 'react-redux';
-import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, Dimensions, StyleSheet, Text, View} from 'react-native';
 import {Form, Field} from 'react-native-validate-form';
 import {NavigationParams, NavigationScreenProp, NavigationState} from "react-navigation";
 import {Image} from 'react-native-elements';
 import {email, InputField, required} from "../../components/inputs/field.input";
-import {SecondaryButton} from "../../components/buttons/secondary.button";
 import {PrimaryButton} from "../../components/buttons/primary.button";
 import {moduleName, userSelector, signIn, changeSettings} from '../../redux/modules/auth';
-import images from '../../styles/images';
+import {COLORS} from "../../styles/colors";
 
 interface IMapProps {
     user: any,
@@ -28,7 +27,25 @@ interface IMapState {
 
 class SignInScreen extends React.Component<IMapProps, IMapState> {
     static navigationOptions = {
-        title: 'Sign In',
+        header:
+            <View style={{
+                position: 'absolute',
+                top: 45,
+                height: 60,
+                width: Dimensions.get('window').width - 20,
+                backgroundColor: 'f2f2f2',
+                display: 'flex',
+                flexDirection: 'row',
+                alignSelf: 'center',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+                <Image
+                    style={{height: 35, width: 270}}
+                    source={require('../../../assets/images/logo.png')}
+                    PlaceholderContent={<ActivityIndicator/>}
+                />
+            </View>
     };
 
     private SignInForm: any;
@@ -42,7 +59,6 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
 
     componentDidMount():void {
         this.props.changeSettings({});
-        console.log('Sign In');
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
@@ -73,7 +89,7 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
     };
 
     private onChange = (state) => {
-        this.props.changeSettings({});
+        // this.props.changeSettings({});
         this.setState({
             ...state,
             errors: []
@@ -82,67 +98,93 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
 
     render() {
         const {authError} = this.props;
-        const buttonTitle = 'Sign in';
-
         return (
-            <View>
-                <View>
-                    <Image
-                        source={images.Logo}
-                        PlaceholderContent={<ActivityIndicator/>}
+            <View style={localStyles.container}>
+                <Text style={localStyles.title}>Welcome</Text>
+                <Form
+                    style={localStyles.form}
+                    ref={(ref) => this.SignInForm = ref}
+                    validate={true}
+                    errors={this.state.errors}
+                >
+                    <Field
+                        style={localStyles.field}
+                        required
+                        placeholder='Enter email'
+                        component={InputField}
+                        validations={[required, email]}
+                        name='email'
+                        value={this.state.email}
+                        onChangeText={(email) => this.onChange({email})}
+                    />
+                    <Field
+                        style={localStyles.field}
+                        required
+                        secureTextEntry={true}
+                        placeholder='Enter password'
+                        component={InputField}
+                        validations={[required]}
+                        name='password'
+                        onChangeText={(password) => this.onChange({password})}
+                    />
+                </Form>
+                <View style={localStyles.link}>
+                    <PrimaryButton
+                        variant={'secondary'}
+                        style={localStyles.controls}
+                        textStyle={{display:'flex', alignSelf: 'flex-end'}}
+                        title={'Forgot password?'}
+                        disabled={this.props.loading}
+                        onPress={this.submitForm}
                     />
                 </View>
-                <View>
-                    <Text>Welcome</Text>
-                    <Form
-                        ref={(ref) => this.SignInForm = ref}
-                        validate={true}
-                        errors={this.state.errors}
-                    >
-                        <Field
-                            required
-                            placeholder='Enter email'
-                            component={InputField}
-                            validations={[required, email]}
-                            name='email'
-                            value={this.state.email}
-                            onChangeText={(email) => this.onChange({email})}
-                        />
-                        <Field
-                            required
-                            secureTextEntry={true}
-                            placeholder='Enter password'
-                            component={InputField}
-                            validations={[required]}
-                            name='password'
-                            onChangeText={(password) => this.onChange({password})}
-                        />
-
-                        <View>
-                            <SecondaryButton
-                                title={'Forgot password?'}
-                                onPress={this.onForgotPsw}
-                            />
-                        </View>
-                        <PrimaryButton
-                            style={{width: '100%'}}
-                            title={buttonTitle}
-                            disabled={this.props.loading}
-                            onPress={this.submitForm}
-                        />
-                        {
-                            authError ? (
-                                <Text style={{color: 'red'}}>
-                                    Error! Either email or password are wrong. Please try again
-                                </Text>
-                            ) : null
-                        }
-                    </Form>
-                </View>
+                <PrimaryButton
+                    style={localStyles.controls}
+                    title={'Sign in'}
+                    disabled={this.props.loading}
+                    onPress={this.submitForm}
+                />
+                {
+                    authError ? (
+                        <Text style={{color: 'red'}}>
+                            Error! Either email or password are wrong. Please try again
+                        </Text>
+                    ) : null
+                }
             </View>
         )
     }
 }
+
+const localStyles = StyleSheet.create({
+    container: {
+        display: 'flex',
+        flex: 1,
+        alignItems: 'center',
+        backgroundColor: COLORS.BACKGROUND
+    },
+    title: {
+        marginTop: 130,
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    form: {
+        width: Dimensions.get('window').width - 20,
+        paddingTop: 30,
+        paddingBottom: 10,
+    },
+    field: {
+        width: '100%',
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    link: {
+        marginBottom: 40,
+    },
+    controls: {
+        width: Dimensions.get('window').width - 20,
+    }
+});
 
 const mapStateToProps = (state: any) => ({
     user: userSelector(state),
@@ -153,7 +195,8 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         changeSettings,
-        signIn}, dispatch)
+        signIn
+    }, dispatch)
 );
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignInScreen);

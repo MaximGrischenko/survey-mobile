@@ -2,8 +2,8 @@ import React from 'react';
 import {createDrawerNavigator} from 'react-navigation-drawer';
 import {createAppContainer} from "react-navigation";
 import {Dimensions, ScrollView} from "react-native";
-import HomeScreen from '../screens/home/index';
-import DrawerScreen from '../screens/drawer/index';
+import {HomeScreen} from '../screens/home';
+import DrawerScreen from '../screens/drawer';
 
 const DrawerNavigator = createDrawerNavigator(
     {

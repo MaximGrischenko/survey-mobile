@@ -2,14 +2,13 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {NavigationParams, NavigationScreenProp, NavigationState} from "react-navigation";
-import {ActivityIndicator, Text, View} from "react-native";
+import {ActivityIndicator, Dimensions, StyleSheet, Text, View} from "react-native";
 import {Image} from 'react-native-elements';
-import images from "../../styles/images";
 import {Form, Field} from 'react-native-validate-form';
 import {email, InputField, required} from "../../components/inputs/field.input";
-import {SecondaryButton} from "../../components/buttons/secondary.button";
 import {PrimaryButton} from "../../components/buttons/primary.button";
 import {changeSettings, reqResetPsw, moduleName, userSelector} from "../../redux/modules/auth";
+import {COLORS} from "../../styles/colors";
 
 interface IMapProps {
     reqResetPsw: any,
@@ -29,7 +28,25 @@ interface IMapState {
 
 class ForgotPswScreen extends Component<IMapProps, IMapState> {
     static navigationOptions = {
-        title: 'Forgot Password',
+        header:
+            <View style={{
+                position: 'absolute',
+                top: 45,
+                height: 60,
+                width: Dimensions.get('window').width - 20,
+                backgroundColor: 'f2f2f2',
+                display: 'flex',
+                flexDirection: 'row',
+                alignSelf: 'center',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+                <Image
+                    style={{height: 35, width: 270}}
+                    source={require('../../../assets/images/logo.png')}
+                    PlaceholderContent={<ActivityIndicator/>}
+                />
+            </View>
     };
 
     private ResetPswForm: any;
@@ -88,38 +105,36 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
     render() {
         const {authError} = this.props;
         return (
-            <View>
-                <View>
-                    <Image
-                        source={images.Logo}
-                        PlaceholderContent={<ActivityIndicator/>}
+            <View style={localStyles.container}>
+                <Text style={localStyles.title}>Reset Password</Text>
+                <Form
+                    ref={(ref) => this.ResetPswForm = ref}
+                    validate={true}
+                    errors={this.state.errors}
+                >
+                    <Field
+                        style={localStyles.field}
+                        requered
+                        placeholder='Enter email'
+                        component={InputField}
+                        validation={[required, email]}
+                        name='email'
+                        value={this.state.email}
+                        onChangeText={(email) => this.onChange({email})}
                     />
-                </View>
-                <View>
-                    <Text>Reset Password</Text>
-                    <Form
-                        ref={(ref) => this.ResetPswForm = ref}
-                        validate={true}
-                        errors={this.state.errors}
-                    >
-                        <Field
-                            requered
-                            placeholder='Enter email'
-                            component={InputField}
-                            validation={[required, email]}
-                            name='email'
-                            value={this.state.email}
-                            onChangeText={(email) => this.onChange({email})}
-                        />
-                    </Form>
-                </View>
-                <View>
-                    <SecondaryButton
+                </Form>
+                <View style={localStyles.link}>
+                    <PrimaryButton
+                        variant={'secondary'}
+                        style={localStyles.controls}
+                        textStyle={{display:'flex', alignSelf: 'flex-end'}}
                         title={'Back to Login'}
-                        onPress={this.onBack}
+                        disabled={this.props.loading}
+                        onPress={this.submitForm}
                     />
                 </View>
                 <PrimaryButton
+                    style={localStyles.controls}
                     title={'Reset password!'}
                     disabled={this.props.loading}
                     onPress={this.submitForm}
@@ -135,6 +150,36 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
         )
     }
 }
+
+const localStyles = StyleSheet.create({
+    container: {
+        display: 'flex',
+        flex: 1,
+        alignItems: 'center',
+        backgroundColor: COLORS.BACKGROUND
+    },
+    title: {
+        marginTop: 130,
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    form: {
+        width: Dimensions.get('window').width - 20,
+        paddingTop: 30,
+        paddingBottom: 10,
+    },
+    field: {
+        width: '100%',
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    link: {
+        marginBottom: 40,
+    },
+    controls: {
+        width: Dimensions.get('window').width - 20,
+    }
+});
 
 const mapStateToProps = (state: any) => ({
     refreshed: state[moduleName].refreshed,

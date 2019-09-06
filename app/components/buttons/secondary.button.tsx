@@ -15,7 +15,7 @@ export const SecondaryButton = (props: any) => {
         textStyle = {},
         disabled = false,
         onPress
-    } = this.props;
+    } = props;
 
     const _onPress = (e) => {
         if(disabled) {

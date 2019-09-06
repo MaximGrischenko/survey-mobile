@@ -1,19 +1,29 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import {
     StyleSheet,
     View,
     TouchableOpacity,
-    Platform, Dimensions, Image,
+    Platform, Dimensions, Image, TextInput,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { DrawerActions } from 'react-navigation-drawer';
-import images from '../../styles/images';
+import LogOutComponent from '../logout.component';
+import {COLORS} from "../../styles/colors";
+import {searchSelector} from "../../redux/modules/auth";
 
-interface IHeaderProps {
+interface IMapProps {
     navigation: any,
+    search: string,
 }
 
-class HeaderComponent extends Component<IHeaderProps> {
+class HeaderComponent extends Component<IMapProps> {
+
+    private onChangeText = (value) => {
+
+    };
+
     render() {
         const {navigation} = this.props;
         const isDrawerOpen = navigation.state.isDrawerOpen;
@@ -22,7 +32,7 @@ class HeaderComponent extends Component<IHeaderProps> {
                 {
                     isDrawerOpen ? (
                         <View style={localStyles.header}>
-                            <Image source={images.Logo}/>
+                            <Image style={localStyles.logotype} source={require('../../../assets/images/logo.png')}/>
                             <TouchableOpacity onPress={() => {navigation.dispatch(DrawerActions.toggleDrawer())}}>
                                 <Icon name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} size={30} />
                             </TouchableOpacity>
@@ -32,6 +42,17 @@ class HeaderComponent extends Component<IHeaderProps> {
                             <TouchableOpacity onPress={() => {navigation.dispatch(DrawerActions.toggleDrawer())}}>
                                 <Icon name={Platform.OS === 'ios' ? 'ios-menu' : 'md-menu'} size={30} />
                             </TouchableOpacity>
+                            <View style={localStyles.search}>
+                                <Icon name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'} size={30} />
+                                <TextInput
+                                    style={localStyles.input}
+                                    placeholder={'Search your data'}
+                                    placeholderTextColor={COLORS.TEXT_COLOR}
+                                    onChangeText={this.onChangeText}
+                                    value={this.props.search}
+                                />
+                            </View>
+                            <LogOutComponent navigation={navigation}/>
                         </View>
                     )
                 }
@@ -40,15 +61,13 @@ class HeaderComponent extends Component<IHeaderProps> {
     }
 }
 
-export default HeaderComponent;
-
 const localStyles = StyleSheet.create({
     container: {
         position: 'absolute',
         top: 45,
         height: 60,
         width: Dimensions.get('window').width - 20,
-        backgroundColor: '#3e3e3e',
+        backgroundColor: COLORS.BACKGROUND,
         display: 'flex',
         flexDirection: 'row',
         alignSelf: 'center',
@@ -62,5 +81,30 @@ const localStyles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingLeft: 10,
         paddingRight: 10,
+    },
+    logotype: {
+        width: 270,
+        height: 35,
+        resizeMode: 'stretch'
+    },
+    search: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 10,
+        marginRight: 30,
+    },
+    input: {
+        marginLeft: 5
     }
 });
+
+const mapStateToProps = (state: any) => ({
+   search: searchSelector(state)
+});
+
+const mapDispatchToProps = (dispatch: any) => (
+    bindActionCreators({}, dispatch)
+);
+
+export default connect(mapStateToProps, mapDispatchToProps)(HeaderComponent);

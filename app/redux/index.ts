@@ -1,4 +1,4 @@
-import {applyMiddleware, createStore} from 'redux';
+import {applyMiddleware, createStore, compose} from 'redux';
 // import {composeWithDevTools} from 'remote-redux-devtools';
 import reducer from './reducer';
 
@@ -12,7 +12,7 @@ declare var window: any;
 const sagaMiddleware = createSagaMiddleware();
 const enhancer = applyMiddleware(sagaMiddleware);
 
-const store = createStore(reducer, enhancer);
+const store = createStore(reducer, compose(enhancer));
 window.store = store;
 sagaMiddleware.run(rootSaga);
 

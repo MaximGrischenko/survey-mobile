@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: 50,
         minWidth: 50,
-        backgroundColor: COLORS.SECONDARY,
+        backgroundColor: COLORS.BACKGROUND,
         shadowColor: COLORS.SECONDARY,
         shadowOpacity: 0.4,
         shadowOffset: {height: 10, width: 0},
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     },
     text_scn: {
         fontSize: 16,
-        textTransform: 'uppercase',
+        //textTransform: 'uppercase',
         color: COLORS.PRIMARY
     }
 });
