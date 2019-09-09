@@ -68,7 +68,7 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
     }
 
     private onForgotPsw = () => {
-        this.props.navigation.navigate('ForgotPsw')
+        this.props.navigation.navigate('ForgotPsw');
     };
 
     private submitForm = () => {
@@ -108,7 +108,7 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
                     errors={this.state.errors}
                 >
                     <Field
-                        style={localStyles.field}
+                        customStyle={localStyles.field}
                         required
                         placeholder='Enter email'
                         component={InputField}
@@ -117,8 +117,9 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
                         value={this.state.email}
                         onChangeText={(email) => this.onChange({email})}
                     />
+
                     <Field
-                        style={localStyles.field}
+                        customStyle={localStyles.field}
                         required
                         secureTextEntry={true}
                         placeholder='Enter password'
@@ -128,16 +129,12 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
                         onChangeText={(password) => this.onChange({password})}
                     />
                 </Form>
-                <View style={localStyles.link}>
-                    <PrimaryButton
-                        variant={'secondary'}
-                        style={localStyles.controls}
-                        textStyle={{display:'flex', alignSelf: 'flex-end'}}
-                        title={'Forgot password?'}
-                        disabled={this.props.loading}
-                        onPress={this.submitForm}
-                    />
-                </View>
+                <PrimaryButton
+                    variant={'secondary'}
+                    style={localStyles.link}
+                    title={'Forgot password?'}
+                    onPress={this.onForgotPsw}
+                />
                 <PrimaryButton
                     style={localStyles.controls}
                     title={'Sign in'}
@@ -170,16 +167,20 @@ const localStyles = StyleSheet.create({
     },
     form: {
         width: Dimensions.get('window').width - 20,
-        paddingTop: 30,
-        paddingBottom: 10,
+        paddingTop: 20,
     },
     field: {
         width: '100%',
-        marginTop: 10,
-        marginBottom: 10,
+        marginTop: 20,
     },
     link: {
+        display: 'flex',
+        alignSelf: 'flex-end',
+        marginRight: 10,
+        marginTop: 20,
         marginBottom: 40,
+        height: 20,
+        maxWidth: 150,
     },
     controls: {
         width: Dimensions.get('window').width - 20,

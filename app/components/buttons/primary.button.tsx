@@ -2,7 +2,7 @@ import React from 'react';
 import {
     TouchableOpacity,
     Text,
-    StyleSheet,
+    StyleSheet, View,
 } from 'react-native';
 import {CirclesLoader} from 'react-native-indicator';
 import {COLORS} from '../../styles/colors';
@@ -27,25 +27,29 @@ export const PrimaryButton = (props: any) => {
 
     return (
         <TouchableOpacity
-                onPress={_onPress}
+                activeOpacity={disabled ? 1 : 0.7}
+                onPress= {_onPress}
                 style={[
-                    variant === 'secondary' ? styles.button_scn : styles.button,
+                    variant === 'secondary' ? localStyles.button_scn : localStyles.button,
                     style,
-                    disabled ? styles.disabled : null
                 ]}>
-            <Text style={[variant === 'secondary' ? styles.text_scn : styles.text, textStyle]}>
-            {title}
-            </Text>
-            {/*{*/}
-                {/*disabled ? <CirclesLoader/> : null*/}
-            {/*}*/}
+                <Text style={[variant === 'secondary' ? localStyles.text_scn : localStyles.text, textStyle]}>
+                    {title}
+                </Text>
+                <View style={localStyles.loader}>
+                    {
+                        disabled ? <CirclesLoader size={20} dotRadius={4}/> : null
+                    }
+                </View>
         </TouchableOpacity>
     )
 };
 
-const styles = StyleSheet.create({
+const localStyles = StyleSheet.create({
     button: {
+        // position: 'relative',
         display: 'flex',
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         height: 50,
@@ -57,7 +61,9 @@ const styles = StyleSheet.create({
         shadowRadius: 20
     },
     button_scn: {
+       // position: 'relative',
         display: 'flex',
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         height: 50,
@@ -68,9 +74,6 @@ const styles = StyleSheet.create({
         shadowOffset: {height: 10, width: 0},
         shadowRadius: 20
     },
-    disabled: {
-        opacity: 0.5
-    },
     text: {
         fontSize: 16,
         textTransform: 'uppercase',
@@ -78,7 +81,10 @@ const styles = StyleSheet.create({
     },
     text_scn: {
         fontSize: 16,
-        //textTransform: 'uppercase',
         color: COLORS.PRIMARY
+    },
+    loader: {
+        position: 'absolute',
+        right: 10
     }
 });

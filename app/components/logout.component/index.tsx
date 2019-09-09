@@ -22,19 +22,23 @@ class LogOutComponent extends Component<IMapProps> {
     private Menu: any = null;
 
     _signOutAsync = async() => {
-        await AsyncStorage.clear();
-        this.props.navigation.navigate('Auth');
-        this.props.signOut();
         this.Menu.hide();
+        await AsyncStorage.clear();
+        this.props.signOut();
     };
 
     _onSelectAbout = () => {
-        this.props.navigation.navigate('Auth');
+        //this.props.navigation.navigate('Auth');
         this.Menu.hide();
     };
 
+    componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<{}>, snapshot?: any): void {
+        if (this.props.user === null) {
+            this.props.navigation.navigate('AuthLoading');
+        }
+    }
+
     render() {
-        console.log(this.props.user.info);
         return (
             <View style={localStyles.container}>
                 <Menu
@@ -49,9 +53,9 @@ class LogOutComponent extends Component<IMapProps> {
                         </Text>
                     }
                 >
-                    <MenuItem onPress={() => this._onSelectAbout()}>About User</MenuItem>
-                    <MenuDivider/>
-                    <MenuItem onPress={() => this._signOutAsync()}>Switch User</MenuItem>
+                    {/*<MenuItem onPress={() => this._onSelectAbout()}>About User</MenuItem>*/}
+                    {/*<MenuDivider/>*/}
+                    <MenuItem onPress={() => this._signOutAsync()}>Log Out</MenuItem>
                 </Menu>
             </View>
         );
@@ -78,10 +82,10 @@ const mapStateToProps = (state: any) => ({
     loading: state[moduleName].loading
 });
 
-const mapDisppatchToProps = (dispatch: any) => (
+const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         signOut
     }, dispatch)
 );
 
-export default connect(mapStateToProps, mapDisppatchToProps)(LogOutComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(LogOutComponent);

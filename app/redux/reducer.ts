@@ -1,6 +1,10 @@
 import {combineReducers} from 'redux';
 import authReducer, {moduleName as authModule} from './modules/auth';
+import mapReducer, {moduleName as mapModule} from './modules/map';
+import dialogReducer, {moduleName as dialogsModule} from './modules/dialogs';
 
 export default combineReducers({
     [authModule]: authReducer,
+    [mapModule]: mapReducer,
+    [dialogsModule]: dialogReducer
 })

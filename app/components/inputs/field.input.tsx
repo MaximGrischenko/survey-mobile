@@ -21,7 +21,7 @@ export const InputField = (
     };
 
     return (
-        <View>
+        <View style={{position: 'relative'}}>
             <TextInput
                 secureTextEntry={secureTextEntry}
                 value={value}
@@ -36,7 +36,7 @@ export const InputField = (
             {
                 errors && errors.length > 0 && errors.map((item, index) =>
                     item.field === name && item.error ?
-                        <Text style={{color: 'red'}} key={index}>{item.error}</Text> : <View key={index}/>
+                        <Text style={{position: 'absolute', color: 'red', lineHeight: 20}} key={index}>{item.error}</Text> : <View key={index}/>
                 )
             }
         </View>

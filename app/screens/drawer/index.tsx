@@ -2,8 +2,11 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import {Text, View, StyleSheet} from "react-native";
+import DrawerMenu from "./views/drawer.menu";
+
+import {Text, View, StyleSheet, ScrollView} from "react-native";
 import {COLORS} from "../../styles/colors";
+import DrawerProjects from "./views/drawer.projects";
 
 interface IMapProps {
     navigation: any
@@ -14,9 +17,10 @@ class DrawerScreen extends Component<IMapProps> {
         return (
             <View style={localStyles.container}>
                 <Text style={{paddingTop: 105}}></Text>
-                <Text>Place for Menu</Text>
-                <Text>Place for Projects</Text>
-                <Text>Place for ScrollView</Text>
+                <DrawerMenu navigation={this.props.navigation}/>
+                <ScrollView nestedScrollEnabled={true}>
+                    <DrawerProjects />
+                </ScrollView>
             </View>
         )
     }
