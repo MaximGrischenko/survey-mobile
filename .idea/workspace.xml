@@ -2,47 +2,53 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Category.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/GPSCoordinate.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Geometry.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Log.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Main.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/MainGlobal.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Parcel.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Poi.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Pole.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Powerline.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Project.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Segment.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Station.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/Upload.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/entities/types/User.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/dialogs.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/config.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/locations.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/poles.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/powerlines.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/map/stations.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/utils.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/checkbox/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/categories.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/logs.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/users.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/poi.entity/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.filter/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/map/cluster/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/map/cluster/utils.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/poi.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/pole.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/pole.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/station.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/buttons/primary.button.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/buttons/primary.button.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/inputs/field.input.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/inputs/field.input.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/logout.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/logout.component/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/entities/types/Poi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Poi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/redux/reducer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/reducer.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/redux/saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/saga.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/auth/sign-in.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/sign-in.screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/utils.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/drawer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/Pole.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/export.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/menu.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/new/POI.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/poi.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/new/Segment.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/segment.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/new/parcel.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/parcel.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/new/pole.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/new/poles.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/new/station.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/station.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/parcel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/pexels-photo-414612.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/poi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/poi.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/pole.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/search.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/segment.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/show@1x.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/station.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/img/station.svg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
@@ -51,6 +57,9 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="survey-mobile" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -68,6 +77,7 @@
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -77,10 +87,11 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="C:/Program Files/nodejs/node" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
+    <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/screens/home" />
       <recent name="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects" />
       <recent name="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu" />
       <recent name="E:\surveyingapp-mobile\app\app.navigator" />
@@ -110,7 +121,9 @@
       <updated>1567603160294</updated>
       <workItem from="1567603167612" duration="41972000" />
       <workItem from="1567688003089" duration="41692000" />
-      <workItem from="1568013020722" duration="31505000" />
+      <workItem from="1568013020722" duration="67064000" />
+      <workItem from="1568187983929" duration="34026000" />
+      <workItem from="1568280913016" duration="21884000" />
     </task>
     <servers />
   </component>
@@ -122,10 +135,15 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>

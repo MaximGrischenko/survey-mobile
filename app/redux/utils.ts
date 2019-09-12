@@ -10,48 +10,58 @@ export const moment = (date) => {
     }
 }
 
-export const statuses = [
+export const parcel_statuses = [
     {
+        id: 1,
         value: 1,
-        text: 'Undefined'
+        title: 'Undefined'
     },
     {
+        id: 2,
         value: 2,
-        text: 'Permission grandted'
+        title: 'Permission grandted'
     },
     {
+        id: 3,
         value: 3,
-        text: 'no permission'
+        title: 'no permission'
     },
 ];
 
 export const segment_statuses = [
     {
+        id: 'puste',
         value: 'puste',
-        text: 'Puste'
+        title: 'Puste'
     },
     {
+        id: 'zadrzewione',
         value: 'zadrzewione',
-        text: 'Zadrzewione'
+        title: 'Zadrzewione'
     },
     {
+        id: 'pilne',
         value: 'pilne',
-        text: 'Pilne'
+        title: 'Pilne'
     },
     {
+        id: 'wylaczenie',
         value: 'wylaczenie',
-        text: 'Wylaczenie'
+        title: 'Wylaczenie'
     },
     {
+        id: 'serwis',
         value: 'serwis',
-        text: 'Serwis'
+        title: 'Serwis'
     },
     {
+        id: 'niezweryfikowane',
         value: 'niezweryfikowane',
-        text: 'Niezweryfikowane'
+        title: 'Niezweryfikowane'
     },
     {
+        id: 'brak zgody',
         value: 'brak zgody',
-        text: 'Brak Zgody'
+        title: 'Brak Zgody'
     },
 ];

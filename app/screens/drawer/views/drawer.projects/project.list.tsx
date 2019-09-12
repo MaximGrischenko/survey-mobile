@@ -9,8 +9,10 @@ import {fetchLocationPoi} from "../../../../redux/modules/map/poi";
 import {fetchProjectPowerlines} from "../../../../redux/modules/map/powerlines";
 import {showDialogContent} from "../../../../redux/modules/dialogs";
 import {fetchLocations, selectLocation} from "../../../../redux/modules/map/locations";
-import {View, Text, FlatList, StyleSheet, TouchableHighlight} from "react-native";
+import {View, Text, FlatList, StyleSheet, TouchableHighlight, Platform, TextInput, ScrollView} from "react-native";
 import {CirclesLoader} from 'react-native-indicator';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {COLORS} from "../../../../styles/colors";
 
 interface IMapProps {
     fetchLocationSegments: Function,
@@ -25,7 +27,16 @@ interface IMapProps {
     projects: Array<Project>
 }
 
-class ProjectList extends Component<IMapProps> {
+interface IMapState {
+    search: string
+}
+
+class ProjectList extends Component<IMapProps, IMapState> {
+
+    state = {
+        search: ''
+    };
+
     componentDidMount(): void {
         this.props.fetchLocations();
     }
@@ -51,35 +62,61 @@ class ProjectList extends Component<IMapProps> {
         );
     };
 
+    private onSearch = (value: string) => {
+        this.setState({
+            search: value
+        })
+    };
+
     render () {
-        console.log(this.props.projects);
         return (
-            <View style={localStyles.container}>
+            <View style={localStyles.wrapper}>
                 {
                     this.props.loading ? (
                         <CirclesLoader />
                     ) : (
-                        <FlatList
-                                  nestedScrollEnabled={true}
-                                  ItemSeparatorComponent={this.renderSeparator}
-                                  data={this.props.projects}
-                                  renderItem={({item, separators}) => {
-                                      let styleItem = [localStyles.item];
-                                      if (this.props.project && item.id === this.props.project.id) {
-                                          styleItem = [localStyles.itemSelected];
-                                      }
-                                      return (
-                                          <TouchableHighlight
-                                              onPress={() => this.selectProject(item)}
-                                              onShowUnderlay={separators.highlight}
-                                              onHideUnderlay={separators.unhighlight}>
-                                              <View style={{backgroundColor: 'white'}}>
-                                                  <Text style={styleItem}>{item.title}</Text>
-                                              </View>
-                                          </TouchableHighlight>
-                                      )
-                                  }}
-                        />
+                        <View style={localStyles.wrapper}>
+                            <View style={localStyles.search}>
+                                <Icon name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'} size={30} />
+                                <TextInput
+                                    style={localStyles.input}
+                                    placeholder={'Search project...'}
+                                    placeholderTextColor={COLORS.TEXT_COLOR}
+                                    onChangeText={this.onSearch}
+                                    value={this.state.search}
+                                />
+                            </View>
+                            <ScrollView contentContainerStyle={localStyles.scroll}>
+                                <FlatList
+                                    nestedScrollEnabled={true}
+                                    ItemSeparatorComponent={this.renderSeparator}
+                                    data={this.props.projects.filter((el) => {
+                                        if (this.state.search) {
+                                            return el.title.toLowerCase().match(this.state.search.toLowerCase())
+                                        } else {
+                                            return true
+                                        }
+                                    })}
+                                    renderItem={({item, separators}) => {
+                                        let styleItem = [localStyles.item];
+                                        if (this.props.project && item.id === this.props.project.id) {
+                                            styleItem = [localStyles.selected];
+                                        }
+                                        return (
+                                            <TouchableHighlight
+                                                onPress={() => this.selectProject(item)}
+                                                onShowUnderlay={separators.highlight}
+                                                onHideUnderlay={separators.unhighlight}>
+                                                <View style={{backgroundColor: 'white'}}>
+                                                    <Text style={styleItem}>{item.title}</Text>
+                                                </View>
+                                            </TouchableHighlight>
+                                        )
+                                    }}
+                                />
+                            </ScrollView>
+                        </View>
+
                     )
                 }
             </View>
@@ -88,22 +125,42 @@ class ProjectList extends Component<IMapProps> {
 }
 
 const localStyles = StyleSheet.create({
-    container: {
+    wrapper: {
         flex: 1,
+    },
+    search: {
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center'
+        alignSelf: 'center',
+        width: '70%',
+        paddingBottom: 20,
+        marginLeft: -30,
+    },
+    input: {
+        width: '100%',
+        height: 30,
+        marginLeft: 5,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.PRIMARY,
+        borderBottomEndRadius: 1,
+    },
+    scroll: {
+        flex: 1,
+        width: '100%',
     },
     item: {
         padding: 10,
         fontSize: 16,
         height: 40,
         opacity: 0.7,
+        width: '100%',
     },
-    itemSelected: {
+    selected: {
         padding: 10,
         fontSize: 16,
         height: 40,
         opacity: 1,
+        width: '100%',
     },
 });
 

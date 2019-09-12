@@ -78,14 +78,13 @@ class DialogContainer extends Component<IMapProps> {
             >
                 <View style={localStyles.container}>
                     {this.renderHeader()}
-                    <ScrollView>
+                    <View style={localStyles.container}>
                         {content ? content.content : null}
-                    </ScrollView>
+                    </View>
                 </View>
                 <View style={localStyles.controls}>
                     {this.renderControls('Cancel', this.onClose)}
                 </View>
-
             </Modal>
         )
     }

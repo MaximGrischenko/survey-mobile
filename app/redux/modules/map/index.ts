@@ -88,7 +88,7 @@ import *as POLES from "./poles";
 import *as PARCELS from "./parcels";
 import *as POWERLINES from "./powerlines";
 
-import {statuses, segment_statuses} from "../../utils";
+import {parcel_statuses, segment_statuses} from "../../utils";
 
 export * from './config';
 
@@ -108,8 +108,9 @@ const MapRecord = {
     locations: [],
     poles: [],
     stations: [],
-    parcelStatusSelected: statuses.map((el: any) => el.value),
-    segmentsStatusSelected: segment_statuses.map((el: any) => el.value),
+    categoryPoiSelected: [],
+    parcelsStatusSelected: parcel_statuses.map((el: any) => el.id),
+    segmentsStatusSelected: segment_statuses.map((el: any) => el.id),
     parcels: [],
     dateFilter: 'All',
     mapZoom: 5,
@@ -458,11 +459,16 @@ export const locationsSelector = createSelector(stateSelector, state => state.lo
 export const locationSelector = createSelector(stateSelector, state => state.location);
 export const powerlinesSelector = createSelector(stateSelector, state => state.powerlines.filter((el: any) => el.project_powerline.projectId === state.location.id));
 export const powerlineSelector = createSelector(stateSelector, state => state.selected_powerlines);
+export const categoryPoiSelected = createSelector(stateSelector, state => state.categoryPoiSelected);
 export const polesSelector = createSelector(stateSelector, state => state.poles);
 export const locationPoisSelector = createSelector(stateSelector, state => {
     const _m = moment(state.dateFilter);
-    return state.pois.filter((el: any) => {
-        return el.projectId === state.location.id && (state.dateFilter === 'All' || _m.isSameOrBefore(el.updatedAt))
+    return state.pois.filter((el: Poi) => {
+        return el.projectId === state.location.id &&
+            (state.dateFilter === 'All' || _m.isSameOrBefore(el.updatedAt)) &&
+            (
+                state.categoryPoiSelected.indexOf(el.categoryId) > -1
+            )
     })
 });
 export const locationPolesSelector = createSelector(stateSelector, state => {
@@ -476,7 +482,7 @@ export const locationParcelsSelector = createSelector(stateSelector, state => {
     return state.parcels.filter((el: any) => {
         return el.projectId === state.location.id &&
             (state.selected_powerlines.indexOf(el.powerLineId) > -1) &&
-            (state.dateFilter === 'All' || _m.isSameOrBefore(el.updatedAt)) && state.parcelStatusSelected.indexOf(el.status) > -1
+            (state.dateFilter === 'All' || _m.isSameOrBefore(el.updatedAt)) && state.parcelsStatusSelected.indexOf(el.status) > -1
     })
 });
 export const locationStationsSelector = createSelector(stateSelector, state => {
@@ -503,14 +509,14 @@ export const modesSelector = createSelector(stateSelector, state => state.drawMo
 export const lastGeoPostionsSelector = createSelector(stateSelector, state => state.tempPosition);
 
 
-export function changeContols(data: any) {
+export function changeControls(data: any) {
     return {
         type: CONTROLS_CHANGE,
         payload: data
     };
 }
 
-export const changeContolsSaga = function* (action: any) {
+export const changeControlsSaga = function* (action: any) {
     yield put({
         type: CONTROLS_CHANGE_SUCCESS,
         payload: action.payload
@@ -531,7 +537,7 @@ export const saga = function* () {
         takeEvery(FETCH_LOCATION_POLES, fetchLocationPolesSaga),
 
 
-        takeEvery(CONTROLS_CHANGE, changeContolsSaga),
+        takeEvery(CONTROLS_CHANGE, changeControlsSaga),
 
 
         takeEvery(ADD_PARCElS, addParcelSaga),

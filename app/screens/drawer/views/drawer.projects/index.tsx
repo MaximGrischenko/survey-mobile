@@ -51,10 +51,12 @@ const localStyles = StyleSheet.create({
     container: {
         paddingTop: 30,
         paddingBottom: 30,
+        borderBottomWidth: 1,
+        borderBottomColor: '#979797',
+        borderBottomEndRadius: 1,
     },
     titleContainer: {
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingBottom: 20,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
