@@ -2,54 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/app/components/checkbox/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/categories.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/config.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/logs.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/redux/modules/admin/users.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/poi.entity/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.filter/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/map/cluster/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/map/cluster/utils.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/poi.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/pole.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/pole.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/images/station.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/map/backup/map.backup.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/entities/types/Poi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Poi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/reducer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/reducer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/saga.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/auth/auth-loading.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/auth-loading.screen.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/Pole.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/export.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/logo.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/menu.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/new/POI.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/poi.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/new/Segment.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/segment.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/new/parcel.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/parcel.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/new/pole.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/new/poles.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/new/station.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/station.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/parcel.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/pexels-photo-414612.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/poi.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/poi.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/pole.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/search.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/segment.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/show@1x.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/station.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/images/img/station.svg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn-error.log" beforeDir="false" afterPath="$PROJECT_DIR$/yarn-error.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -123,7 +83,10 @@
       <workItem from="1567688003089" duration="41692000" />
       <workItem from="1568013020722" duration="67064000" />
       <workItem from="1568187983929" duration="34026000" />
-      <workItem from="1568280913016" duration="21884000" />
+      <workItem from="1568280913016" duration="33009000" />
+      <workItem from="1568371569995" duration="3961000" />
+      <workItem from="1568376230364" duration="224000" />
+      <workItem from="1568376461326" duration="10319000" />
     </task>
     <servers />
   </component>
