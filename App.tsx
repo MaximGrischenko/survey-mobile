@@ -8,7 +8,8 @@ import DialogContainer from './app/components/dialog.component';
 import {AppLoading} from "expo";
 import * as Font from 'expo-font';
 import {Asset} from 'expo-asset';
-import {Image} from "react-native";
+import {AsyncStorage, Image} from "react-native";
+import {applyHeader} from "./app/redux/modules/auth";
 
 function cacheImages(images) {
     return images.map(image => {
@@ -39,7 +40,10 @@ export default class App extends Component {
 
         const fontAssets = cacheFonts([]);
 
-        await Promise.all([...imageAssets, ...fontAssets]);
+        const token = await AsyncStorage.getItem('access_token');
+       // await applyHeader(token);
+
+        await Promise.all([...imageAssets, ...fontAssets, applyHeader(token)]);
     }
 
     render() {

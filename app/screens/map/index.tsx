@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
 import MapView from 'react-native-map-clustering';
-// import {Marker, Polygon, Polyline} from 'react-native-maps';
+
 import * as Location from "expo-location";
 import * as Permissions from 'expo-permissions';
 import {GPSCoordinate, Parcel, Poi, Pole, Project, Segment, Station} from "../../entities";

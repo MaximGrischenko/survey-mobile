@@ -11,23 +11,23 @@ import {
     Image
 } from 'react-native';
 
-import {AppLoading} from "expo";
-import * as Font from 'expo-font';
-import { Asset } from 'expo-asset';
-
-function cacheImages(images) {
-    return images.map(image => {
-       if(typeof image === 'string') {
-           return Image.prefetch(image);
-       } else {
-           return Asset.fromModule(image).downloadAsync();
-       }
-    });
-}
-
-function cacheFonts(fonts) {
-    return fonts.map(font => Font.loadAsync(font));
-}
+// import {AppLoading} from "expo";
+// import * as Font from 'expo-font';
+// import { Asset } from 'expo-asset';
+//
+// function cacheImages(images) {
+//     return images.map(image => {
+//        if(typeof image === 'string') {
+//            return Image.prefetch(image);
+//        } else {
+//            return Asset.fromModule(image).downloadAsync();
+//        }
+//     });
+// }
+//
+// function cacheFonts(fonts) {
+//     return fonts.map(font => Font.loadAsync(font));
+// }
 
 interface IMapProps {
     isChecked: boolean,
@@ -50,18 +50,20 @@ class AuthLoadingScreen extends Component<IMapProps> {
 
     constructor(props) {
         super(props);
-        this._bootstrapAsync();
+        this.props.loadUser();
+
+      //  this._bootstrapAsync();
     }
 
     componentDidUpdate(): void {
         this.props.navigation.navigate(this.props.user ? 'App' : 'Auth');
     }
 
-    _bootstrapAsync = async () => {
-        const token = await AsyncStorage.getItem('access_token');
-        await applyHeader(token);
-        this.props.loadUser();
-    };
+    // _bootstrapAsync = async () => {
+    //     // const token = await AsyncStorage.getItem('access_token');
+    //     // await applyHeader(token);
+    //
+    // };
 
     render() {
         return (
