@@ -89,6 +89,7 @@ import *as PARCELS from "./parcels";
 import *as POWERLINES from "./powerlines";
 
 import {parcel_statuses, segment_statuses} from "../../utils";
+import {AsyncStorage} from "react-native";
 
 export * from './config';
 
@@ -133,8 +134,16 @@ const MapRecord = {
     isChecked: false,
     error: null,
 };
-export const ReducerRecord: any = Record(_.cloneDeep(MapRecord));
 
+export async function applyGeoposition(location: any) {
+    if(location) {
+        await AsyncStorage.setItem('location', JSON.stringify(location));
+    } else {
+        await AsyncStorage.removeItem('location');
+    }
+}
+
+export const ReducerRecord: any = Record(_.cloneDeep(MapRecord));
 
 export const CONTROLS_CHANGE = `${appName}/${moduleName}/CONTROLS_CHANGE`;
 export const CONTROLS_CHANGE_SUCCESS = `${appName}/${moduleName}/CONTROLS_CHANGE_SUCCESS`;

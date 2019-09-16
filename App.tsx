@@ -7,9 +7,12 @@ import DialogContainer from './app/components/dialog.component';
 
 import {AppLoading} from "expo";
 import * as Font from 'expo-font';
+import * as Location from "expo-location";
+import * as Permissions from 'expo-permissions';
 import {Asset} from 'expo-asset';
 import {AsyncStorage, Image} from "react-native";
 import {applyHeader} from "./app/redux/modules/auth";
+import {applyGeoposition} from "./app/redux/modules/map";
 
 function cacheImages(images) {
     return images.map(image => {
@@ -27,7 +30,9 @@ function cacheFonts(fonts) {
 
 export default class App extends Component {
     state = {
-        isReady: false
+        isReady: false,
+       // mapCenter: null,
+
     };
 
     async _loadDataAsync() {
@@ -41,9 +46,31 @@ export default class App extends Component {
         const fontAssets = cacheFonts([]);
 
         const token = await AsyncStorage.getItem('access_token');
+
+        let hasLocationPermissions = false;
+        let locationResult =  null;
+
+        let {status} = await Permissions.askAsync(Permissions.LOCATION);
+
+        if(status !== 'granted') {
+            locationResult = 'Permission to access location was denied';
+        } else {
+            hasLocationPermissions =  true;
+        }
+
+        let location = await Location.getCurrentPositionAsync({
+            enableHighAccuracy: true, timeout: 20000,
+        });
+
+        // this.setState({
+        //    locationResult: JSON.stringify(location)
+        // });
+
        // await applyHeader(token);
 
-        await Promise.all([...imageAssets, ...fontAssets, applyHeader(token)]);
+        //TODO [...imageAssets, ...fontAssets], applyHeader(token), applyGeoposition(location)
+
+        await Promise.all([...imageAssets, ...fontAssets, applyHeader(token), applyGeoposition(location)]);
     }
 
     render() {

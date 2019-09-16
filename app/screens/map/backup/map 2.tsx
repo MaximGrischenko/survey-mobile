@@ -4,6 +4,8 @@ import {bindActionCreators} from 'redux';
 
 import MapView from 'react-native-map-clustering';
 import {Marker, Polygon, Polyline} from "react-native-maps";
+import * as Location from "expo-location";
+import * as Permissions from 'expo-permissions';
 import {GPSCoordinate, Parcel, Poi, Pole, Project, Segment, Station} from "../../entities";
 import {
     locationParcelsSelector, locationPoisSelector,
@@ -14,10 +16,7 @@ import {
 } from "../../redux/modules/map";
 import {showDialogContent} from "../../redux/modules/dialogs";
 import {parcel_statuses, segment_statuses} from "../../redux/utils";
-import {AsyncStorage, Image, View} from "react-native";
-import {Text} from 'react-native';
-
-import EditStationDialog from './dialogs/edit.station';
+import {AsyncStorage} from "react-native";
 
 interface IMapProps {
     project: Project,
@@ -42,7 +41,7 @@ class MapScreen extends Component<IMapProps> {
     private map: any;
 
     state = {
-        //mapRegion: this.props.mapCenter,
+        mapRegion: this.props.mapCenter,
         location: this.props.mapCenter,
         // mapCenter: null,
         // hasLocationPermissions: false,
@@ -54,10 +53,33 @@ class MapScreen extends Component<IMapProps> {
     }
 
     private getLocationAsync = async () => {
+        // let {status} = await Permissions.askAsync(Permissions.LOCATION);
+        // if(status !== 'granted') {
+        //     this.setState({
+        //        locationResult: 'Permission to access location was denied'
+        //     });
+        // } else {
+        //     this.setState({
+        //         hasLocationPermissions: true
+        //     })
+        // }
+        //
+        // let location = await Location.getCurrentPositionAsync({});
+        // this.setState({
+        //     locationResult: JSON.stringify(location)
+        // });
+        //
+        // this.setState({
+        //    mapCenter: {
+        //        latitude: location.coords.latitude,
+        //        longitude: location.coords.longitude
+        //    }
+        // });
+
         let location = await AsyncStorage.getItem('location');
         if(location) {
             const GEOPosition = JSON.parse(location);
-            //console.log(GEOPosition.coords.latitude);
+            //console.log(GEOPosition);
             this.setState({
                 location: {
                     latitude: GEOPosition.coords.latitude,
@@ -90,20 +112,7 @@ class MapScreen extends Component<IMapProps> {
     }
 
     private showDialog = (marker) => {
-        const {showDialogContent} = this.props;
 
-        if (marker instanceof Station) {
-            showDialogContent(
-                {
-                    content: (
-                        <EditStationDialog selectedItem={marker} />
-                    ),
-                    header: (
-                        <Text>Edit Stations ({marker.id})</Text>
-                    )
-                }
-            );
-        }
     };
 
     private onMapClick() {}
@@ -259,12 +268,12 @@ class MapScreen extends Component<IMapProps> {
             showPoles,
             showPois,
         } = this.props;
-
+        console.log('center', location);
         return (
             <MapView
                 style={{flex: 1}}
                 onPress={this.onMapClick}
-                //onRegionChange={this.handleMapRegionChange}
+                // onRegionChange={this.handleMapRegionChange}
                 ref={ref => {
                     this.map = ref;
                 }}

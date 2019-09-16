@@ -40,7 +40,7 @@ class DialogContainer extends Component<IMapProps> {
 
     private renderControls = (text, onPress) => {
         return (
-            <View>
+            <View style={localStyles.controls}>
                 {
                     this.props.dialogSaveBtn ? this.props.dialogSaveBtn : null
                 }
@@ -81,10 +81,11 @@ class DialogContainer extends Component<IMapProps> {
                     <View style={localStyles.container}>
                         {content ? content.content : null}
                     </View>
-                </View>
-                <View style={localStyles.controls}>
                     {this.renderControls('Cancel', this.onClose)}
                 </View>
+                {/*<View style={localStyles.controls}>*/}
+                {/*    */}
+                {/*</View>*/}
             </Modal>
         )
     }
@@ -110,7 +111,7 @@ const localStyles = StyleSheet.create({
     controls: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'flex-start',
         paddingTop: 10,
     }
 });
