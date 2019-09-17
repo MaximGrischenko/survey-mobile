@@ -3,15 +3,16 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
 import HeaderComponent from "../components/header.component";
-import MainApp from './drawer.navigator';
+import DrawerNavigator from './drawer.navigator';
 import SignInScreen from '../screens/auth/sign-in.screen';
 import ForgotPswScreen from '../screens/auth/forgot-psw.screen';
 import AuthLoadingScreen from '../screens/auth/auth-loading.screen';
 
+
 const AppStack = createStackNavigator({
    MainApp: {
-       screen: MainApp,
-       navigationOptions: ({navigation}) => ({
+       screen: DrawerNavigator,
+       navigationOptions: ({navigation}): { header: any } => ({
            header: (
                <HeaderComponent navigation={navigation}/>
            )

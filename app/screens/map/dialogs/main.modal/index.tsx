@@ -1,12 +1,16 @@
 import React, {Component} from 'react';
 
-import {Upload, Pole, Parcel, Segment, Station, Category, Project} from "../../../../entities";
+import {Upload, Pole, Parcel, Segment, Station, Category, Project, Powerline} from "../../../../entities";
 import {segment_statuses, parcel_statuses, segment_operation_type, checkError} from "../../../../redux/utils";
 
 import {Form, Field} from 'react-native-validate-form';
 import {View, Text, Platform, TouchableOpacity, StyleSheet, TextInput, Slider, ScrollView} from 'react-native';
+import { Dropdown } from 'react-native-material-dropdown';
 import Icon from "react-native-vector-icons/Ionicons";
 import {InputField, required} from "../../../../components/inputs/field.input";
+import {TextField} from 'react-native-material-textfield';
+import MultiSelect from "react-native-multiple-select";
+import NumericInput from 'react-native-numeric-input';
 import {PrimaryButton} from "../../../../components/buttons/primary.button";
 
 interface IMapProps {
@@ -17,6 +21,7 @@ interface IMapProps {
     location: any,
     categories: Array<Category>,
     projects: Array<Project>,
+    powerlines: Array<Powerline>,
     tempPosition: Array<any>,
     onFinishEditItem: Function,
     changeControls: Function,
@@ -51,6 +56,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     static defaultProps: {
         categories: [],
         projects: [],
+        powerlines: [],
         itemsList: null,
         position: null,
         tempPosition: [],
@@ -70,6 +76,8 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         }
     }
 
+    private Select: any = null;
+
     componentDidMount(): void {
         this.props.setDialogSaveButton(
             (
@@ -82,6 +90,10 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         )
     }
 
+    componentWillUnmount(): void {
+        this.props.setDialogSaveButton(null)
+    }
+
     componentWillReceiveProps(nextProps: any, nextContext: any): void {
         checkError(nextProps, this.props, () => 1, this.refs.toast);
         if (nextProps.itemsList !== this.props.itemsList) {
@@ -89,6 +101,37 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             this.handleCancel({});
         }
     }
+
+    private onFieldChange = (key: string) => {
+        return (val: any) => {
+            const newState: any ={
+                [key]: val
+            };
+            this.setState(newState);
+        }
+    };
+
+    private onChange = (e: any) => {
+        let value = e.target.value;
+        if(e.target.getAttribute instanceof Function && e.target.getAttribute('type') === 'number') {
+            value = parseFloat(value);
+            const min = parseInt(e.target.getAttribute('min'));
+            const max = parseInt(e.target.getAttribute('max'));
+            if(!isNaN(max) && value > max) {
+                value = max;
+            }
+            if(!isNaN(min) && value < min) {
+                value = min;
+            }
+        }
+
+        const newState: any = {
+            [e.target.name]: value
+        };
+
+        console.log('state', newState);
+        this.setState(newState);
+    };
 
     protected handleOk = async (e: any) => {
         try {
@@ -114,6 +157,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         const fields = [];
         const {state} = this;
         const {isAdmin} = this.props;
+
         if (this.type === TYPES.PARCEL) {
             fields.push(
                 {
@@ -129,10 +173,17 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             );
         } else if (this.type === TYPES.POLE) {
             fields.push(
+                {
+                    title: 'Powerline',
+                    name: 'powerLineId',
+                    options: this.props.powerlines.map((el: any) => ({
+                        text: el.title,
+                        value: el.id
+                    })),
+                },
                 ...Pole.edit_keys.map((el: string) => ({
                     title: el,
-                    name: el,
-                    disabled:!isAdmin
+                    name: el
                 }))
             );
         } else if (this.type === TYPES.SEGMENT) {
@@ -152,7 +203,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     disabled:!isAdmin
                 },
                 {
-                    type: 6,
+                    type: 2,
                     step: 1,
                     min: 0,
                     max: 10,
@@ -160,7 +211,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     title: 'Distance lateral'
                 },
                 {
-                    type: 6,
+                    type: 2,
                     step: 1,
                     min: 0,
                     max: 15,
@@ -173,7 +224,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     disabled:!isAdmin
                 }))
             );
-
             if (state.status === segment_statuses[3].value) {
                 fields.push(
                     {
@@ -207,19 +257,23 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                         type: 3,
                         name: 'operation_type',
                         title: 'Operation type',
-                        options: segment_operation_type
+                        options: segment_operation_type.map((el: any) => ({
+                            value: el.value,
+                            text: el.text,
+                            name: el.text,
+                            id: el.id
+                        }))
                     },
-                    {
-                        type: 6,
-                        step: 1,
-                        min: 1,
-                        max: 12,
-                        name: 'time_of_operation',
-                        title: 'time of operation'
-                    },
+                    // {
+                    //     type: 6,
+                    //     step: 1,
+                    //     min: 1,
+                    //     max: 12,
+                    //     name: 'time_of_operation',
+                    //     title: 'time of operation'
+                    // },
                 );
             }
-
             if ([
                 segment_statuses[4].value
             ].indexOf(state.status) > -1
@@ -249,8 +303,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     title: 'Notes'
                 }
             );
-
-
         } else if (this.type === TYPES.STATION) {
             fields.push(
                 ...Station.edit_keys.map((el: string) => ({
@@ -290,21 +342,106 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         const {title, comment}: any = this.state;
         const {selectedItem}: any = this.props;
         const fields = this.getFields();
-
+        console.log(this.state);
         const {isAdmin} = this.props;
 
         return (
             <ScrollView>
-                <Form>
-                    {fields.map((el: any) => {
-                        if(el.type === TYPES.STATION) {
-                            return (
-                                <View key={el.name}>
-
-                                </View>
-                            )
-                        }
-                    })}
+                <Form style={localStyles.form}>
+                    {
+                        fields.map((el: any) => {
+                            if(el.type === 2) {
+                                return (
+                                    <View key={el.name} style={localStyles.distance}>
+                                        <Text style={localStyles.label}>{el.name}:</Text>
+                                        <NumericInput
+                                            value={state[el.name]}
+                                            minValue={el.min}
+                                            maxValue={el.max}
+                                            onChange={(value) => this.onChange({target: {name: el.name, value}})}
+                                            totalWidth={200}
+                                            totalHeight={40}
+                                            type={'up-down'}
+                                            iconSize={15}
+                                            step={0.01}
+                                            valueType='real'
+                                        />
+                                    </View>
+                                )
+                            } else if(el.type === 3) {
+                                return (
+                                    <View key={el.name} style={{paddingTop: 20}}>
+                                        <MultiSelect
+                                            hideSubmitButton={true}
+                                            uniqueKey={'name'}
+                                            selectText={el.name}
+                                            styleDropdownMenuSubsection={{height: 60, paddingLeft: 10}}
+                                            styleInputGroup={{height: 60}}
+                                            ref={(ref) => { this.Select = ref }}
+                                            searchInputStyle={{height: 40, color: '#000'}}
+                                            styleRowList={{height: 40}}
+                                            textColor={'#000'}
+                                            itemTextColor={'#000'}
+                                            searchInputPlaceholderText={'Search...'}
+                                            selectedItems={state[el.name]}
+                                            items={el.options}
+                                            onSelectedItemsChange={(value) => this.onChange({target: {name: el.name, value}})}
+                                        />
+                                    </View>
+                                )
+                            } else if(el.options) {
+                                return (
+                                    <Field
+                                        key={el.name}
+                                        onChanheText={this.onFieldChange(el.name)}
+                                        label={el.name}
+                                        placeholder={el.name}
+                                        value={state[el.name]}
+                                        data={el.options.map((el: any) => ({
+                                            label: el.text,
+                                            value: el.value
+                                        }))}
+                                        component={Dropdown}
+                                    />
+                                )
+                            } else {
+                                return (
+                                    <Field
+                                        key={el.name}
+                                        required
+                                        label={el.name}
+                                        placeholder={`Enter ${el.name}`}
+                                        component={TextField}
+                                        count={0}
+                                        validations={[required]}
+                                        name={el.name}
+                                        value={state[el.name]}
+                                        disabled={el.disabled}
+                                        onChangeText={this.onFieldChange(el.name)}
+                                        customStyle={{width: '100%'}}
+                                    />
+                                )
+                            }
+                        })
+                    }
+                    {
+                        this.editTitle ? (
+                            <View style={localStyles.comment}>
+                                <Field
+                                    required
+                                    component = {InputField}
+                                    placeholder = "Enter Comment"
+                                    validations ={[required]}
+                                    name ={ 'comment'}
+                                    multiline = {true}
+                                    numberOfLines = {5}
+                                    value = {comment}
+                                    onChangeText = {this.onFieldChange('comment')}
+                                    customStyle = {{width: '100%', height: 150}}
+                                />
+                            </View>
+                        ) : null
+                    }
                 </Form>
             </ScrollView>
         )
@@ -312,5 +449,23 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
 }
 
 const localStyles = StyleSheet.create({
-    modalTitle: {}
+    modalTitle: {},
+    form: {
+        paddingLeft: 10,
+        paddingRight: 10,
+    },
+    distance: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 10,
+        marginBottom: 10
+    },
+    label: {
+        marginRight: 20
+    },
+    comment: {
+        marginTop: 30
+    }
 });

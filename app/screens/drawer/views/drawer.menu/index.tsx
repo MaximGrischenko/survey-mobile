@@ -51,14 +51,14 @@ class DrawerMenu extends Component<IMapProps, IMapState> {
                     <Text style={{marginTop: 10}}>Map</Text>
                 </TouchableOpacity>
 
-                <View style={localStyles.item}>
+                <TouchableOpacity style={localStyles.item} onPress={() => navigation.navigate('Tables')}>
                     <SvgUri
                         width={Dimensions.get('window').width * 0.2}
                         height={28}
                         source={require('../../../../../assets/images/table.svg')}
                     />
                     <Text style={{marginTop: 10}}>Table</Text>
-                </View>
+                </TouchableOpacity>
             </View>
         )
     }

@@ -16,7 +16,6 @@ interface IMapProps {
     user: any,
     loading: boolean,
     authError: any,
-    signIn: Function,
     changeSettings: Function,
     navigation: NavigationScreenProp<NavigationState, NavigationParams>
 }
@@ -108,6 +107,7 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
             <View style={localStyles.container}>
                 <Text style={localStyles.title}>Reset Password</Text>
                 <Form
+                    style={localStyles.form}
                     ref={(ref) => this.ResetPswForm = ref}
                     validate={true}
                     errors={this.state.errors}
@@ -123,16 +123,12 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
                         onChangeText={(email) => this.onChange({email})}
                     />
                 </Form>
-                <View style={localStyles.link}>
-                    <PrimaryButton
-                        variant={'secondary'}
-                        style={localStyles.controls}
-                        textStyle={{display:'flex', alignSelf: 'flex-end'}}
-                        title={'Back to Login'}
-                        disabled={this.props.loading}
-                        onPress={this.submitForm}
-                    />
-                </View>
+                <PrimaryButton
+                    variant={'secondary'}
+                    style={localStyles.link}
+                    title={'Back to Login'}
+                    onPress={this.onBack}
+                />
                 <PrimaryButton
                     style={localStyles.controls}
                     title={'Reset password!'}
@@ -142,7 +138,7 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
                 {
                     authError ? (
                         <Text style={{color: 'red'}}>
-                            User not found
+                            Error! Either email or password are wrong. Please try again
                         </Text>
                     ) : null
                 }
@@ -165,16 +161,20 @@ const localStyles = StyleSheet.create({
     },
     form: {
         width: Dimensions.get('window').width - 20,
-        paddingTop: 30,
-        paddingBottom: 10,
+        paddingTop: 20,
     },
     field: {
         width: '100%',
-        marginTop: 10,
-        marginBottom: 10,
+        marginTop: 20,
     },
     link: {
+        display: 'flex',
+        alignSelf: 'flex-end',
+        marginRight: 10,
+        marginTop: 20,
         marginBottom: 40,
+        height: 20,
+        maxWidth: 150,
     },
     controls: {
         width: Dimensions.get('window').width - 20,
@@ -182,10 +182,10 @@ const localStyles = StyleSheet.create({
 });
 
 const mapStateToProps = (state: any) => ({
-    refreshed: state[moduleName].refreshed,
-    user: userSelector(state),
-    authError: state[moduleName].authError,
-    loading: state[moduleName].loading
+   refreshed: state[moduleName].refreshed,
+   user: userSelector(state),
+   authError: state[moduleName].error,
+   loading: state[moduleName].loading
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -195,4 +195,5 @@ const mapDispatchToProps = (dispatch: any) => (
     }, dispatch)
 );
 
-export default connect(mapDispatchToProps, mapStateToProps)(ForgotPswScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(ForgotPswScreen);
+// export default ForgotPswScreen;

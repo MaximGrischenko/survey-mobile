@@ -42,14 +42,17 @@ export const checkError = (nextProps: any, curProps: any, onSuccess: Function, t
 
 export const segment_operation_type = [
     {
+        id: 1,
         value: 'mulcher giraffe',
         text: 'mulcher giraffe'
     },
     {
+        id: 2,
         value: 'chainsaw',
         text: 'chainsaw'
     },
     {
+        id: 3,
         value: 'arborists',
         text: 'arborists'
     }

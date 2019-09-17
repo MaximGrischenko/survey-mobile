@@ -59,6 +59,13 @@ class AuthLoadingScreen extends Component<IMapProps> {
         this.props.navigation.navigate(this.props.user ? 'App' : 'Auth');
     }
 
+    // componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
+    //
+    //     if (nextProps.isChecked && nextProps.isChecked !== this.props.isChecked) {
+    //         this.props.navigation.navigate(nextProps.user ? 'App' : 'Auth');
+    //     }
+    // }
+
     // _bootstrapAsync = async () => {
     //     // const token = await AsyncStorage.getItem('access_token');
     //     // await applyHeader(token);

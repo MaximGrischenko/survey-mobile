@@ -18,6 +18,9 @@ import {AsyncStorage, Image, View} from "react-native";
 import {Text} from 'react-native';
 
 import EditStationDialog from './dialogs/edit.station';
+import EditParcelDialog from './dialogs/edit.parcel';
+import EditSegmentDialog from './dialogs/edit.segment';
+import EditPoleDialog from './dialogs/edit.pole';
 
 interface IMapProps {
     project: Project,
@@ -100,6 +103,39 @@ class MapScreen extends Component<IMapProps> {
                     ),
                     header: (
                         <Text>Edit Stations ({marker.id})</Text>
+                    )
+                }
+            );
+        } else if (marker instanceof Parcel) {
+            showDialogContent(
+                {
+                    content: (
+                        <EditParcelDialog selectedItem={marker}/>
+                    ),
+                    header: (
+                        <Text>Edit Parcel ({marker.id})</Text>
+                    )
+                }
+            );
+        } else if (marker instanceof Pole) {
+            showDialogContent(
+                {
+                    content: (
+                        <EditPoleDialog selectedItem={marker} />
+                    ),
+                    header: (
+                        <Text>Edit Pole ({marker.id})</Text>
+                    )
+                }
+            );
+        } else if (marker instanceof Segment) {
+            showDialogContent(
+                {
+                    content: (
+                        <EditSegmentDialog selectedItem={marker} />
+                    ),
+                    header: (
+                        <Text>Edit Segment ({marker.id})</Text>
                     )
                 }
             );

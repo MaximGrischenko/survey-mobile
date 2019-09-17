@@ -1,32 +1,31 @@
-import React from 'react';
-import {bindActionCreators} from "redux";
+import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {ActivityIndicator, Dimensions, StyleSheet, Text, View} from 'react-native';
-import {Form, Field} from 'react-native-validate-form';
+import {bindActionCreators} from 'redux';
 import {NavigationParams, NavigationScreenProp, NavigationState} from "react-navigation";
+import {ActivityIndicator, Dimensions, StyleSheet, Text, View} from "react-native";
 import {Image} from 'react-native-elements';
-import {InputField, email, required} from "../../components/inputs/field.input";
-import { TextField } from 'react-native-material-textfield';
+import {Form, Field} from 'react-native-validate-form';
+import {email, InputField, required} from "../../components/inputs/field.input";
 import {PrimaryButton} from "../../components/buttons/primary.button";
-import {moduleName, userSelector, signIn, changeSettings} from '../../redux/modules/auth';
+import {changeSettings, reqResetPsw, moduleName, userSelector} from "../../redux/modules/auth";
 import {COLORS} from "../../styles/colors";
 
 interface IMapProps {
+    reqResetPsw: any,
+    refreshed: any,
     user: any,
-    loading: any,
+    loading: boolean,
     authError: any,
     changeSettings: Function,
-    signIn: Function,
     navigation: NavigationScreenProp<NavigationState, NavigationParams>
 }
 
 interface IMapState {
     email: string,
-    password: string,
     errors: Array<any>
 }
 
-class SignInScreen extends React.Component<IMapProps, IMapState> {
+class TablesScreen extends Component<IMapProps, IMapState> {
     static navigationOptions = {
         header:
             <View style={{
@@ -49,16 +48,14 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
             </View>
     };
 
-    private SignInForm: any;
+    private ResetPswForm: any;
 
     state = {
-        pending: false,
         email: '',
-        password: '',
-        errors: [],
+        errors: []
     };
 
-    componentDidMount():void {
+    componentDidMount(): void {
         this.props.changeSettings({});
     }
 
@@ -66,14 +63,17 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
         if(nextProps.user !== this.props.user) {
             this.props.navigation.navigate('App');
         }
+        if(nextProps.refreshed !== this.props.refreshed) {
+            this.props.navigation.navigate('SignIn');
+        }
     }
 
-    private onForgotPsw = () => {
-        this.props.navigation.navigate('ForgotPsw');
+    private onBack = () => {
+        this.props.navigation.navigate('SignIn');
     };
 
-    private submitForm = () => {
-        let submitResult = this.SignInForm.validate();
+    private submitForm = async () => {
+        let submitResult = this.ResetPswForm.validate();
         let errors = [];
 
         submitResult.forEach(item => {
@@ -83,14 +83,18 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
         this.setState({errors: errors});
 
         if(errors.filter((el: any) => el.error).length === 0) {
-            const newState: any = {pending: true};
-            this.setState(newState);
-            this.props.signIn(this.state);
+            try {
+                const newState: any = {pending: true};
+                this.setState(newState);
+                await this.props.reqResetPsw(this.state);
+            } catch {
+
+            }
         }
     };
 
     private onChange = (state) => {
-        // this.props.changeSettings({});
+        this.props.changeSettings({});
         this.setState({
             ...state,
             errors: []
@@ -101,46 +105,33 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
         const {authError} = this.props;
         return (
             <View style={localStyles.container}>
-                <Text style={localStyles.title}>Welcome</Text>
+                <Text style={localStyles.title}>Reset Password</Text>
                 <Form
                     style={localStyles.form}
-                    ref={(ref) => this.SignInForm = ref}
+                    ref={(ref) => this.ResetPswForm = ref}
                     validate={true}
                     errors={this.state.errors}
                 >
                     <Field
-                        customStyle={localStyles.field}
-                        required
-                        label={'Email'}
+                        style={localStyles.field}
+                        requered
                         placeholder='Enter email'
                         component={InputField}
-                        validations={[required, email]}
+                        validation={[required, email]}
                         name='email'
                         value={this.state.email}
                         onChangeText={(email) => this.onChange({email})}
-                    />
-
-                    <Field
-                        customStyle={localStyles.field}
-                        required
-                        label={'Password'}
-                        secureTextEntry={true}
-                        placeholder='Enter password'
-                        component={InputField}
-                        validations={[required]}
-                        name='password'
-                        onChangeText={(password) => this.onChange({password})}
                     />
                 </Form>
                 <PrimaryButton
                     variant={'secondary'}
                     style={localStyles.link}
-                    title={'Forgot password?'}
-                    onPress={this.onForgotPsw}
+                    title={'Back to Login'}
+                    onPress={this.onBack}
                 />
                 <PrimaryButton
                     style={localStyles.controls}
-                    title={'Sign in'}
+                    title={'Reset password!'}
                     disabled={this.props.loading}
                     onPress={this.submitForm}
                 />
@@ -191,16 +182,18 @@ const localStyles = StyleSheet.create({
 });
 
 const mapStateToProps = (state: any) => ({
+    refreshed: state[moduleName].refreshed,
     user: userSelector(state),
     authError: state[moduleName].error,
-    loading: state[moduleName].loading,
+    loading: state[moduleName].loading
 });
 
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         changeSettings,
-        signIn
+        reqResetPsw,
     }, dispatch)
 );
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignInScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(TablesScreen);
+// export default ForgotPswScreen;

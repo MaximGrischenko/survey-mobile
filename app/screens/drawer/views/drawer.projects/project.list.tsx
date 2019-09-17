@@ -116,7 +116,6 @@ class ProjectList extends Component<IMapProps, IMapState> {
                                 />
                             </ScrollView>
                         </View>
-
                     )
                 }
             </View>

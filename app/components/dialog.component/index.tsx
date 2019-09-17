@@ -113,6 +113,7 @@ const localStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         paddingTop: 10,
+        paddingLeft: 20
     }
 });
 
