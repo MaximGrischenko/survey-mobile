@@ -26,26 +26,29 @@ interface IMapState {
 }
 
 class TablesScreen extends Component<IMapProps, IMapState> {
+    // static navigationOptions = {
+    //     header:
+    //         <View style={{
+    //             position: 'absolute',
+    //             top: 45,
+    //             height: 60,
+    //             width: Dimensions.get('window').width - 20,
+    //             backgroundColor: 'f2f2f2',
+    //             display: 'flex',
+    //             flexDirection: 'row',
+    //             alignSelf: 'center',
+    //             alignItems: 'center',
+    //             justifyContent: 'center',
+    //         }}>
+    //             <Image
+    //                 style={{height: 35, width: 270}}
+    //                 source={require('../../../assets/images/logo.png')}
+    //                 PlaceholderContent={<ActivityIndicator/>}
+    //             />
+    //         </View>
+    // };
     static navigationOptions = {
-        header:
-            <View style={{
-                position: 'absolute',
-                top: 45,
-                height: 60,
-                width: Dimensions.get('window').width - 20,
-                backgroundColor: 'f2f2f2',
-                display: 'flex',
-                flexDirection: 'row',
-                alignSelf: 'center',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
-                <Image
-                    style={{height: 35, width: 270}}
-                    source={require('../../../assets/images/logo.png')}
-                    PlaceholderContent={<ActivityIndicator/>}
-                />
-            </View>
+        header: null
     };
 
     private ResetPswForm: any;
@@ -57,6 +60,7 @@ class TablesScreen extends Component<IMapProps, IMapState> {
 
     componentDidMount(): void {
         this.props.changeSettings({});
+        console.log(this.props.navigation.state.params);
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {

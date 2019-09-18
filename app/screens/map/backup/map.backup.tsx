@@ -116,7 +116,6 @@ class MapScreen extends Component<IMapProps, IMapState> {
     private renderStations = (stations: Array<Station>, show: boolean, search: string) => {
 
         this.cluster.filter((entity) => entity.type !== this.MARKER_TYPE.STATION);
-        console.log('before', this.cluster, 'show', show);
 
         if(!show || !stations.length) return;
 
@@ -204,7 +203,6 @@ class MapScreen extends Component<IMapProps, IMapState> {
     //     //     strokeColor = marker.status === statuses[0].value ? 'blue' : (marker.status === statuses[1].value ? 'green' : 'red');
     //     // });
     //
-    //     console.log('in render segments', markers[0].pathList);
     //
     //     return markers.map((marker: Segment) => (
     //         <Polyline
@@ -282,8 +280,6 @@ class MapScreen extends Component<IMapProps, IMapState> {
     //         this.points.push({location: this.props.segments[i].pathList[0]});
     //     }
     //
-    //     //console.log('in get points', this.props.segments[0].pathList);
-    //     console.log('in get points', lines);
     // };
 
     //
@@ -302,13 +298,6 @@ class MapScreen extends Component<IMapProps, IMapState> {
             mapCenter, showStations
         } = this.props;
 
-        //
-        // console.log(this.cluster);
-        //
-        // console.log('point', this.cluster.slice(0, 3));
-        // console.log('data', data);
-        console.log(this.map);
-        console.log('after', this.cluster);
         return (
             <ClusteredMapView style={{flex: 1}}
                               ref={ref => this.map = ref}

@@ -2,27 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/map/dialogs/edit.parcel/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/map/dialogs/edit.pole/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/map/dialogs/edit.segment/index.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/screens/tables/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/tables.header/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/tables/station.list/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/styles/GlobalStyles.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/app.navigator/drawer.navigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.navigator/drawer.navigator.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/app.navigator/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.navigator/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/inputs/field.input.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/inputs/field.input.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/entities/types/Segment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Segment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/auth/auth-loading.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/auth-loading.screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/auth/forgot-psw.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/forgot-psw.screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/auth/sign-in.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/sign-in.screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/header.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/app.header/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/backup/map 2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/backup/map 2.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/backup/map.backup.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/backup/map.backup.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/dialogs/edit.pole/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/dialogs/edit.pole/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/dialogs/main.modal/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/tables/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/tables/index.tsx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -36,8 +31,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="TypeScript JSX File" />
         <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -52,7 +47,7 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/components/tables.header" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -62,6 +57,9 @@
     <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/components/tables.header" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app/screens/home" />
       <recent name="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects" />
@@ -99,7 +97,7 @@
       <workItem from="1568371569995" duration="3961000" />
       <workItem from="1568376230364" duration="224000" />
       <workItem from="1568376461326" duration="41792000" />
-      <workItem from="1568708203280" duration="32967000" />
+      <workItem from="1568708203280" duration="55520000" />
     </task>
     <servers />
   </component>

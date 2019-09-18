@@ -15,7 +15,6 @@ class EditPoleDialog extends MainModalDialog {
     }
 
     render() {
-        console.log(this.props.powerlines);
         return super._render();
     }
 }

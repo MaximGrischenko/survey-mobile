@@ -79,7 +79,6 @@ class MapScreen extends Component<IMapProps> {
         let location = await AsyncStorage.getItem('location');
         if(location) {
             const GEOPosition = JSON.parse(location);
-            //console.log(GEOPosition);
             this.setState({
                 location: {
                     latitude: GEOPosition.coords.latitude,
@@ -268,7 +267,6 @@ class MapScreen extends Component<IMapProps> {
             showPoles,
             showPois,
         } = this.props;
-        console.log('center', location);
         return (
             <MapView
                 style={{flex: 1}}

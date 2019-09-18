@@ -169,7 +169,6 @@ export function changeSettings(data: any) {
 }
 
 export function signOut() {
-    console.log('Sign Out');
     return {
         type: SIGN_OUT,
     };

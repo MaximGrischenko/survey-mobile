@@ -18,7 +18,7 @@ interface IMapProps {
     search: string,
 }
 
-class HeaderComponent extends Component<IMapProps> {
+class AppHeader extends Component<IMapProps> {
 
     private onChangeText = (value) => {
 
@@ -107,4 +107,4 @@ const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({}, dispatch)
 );
 
-export default connect(mapStateToProps, mapDispatchToProps)(HeaderComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(AppHeader);

@@ -5,17 +5,11 @@ import {Dimensions} from "react-native";
 import {HomeScreen} from '../screens/home';
 
 import DrawerScreen from '../screens/drawer';
-import TabNavigator from "./tabbar.navigator";
-
 
 const DrawerNavigator = createDrawerNavigator(
     {
-        // Home: HomeScreen,
         Home: {
             screen: HomeScreen,
-        },
-        Tables: {
-            screen: TabNavigator,
         }
     },
     {

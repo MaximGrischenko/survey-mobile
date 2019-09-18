@@ -35,6 +35,7 @@ interface IMapProps {
 interface IMapState {
     uploads: Array<Upload>,
     errors: any,
+    status: any,
     canDelete: boolean,
     __pending: boolean
 }
@@ -129,7 +130,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             [e.target.name]: value
         };
 
-        console.log('state', newState);
         this.setState(newState);
     };
 
@@ -342,7 +342,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         const {title, comment}: any = this.state;
         const {selectedItem}: any = this.props;
         const fields = this.getFields();
-        console.log(this.state);
         const {isAdmin} = this.props;
 
         return (
