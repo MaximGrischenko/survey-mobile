@@ -2,18 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/app/screens/map/dialogs/add.poi/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/app.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/app.header/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/buttons/fab.button.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/buttons/fab.button.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.filter/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.filter/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/lists/parcel.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/parcel.list/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/lists/pole.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/pole.list/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/lists/segment.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/segment.list/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/lists/station.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/station.list/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/dialogs/main.modal/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -94,7 +83,7 @@
       <workItem from="1568371569995" duration="3961000" />
       <workItem from="1568376230364" duration="224000" />
       <workItem from="1568376461326" duration="41792000" />
-      <workItem from="1568708203280" duration="74713000" />
+      <workItem from="1568708203280" duration="75862000" />
     </task>
     <servers />
   </component>

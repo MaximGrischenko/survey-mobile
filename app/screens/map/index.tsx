@@ -165,24 +165,23 @@ class MapScreen extends Component<IMapProps> {
         })
     };
 
-    private onMapClick(e: any) {
-       // const {project, showDialogContent} = this.props;
-        console.log(e);
-        // if (!project) {
-        //     return showDialogContent(
-        //         {
-        //             content: (
-        //                 <Text>Please select Project first</Text>
-        //             ),
-        //             header: (
-        //                 <Text>Warning</Text>
-        //             )
-        //         }
-        //     )
-        // }
+    private onMapClick = (e: any) => {
+        const {project, showDialogContent} = this.props;
+        if (!project) {
+            return showDialogContent(
+                {
+                    content: (
+                        <Text>Please select Project first</Text>
+                    ),
+                    header: (
+                        <Text>Warning</Text>
+                    )
+                }
+            )
+        }
 
         this.drawInMap(e.nativeEvent.coordinate);
-    }
+    };
 
     private drawInMap(event: any) {
         const {showDialogContent} =this.props;
