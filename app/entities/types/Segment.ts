@@ -28,7 +28,6 @@ export class Segment extends Main {
     ];
 
     constructor(data: any = {poles: []}) {
-
         super(data);
         // this.nazwa_linii = data.nazwa_linii || '';
         this.nazwa_ciagu_id = data.nazwa_ciagu_id || '';
@@ -40,7 +39,7 @@ export class Segment extends Main {
         this.parcel_number_for_permit = data.parcel_number_for_permit || 0;
         this.time_for_next_entry = data.time_for_next_entry||"";
         this.operation_type = data.operation_type || '';
-        this.operation_type = this.operation_type ? this.operation_type.split(",") : [];
+        this.operation_type = this.operation_type.length ? this.operation_type.split(",") : [];
         this.notes = data.notes || '';
         this.track = data.track || 1;
         this.shutdown_time = data.shutdown_time || 1;

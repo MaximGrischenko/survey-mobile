@@ -58,7 +58,6 @@ class StationList extends Component<IMapProps> {
     };
 
     render() {
-        console.log(this.props.stations[0]);
         return (
             <View style={localStyles.wrapper}>
                 {

@@ -110,7 +110,8 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 ),
                 selected: segmentsStatusSelected,
                 subName: 'segmentsStatusSelected',
-                children: segment_statuses
+                children: segment_statuses,
+                hasStatus: true,
             },
             {
                 name: 'showStations',
@@ -137,7 +138,8 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 ),
                 selected: parcelsStatusSelected,
                 subName: 'parcelsStatusSelected',
-                children: parcel_statuses
+                children: parcel_statuses,
+                hasStatus: true,
             },
             {
                 name: 'showPois',
@@ -153,6 +155,7 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 selected: categoryPoiSelected,
                 subName: 'categoryPoiSelected',
                 children: this.props.categories,
+                hasCategory: true
             }
         ];
 
@@ -173,60 +176,57 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                                         text={el.title({styles: styleItem})}
                                     />
                                     {
-                                        el.children && this.props[el.name] && (
-                                            <View style={localStyles.poiContainer}>
+                                        el.children && el.hasStatus && this.props[el.name] &&  (
+                                            <View style={localStyles.statuses}>
+                                                <Text style={localStyles.title}>Select Status:</Text>
                                                 {
-                                                    this.props.showPois && !this.props[el.name] ? (
-                                                        <View>
-                                                            <Text style={localStyles.title}>Select Category:</Text>
-                                                            <View style={localStyles.search}>
-                                                                <Icon name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'} size={30} />
-                                                                <TextInput
-                                                                    style={localStyles.input}
-                                                                    placeholder={'Search poi(s)...'}
-                                                                    placeholderTextColor={COLORS.TEXT_COLOR}
-                                                                    onChangeText={this.onSearch}
-                                                                    value={this.state.search}
-                                                                />
-                                                            </View>
-                                                            {
-                                                                el.children.filter((el) => {
-                                                                    if (this.state.search) {
-                                                                        return el.title.toLowerCase().match(this.state.search.toLowerCase())
-                                                                    } else {
-                                                                        return true
-                                                                    }
-                                                                }).map((sub: any) => {
-                                                                    const checked: boolean = el.selected.indexOf(sub.id) > -1;
-                                                                    return (
-                                                                        <CheckBox
-                                                                            key={sub.id}
-                                                                            onPress={() => this.onSelectSubItem(el.subName, el.children, sub.title)}
-                                                                            selected={checked}
-                                                                            text={<View><Text style={styleItem}>{sub.title}</Text></View>}
-                                                                        />
-                                                                    )
-                                                                })
-                                                            }
-                                                        </View>
-                                                    ) : (
-                                                        <View>
-                                                            <Text style={localStyles.title}>Select Status:</Text>
-                                                            {
-                                                                el.children.map((sub: any) => {
-                                                                    const checked: boolean = el.selected.indexOf(sub.id) > -1;
-                                                                    return (
-                                                                        <CheckBox
-                                                                            key={sub.id}
-                                                                            onPress={() => this.onSelectSubItem(el.subName, el.children, sub.title)}
-                                                                            selected={checked}
-                                                                            text={<View><Text style={styleItem}>{sub.title}</Text></View>}
-                                                                        />
-                                                                    )
-                                                                })
-                                                            }
-                                                        </View>
-                                                    )
+                                                    el.children.map((sub: any) => {
+                                                        const checked: boolean = el.selected.indexOf(sub.id) > -1;
+                                                        return (
+                                                            <CheckBox
+                                                                key={sub.id}
+                                                                onPress={() => this.onSelectSubItem(el.subName, el.children, sub.title)}
+                                                                selected={checked}
+                                                                text={<View><Text style={styleItem}>{sub.title}</Text></View>}
+                                                            />
+                                                        )
+                                                    })
+                                                }
+                                            </View>
+                                        )
+                                    }
+                                    {
+                                        this.props.showPois && el.hasCategory && el.children && this.props[el.name] && (
+                                            <View style={localStyles.categories}>
+                                                <Text style={localStyles.title}>Select Category:</Text>
+                                                <View style={localStyles.search}>
+                                                    <Icon name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'} size={30} />
+                                                    <TextInput
+                                                        style={localStyles.input}
+                                                        placeholder={'Search poi(s)...'}
+                                                        placeholderTextColor={COLORS.TEXT_COLOR}
+                                                        onChangeText={this.onSearch}
+                                                        value={this.state.search}
+                                                    />
+                                                </View>
+                                                {
+                                                    el.children.filter((el) => {
+                                                        if (this.state.search) {
+                                                            return el.title.toLowerCase().match(this.state.search.toLowerCase())
+                                                        } else {
+                                                            return true
+                                                        }
+                                                    }).map((sub: any) => {
+                                                        const checked: boolean = el.selected.indexOf(sub.id) > -1;
+                                                        return (
+                                                            <CheckBox
+                                                                key={sub.id}
+                                                                onPress={() => this.onSelectSubItem(el.subName, el.children, sub.title)}
+                                                                selected={checked}
+                                                                text={<View><Text style={styleItem}>{sub.title}</Text></View>}
+                                                            />
+                                                        )
+                                                    })
                                                 }
                                             </View>
                                         )
@@ -251,21 +251,21 @@ const localStyles = StyleSheet.create({
         borderBottomColor: '#979797',
         borderBottomEndRadius: 1,
     },
-    subContainer: {
+    statuses: {
         flex: 1,
-        paddingTop: 30,
-        paddingBottom: 30,
-        marginBottom: 30,
-        marginLeft: 30,
+        paddingTop: 20,
+        paddingBottom: 20,
+        marginBottom: 20,
+        marginLeft: 20,
         width: '100%',
         borderBottomWidth: 1,
         borderBottomColor: '#979797',
         borderBottomEndRadius: 1,
     },
-    poiContainer: {
+    categories: {
         flex: 1,
-        paddingTop: 30,
-        marginLeft: 30,
+        paddingTop: 20,
+        marginLeft: 20,
         width: '100%',
     },
     title: {

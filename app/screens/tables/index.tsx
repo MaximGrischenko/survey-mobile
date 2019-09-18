@@ -60,7 +60,6 @@ class TablesScreen extends Component<IMapProps, IMapState> {
 
     componentDidMount(): void {
         this.props.changeSettings({});
-        console.log(this.props.navigation.state.params);
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {

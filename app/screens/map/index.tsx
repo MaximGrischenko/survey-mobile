@@ -21,8 +21,10 @@ import EditStationDialog from './dialogs/edit.station';
 import EditParcelDialog from './dialogs/edit.parcel';
 import EditSegmentDialog from './dialogs/edit.segment';
 import EditPoleDialog from './dialogs/edit.pole';
+import {fetchCategories} from "../../redux/modules/admin/categories";
 
 interface IMapProps {
+    fetchCategories: Function,
     project: Project,
     stations: Array<Station>,
     poles: Array<Pole>,
@@ -53,6 +55,7 @@ class MapScreen extends Component<IMapProps> {
     };
 
     componentDidMount(): void {
+        this.props.fetchCategories();
         this.getLocationAsync();
     }
 
@@ -360,6 +363,7 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         showDialogContent,
+        fetchCategories
     }, dispatch)
 );
 
