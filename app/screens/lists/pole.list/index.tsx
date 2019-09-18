@@ -16,20 +16,20 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import {CirclesLoader} from 'react-native-indicator';
 import {COLORS} from "../../../styles/colors";
-import {locationStationsSelector, moduleName} from "../../../redux/modules/map";
+import {locationPolesSelector, moduleName} from "../../../redux/modules/map";
 import {searchSelector} from "../../../redux/modules/auth";
 import {showDialogContent} from "../../../redux/modules/dialogs";
-import EditStationDialog from "../../map/dialogs/edit.station";
+import EditPoleDialog from "../../map/dialogs/edit.pole";
 
 
 interface IMapProps {
-    stations: Array<Station>,
+    poles: Array<Station>,
     search: string,
     loading: boolean,
     showDialogContent: Function
 }
 
-class StationList extends Component<IMapProps> {
+class PoleList extends Component<IMapProps> {
 
     private renderSeparator = () => {
         return (
@@ -43,15 +43,15 @@ class StationList extends Component<IMapProps> {
         );
     };
 
-    private showDialog = (station) => {
+    private showDialog = (pole) => {
         const {showDialogContent} = this.props;
         showDialogContent(
             {
                 content: (
-                    <EditStationDialog selectedItem={station} />
+                    <EditPoleDialog selectedItem={pole} />
                 ),
                 header: (
-                    <Text>Edit Stations ({station.id})</Text>
+                    <Text>Edit Pole ({pole.id})</Text>
                 )
             }
         );
@@ -61,19 +61,19 @@ class StationList extends Component<IMapProps> {
         return (
             <View style={localStyles.wrapper}>
                 {
-                    this.props.loading ? (
-                        <CirclesLoader />
+                    !this.props.poles.length ? (
+                        <Text style={localStyles.warning}>Please select some Powerline</Text>
                     ) : (
                         <View style={localStyles.wrapper}>
                             <ScrollView contentContainerStyle={localStyles.scroll}>
                                 <FlatList
                                     nestedScrollEnabled={true}
                                     ItemSeparatorComponent={this.renderSeparator}
-                                    data={this.props.stations}
+                                    data={this.props.poles}
                                     renderItem={({item, separators}) => {
                                         return (
                                             <View style={localStyles.row}>
-                                                <Text style={localStyles.item}>{item['nazw_stac']}</Text>
+                                                <Text style={localStyles.item}>{item['num_slup']}</Text>
                                                 <TouchableOpacity onPress={() => this.showDialog(item)}>
                                                     <Icon name={Platform.OS === 'ios' ? 'ios-create' : 'md-create'} size={30} />
                                                 </TouchableOpacity>
@@ -111,11 +111,16 @@ const localStyles = StyleSheet.create({
     item: {
         fontSize: 16,
         color: COLORS.TEXT_COLOR
+    },
+    warning: {
+        fontSize: 20,
+        color: COLORS.TEXT_COLOR,
+        marginTop: 90
     }
 });
 
 const mapStateToProps = (state: any) => ({
-    stations: locationStationsSelector(state),
+    poles: locationPolesSelector(state),
     search: searchSelector(state),
     loading: state[moduleName].loading
 });
@@ -126,4 +131,4 @@ const mapDispatchToProps = (dispatch: any) => (
     }, dispatch)
 );
 
-export default connect(mapStateToProps, mapDispatchToProps)(StationList);
+export default connect(mapStateToProps, mapDispatchToProps)(PoleList);
