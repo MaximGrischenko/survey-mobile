@@ -4,7 +4,7 @@ import {bindActionCreators} from 'redux';
 
 import MapView from 'react-native-map-clustering';
 import {Marker, Polygon, Polyline} from "react-native-maps";
-import {GPSCoordinate, Parcel, Poi, Pole, Project, Segment, Station} from "../../entities";
+import {Geometry, GPSCoordinate, Parcel, Poi, Pole, Project, Segment, Station} from "../../entities";
 import {
     locationParcelsSelector, locationPoisSelector,
     locationPolesSelector,
@@ -14,14 +14,17 @@ import {
 } from "../../redux/modules/map";
 import {showDialogContent} from "../../redux/modules/dialogs";
 import {parcel_statuses, segment_statuses} from "../../redux/utils";
-import {AsyncStorage, Image, View} from "react-native";
+import {AsyncStorage, Image, View, StyleSheet, Dimensions} from "react-native";
 import {Text} from 'react-native';
 
 import EditStationDialog from './dialogs/edit.station';
 import EditParcelDialog from './dialogs/edit.parcel';
 import EditSegmentDialog from './dialogs/edit.segment';
 import EditPoleDialog from './dialogs/edit.pole';
+import AddPoiDialog from './dialogs/add.poi';
 import {fetchCategories} from "../../redux/modules/admin/categories";
+import {COLORS} from "../../styles/colors";
+import {FabButton} from "../../components/buttons/fab.button";
 
 interface IMapProps {
     fetchCategories: Function,
@@ -49,6 +52,7 @@ class MapScreen extends Component<IMapProps> {
     state = {
         //mapRegion: this.props.mapCenter,
         location: this.props.mapCenter,
+        allowAddPoi: false
         // mapCenter: null,
         // hasLocationPermissions: false,
         // locationResult: null
@@ -141,10 +145,66 @@ class MapScreen extends Component<IMapProps> {
                     )
                 }
             );
+        } else if (marker instanceof Poi) {
+            showDialogContent(
+                {
+                    content: (
+                        <AddPoiDialog selectedItem={marker} />
+                    ),
+                    header: (
+                        <Text>Edit Poi ({marker.id})</Text>
+                    )
+                }
+            );
         }
     };
 
-    private onMapClick() {}
+    private addPoi = () => {
+        this.setState({
+            allowAddPoi: true
+        })
+    };
+
+    private onMapClick(e: any) {
+       // const {project, showDialogContent} = this.props;
+        console.log(e);
+        // if (!project) {
+        //     return showDialogContent(
+        //         {
+        //             content: (
+        //                 <Text>Please select Project first</Text>
+        //             ),
+        //             header: (
+        //                 <Text>Warning</Text>
+        //             )
+        //         }
+        //     )
+        // }
+
+        this.drawInMap(e.nativeEvent.coordinate);
+    }
+
+    private drawInMap(event: any) {
+        const {showDialogContent} =this.props;
+
+        const coordinate = [
+            event.latitude,
+            event.longitude
+        ];
+
+        showDialogContent(
+            {
+                content: (
+                    <AddPoiDialog
+                        selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
+                        position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
+                ),
+                header: (
+                    <Text>Add poi</Text>
+                )
+            }
+        );
+    };
 
     private  handleMapRegionChange = mapRegion => {
         this.setState({mapRegion})
@@ -244,8 +304,9 @@ class MapScreen extends Component<IMapProps> {
                 <Polyline
                     key={marker.id}
                     coordinates={marker.pathList}
-                    strokeWidth={2}
+                    strokeWidth={8}
                     strokeColor={color}
+                    tappable={true}
                     onPress={() => this.showDialog(marker)}
                 />
             )
@@ -280,8 +341,9 @@ class MapScreen extends Component<IMapProps> {
                 <Polygon
                     key={marker.id}
                     coordinates={marker.pathList}
-                    strokeWidth={2}
+                    strokeWidth={4}
                     strokeColor={color}
+                    tappable={true}
                     onPress={() => this.showDialog(marker)}
                 />
             )
@@ -299,49 +361,86 @@ class MapScreen extends Component<IMapProps> {
         } = this.props;
 
         return (
-            <MapView
-                style={{flex: 1}}
-                onPress={this.onMapClick}
-                //onRegionChange={this.handleMapRegionChange}
-                ref={ref => {
-                    this.map = ref;
-                }}
-                region={{
-                    ...location,
-                    latitudeDelta: 4,
-                    longitudeDelta: 4
-                }}
-            >
+            <React.Fragment>
+                <MapView
+                    style={{flex: 1}}
+                    onPress={this.onMapClick}
+                    //onRegionChange={this.handleMapRegionChange}
+                    ref={ref => {
+                        this.map = ref;
+                    }}
+                    region={{
+                        ...location,
+                        latitudeDelta: 2,
+                        longitudeDelta: 2
+                    }}
+                >
+                    {
+                        showStations ? (
+                            this.renderStations()
+                        ) : null
+                    }
+                    {
+                        showSegments ? (
+                            this.renderSegments()
+                        ) : null
+                    }
+                    {
+                        showParcels ? (
+                            this.renderParcels()
+                        ) : null
+                    }
+                    {
+                        showPoles ? (
+                            this.renderPoles()
+                        ) : null
+                    }
+                    {
+                        showPois ? (
+                            this.renderPois()
+                        ) : null
+                    }
+                </MapView>
+                <FabButton
+                    style={localStyles.button}
+                    onPress={this.addPoi}
+                />
                 {
-                    showStations ? (
-                        this.renderStations()
+                    this.state.allowAddPoi ? (
+                        <View style={localStyles.allowAddPoi}>
+                            <Text style={localStyles.allowAddPoiText}>Click on the map to set the location</Text>
+                        </View>
                     ) : null
                 }
-                {
-                    showSegments ? (
-                        this.renderSegments()
-                    ) : null
-                }
-                {
-                    showParcels ? (
-                        this.renderParcels()
-                    ) : null
-                }
-                {
-                    showPoles ? (
-                        this.renderPoles()
-                    ) : null
-                }
-                {
-                    showPois ? (
-                        this.renderPois()
-                    ) : null
-                }
-            </MapView>
+            </React.Fragment>
         )
     }
 }
 
+const localStyles = StyleSheet.create({
+    button: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20
+    },
+    allowAddPoi: {
+        width: Dimensions.get('window').width,
+        flex: 1,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
+        top: 140,
+        left: 0,
+        padding: 20,
+        backgroundColor: 'white',
+        textAlign: 'center',
+       // opacity: 0.9
+    },
+    allowAddPoiText: {
+        color: COLORS.PRIMARY,
+      //  opacity: 0.7
+    },
+});
 
 const mapStateToProps = (state: any) => ({
     project: locationSelector(state),

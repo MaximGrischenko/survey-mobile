@@ -28,7 +28,7 @@ class AppHeader extends Component<IMapProps> {
         const {navigation} = this.props;
         const isDrawerOpen = navigation.state.isDrawerOpen;
         return (
-            <View style={localStyles.container}>
+            <View style={isDrawerOpen ? localStyles.container : localStyles.toolbar}>
                 {
                     isDrawerOpen ? (
                         <View style={localStyles.header}>
@@ -81,6 +81,25 @@ const localStyles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingLeft: 10,
         paddingRight: 10,
+    },
+    toolbar: {
+        position: 'absolute',
+        top: 45,
+        height: 60,
+        width: Dimensions.get('window').width - 20,
+        backgroundColor: COLORS.BACKGROUND,
+        display: 'flex',
+        flexDirection: 'row',
+        alignSelf: 'center',
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: .5,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     logotype: {
         width: 270,

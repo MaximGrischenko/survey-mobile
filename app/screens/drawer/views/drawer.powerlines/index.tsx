@@ -182,7 +182,8 @@ const localStyles = StyleSheet.create({
         width: 25,
         height: 25,
         borderRadius: 12.5,
-        backgroundColor: '#bcbcbc',
+        borderWidth: 1,
+        borderColor: '#bcbcbc',
         marginRight: 10,
     },
     checkedCircle: {

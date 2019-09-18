@@ -75,7 +75,7 @@ class StationList extends Component<IMapProps> {
                                             <View style={localStyles.row}>
                                                 <Text style={localStyles.item}>{item['nazw_stac']}</Text>
                                                 <TouchableOpacity onPress={() => this.showDialog(item)}>
-                                                    <Icon name={Platform.OS === 'ios' ? 'ios-create' : 'md-create'} size={30} />
+                                                    <Icon name={Platform.OS === 'ios' ? 'ios-play' : 'md-play'} size={30} />
                                                 </TouchableOpacity>
                                             </View>
                                         )

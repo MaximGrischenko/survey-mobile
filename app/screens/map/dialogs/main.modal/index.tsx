@@ -358,7 +358,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                             minValue={el.min}
                                             maxValue={el.max}
                                             onChange={(value) => this.onChange({target: {name: el.name, value}})}
-                                            totalWidth={200}
+                                            totalWidth={150}
                                             totalHeight={40}
                                             type={'up-down'}
                                             iconSize={15}

@@ -74,9 +74,9 @@ class ParcelList extends Component<IMapProps> {
                                     renderItem={({item, separators}) => {
                                         return (
                                             <View style={localStyles.row}>
-                                                <Text style={localStyles.item}>{item['gmina']}</Text>
+                                                <Text style={localStyles.item}>{item['numer']}</Text>
                                                 <TouchableOpacity onPress={() => this.showDialog(item)}>
-                                                    <Icon name={Platform.OS === 'ios' ? 'ios-create' : 'md-create'} size={30} />
+                                                    <Icon name={Platform.OS === 'ios' ? 'ios-play' : 'md-play'} size={30} />
                                                 </TouchableOpacity>
                                             </View>
                                         )

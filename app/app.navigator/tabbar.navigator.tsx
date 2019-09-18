@@ -13,10 +13,12 @@ import PoleList from '../screens/lists/pole.list';
 
 
 const TabNavigator = createMaterialTopTabNavigator({
-        Stations: StationList,
-        Segments: SegmentList,
-        Parcels: ParcelList,
         Poles: PoleList,
+        Stations: StationList,
+      //  Pois: PoisList,
+        Parcels: ParcelList,
+        Segments: SegmentList
+
     },
     {
         tabBarComponent: props => (
@@ -38,6 +40,8 @@ const TabNavigator = createMaterialTopTabNavigator({
             },
             labelStyle: {
                 textAlign: 'center',
+                fontSize: 12,
+                textTransform: 'none'
             },
             indicatorStyle: {
                 borderBottomColor: COLORS.PRIMARY,
