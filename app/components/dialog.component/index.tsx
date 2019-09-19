@@ -9,9 +9,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import {contentSelector, dialogSaveBtnSelector, showDialogContent} from "../../redux/modules/dialogs";
 import {COLORS} from "../../styles/colors";
+import {changeControls, moduleName} from "../../redux/modules/map";
 
 interface IMapProps {
     showDialogContent: Function,
+    changeControls: Function,
+    allowAddPoi: any,
     dialogSaveBtn: any,
     content: any,
     alertText: any,
@@ -23,7 +26,13 @@ class DialogContainer extends Component<IMapProps> {
     };
 
     private onClose = () => {
-        this.props.showDialogContent(false);
+        if(this.props.allowAddPoi) {
+            this.props.changeControls({
+                name: 'allowAddPoi',
+                value: false
+            })
+        }
+       this.props.showDialogContent(false);
     };
 
     private renderHeader = () => {
@@ -119,11 +128,13 @@ const localStyles = StyleSheet.create({
 
 const mapStateToProps = (state: any) => ({
     content: contentSelector(state),
+    allowAddPoi: state[moduleName].allowAddPoi,
     dialogSaveBtn: dialogSaveBtnSelector(state)
 });
 
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
+        changeControls,
         showDialogContent
     }, dispatch)
 );

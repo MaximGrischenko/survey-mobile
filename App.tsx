@@ -4,6 +4,7 @@ import store from './app/redux';
 
 import AppNavigator from './app/app.navigator/index';
 import DialogContainer from './app/components/dialog.component';
+import AlertContainer from './app/components/alert.component';
 
 import {AppLoading} from "expo";
 import * as Font from 'expo-font';
@@ -87,6 +88,7 @@ export default class App extends Component {
             <Provider store={store}>
                 <AppNavigator />
                 <DialogContainer />
+                <AlertContainer />
             </Provider>
         );
     }

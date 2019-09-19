@@ -26,7 +26,7 @@ class EditSegmentDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
-    itemList: state[moduleName].segmentList,
+    itemsList: state[moduleName].segmentList,
     error: errorSelector(state),
     location: locationSelector(state),
     isAdmin: isSuperADMINAdminSelector(state),

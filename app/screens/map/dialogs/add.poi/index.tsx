@@ -22,6 +22,16 @@ class AddPoiDialog extends MainModalDialog {
         this.type = TYPES.POI;
     }
 
+    // componentDidUpdate(prevProps: any, prevState: any, snapshot?: any): void {
+    //     console.log('pos',this.props.position);
+    //     console.log('loc',this.props.location.id);
+    // }
+
+    componentDidMount(): void {
+        super.componentDidMount();
+        console.log('loc',this.props.location.id);
+    }
+
     protected handleOk = async (e: any) => {
         try {
             this.setState({__pending: true});
@@ -49,10 +59,8 @@ class AddPoiDialog extends MainModalDialog {
             //     position: toast.POSITION.TOP_LEFT
             // });
         } finally {
-            // setTimeout(() => {
             this.setState({__pending: false});
             this.handleCancel(e);
-            // }, 1000)
         }
     };
 
@@ -66,8 +74,8 @@ class AddPoiDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
-    itemsList: state[moduleName].parcelList,
-    allowAddPoi: state[moduleName].allowAddPoi,
+    itemsList: state[moduleName].poiList,
+    // allowAddPoi: state[moduleName].allowAddPoi,
     isAdmin: isSuperADMINAdminSelector(state),
     error: errorSelector(state),
     location: locationSelector(state),

@@ -14,13 +14,17 @@ class EditPoleDialog extends MainModalDialog {
         this.type = TYPES.POLE;
     }
 
+    componentDidUpdate(prevProps: any, prevState: any, snapshot?: any): void {
+        console.log('====', this.props.itemsList);
+    }
+
     render() {
         return super._render();
     }
 }
 
 const mapStateToProps = (state: any) => ({
-    itemList: state[moduleName].polesList,
+    itemsList: state[moduleName].polesList,
     error: errorSelector(state),
     isAdmin: isSuperADMINAdminSelector(state),
     location: locationSelector(state),

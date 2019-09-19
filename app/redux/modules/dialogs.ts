@@ -1,7 +1,7 @@
 import {API, appName} from '../../config';
 import {Record} from 'immutable';
 import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
-import axios from 'axios';
+import axios from 'react-native-axios';
 import {createSelector} from 'reselect';
 
 

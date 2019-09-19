@@ -26,7 +26,7 @@ class EditSParcelDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
-    itemList: state[moduleName].parcelList,
+    itemsList: state[moduleName].parcelList,
     error: errorSelector(state),
     location: locationSelector(state),
     isAdmin: isSuperADMINAdminSelector(state),

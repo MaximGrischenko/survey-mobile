@@ -85,7 +85,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                 <PrimaryButton
                     style={{width: 70, marginRight: 10}}
                     title={'Save'}
-                    onPres={this.handleOk}
+                    onPress={this.handleOk}
                 />
             )
         )
@@ -96,7 +96,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     }
 
     componentWillReceiveProps(nextProps: any, nextContext: any): void {
-        checkError(nextProps, this.props, () => 1, this.refs.toast);
         if (nextProps.itemsList !== this.props.itemsList) {
             this.setState({__pending: false});
             this.handleCancel({});
@@ -136,11 +135,14 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     protected handleOk = async (e: any) => {
         try {
             this.setState({__pending: true});
-            await this.props.editItem({
+            const editItem: any = {
                 ...this.state,
-            });
-            this.props.onFinishEditItem();
-
+            };
+            if (this.type === TYPES.SEGMENT) {
+                if (editItem.operation_type) editItem.operation_type = editItem.operation_type ? editItem.operation_type.join(",") : '';
+            }
+            await this.props.editItem(editItem);
+            if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
         } catch (e) {
             // toast.show(e.response ? e.response.data.error || e.response.data.message : e.meesage || e, {
             //     position: toast.POSITION.TOP_LEFT
@@ -150,7 +152,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     };
 
     protected handleCancel = (e: any) => {
-        this.props.showDialogContent(null);
+        this.props.showDialogContent(false);
     };
 
     private getFields = () => {
@@ -392,7 +394,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                 return (
                                     <Field
                                         key={el.name}
-                                        onChanheText={this.onFieldChange(el.name)}
+                                        onChangeText={this.onFieldChange(el.name)}
                                         label={el.name}
                                         placeholder={el.name}
                                         value={state[el.name]}

@@ -21,7 +21,7 @@ class EditStationDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
-   itemList: state[moduleName].stationList,
+   itemsList: state[moduleName].stationList,
    error: errorSelector(state),
    location: locationSelector(state),
    isAdmin: isSuperADMINAdminSelector(state),

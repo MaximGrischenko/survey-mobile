@@ -6,13 +6,14 @@ import MapView from 'react-native-map-clustering';
 import {Marker, Polygon, Polyline} from "react-native-maps";
 import {Geometry, GPSCoordinate, Parcel, Poi, Pole, Project, Segment, Station} from "../../entities";
 import {
+    changeControls,
     locationParcelsSelector, locationPoisSelector,
     locationPolesSelector,
     locationSegmentsSelector,
     locationSelector,
     locationStationsSelector, moduleName
 } from "../../redux/modules/map";
-import {showDialogContent} from "../../redux/modules/dialogs";
+import {showAlert, showDialogContent} from "../../redux/modules/dialogs";
 import {parcel_statuses, segment_statuses} from "../../redux/utils";
 import {AsyncStorage, Image, View, StyleSheet, Dimensions} from "react-native";
 import {Text} from 'react-native';
@@ -34,11 +35,12 @@ interface IMapProps {
     segments: Array<Segment>,
     parcels: Array<Parcel>,
     pois: Array<Poi>,
-
+    allowAddPoi: any,
     mapCenter: GPSCoordinate,
     showDialogContent: Function,
     search: string,
-
+    changeControls: Function,
+    showAlert: any,
     showStations: boolean,
     showPoles: boolean,
     showSegments: boolean,
@@ -52,7 +54,7 @@ class MapScreen extends Component<IMapProps> {
     state = {
         //mapRegion: this.props.mapCenter,
         location: this.props.mapCenter,
-        allowAddPoi: false
+        //allowAddPoi: false
         // mapCenter: null,
         // hasLocationPermissions: false,
         // locationResult: null
@@ -159,32 +161,49 @@ class MapScreen extends Component<IMapProps> {
         }
     };
 
-    private addPoi = () => {
-        this.setState({
-            allowAddPoi: true
-        })
+    private onAllowToAddPoi = () => {
+        this.props.changeControls({
+            name: 'allowAddPoi',
+            value: Date.now()
+        });
+        this.props.changeControls({
+            name: 'showPois',
+            value: true
+        });
     };
 
     private onMapClick = (e: any) => {
-        const {project, showDialogContent} = this.props;
-        if (!project) {
-            return showDialogContent(
-                {
-                    content: (
-                        <Text>Please select Project first</Text>
-                    ),
-                    header: (
-                        <Text>Warning</Text>
-                    )
-                }
-            )
+        const {project, showAlert, showDialogContent, allowAddPoi} = this.props;
+        if (!project && allowAddPoi) {
+            return showAlert('Please select Project first');
         }
 
-        this.drawInMap(e.nativeEvent.coordinate);
+        if (this.props.allowAddPoi) {
+            this.drawInMap(e.nativeEvent.coordinate);
+        //     const coordinate = [
+        //         e.nativeEvent.coordinate.latitude,
+        //         e.nativeEvent.coordinate.longitude
+        //     ];
+        //
+        //     console.log(coordinate);
+        //
+        //     showDialogContent(
+        //         {
+        //             content: (
+        //                 <AddPoiDialog
+        //                     selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
+        //                     position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
+        //             ),
+        //             header: (
+        //                 <Text>Add poi</Text>
+        //             )
+        //         }
+        //     )
+        }
     };
 
     private drawInMap(event: any) {
-        const {showDialogContent} =this.props;
+        const {showDialogContent} = this.props;
 
         const coordinate = [
             event.latitude,
@@ -203,7 +222,7 @@ class MapScreen extends Component<IMapProps> {
                 )
             }
         );
-    };
+    }
 
     private  handleMapRegionChange = mapRegion => {
         this.setState({mapRegion})
@@ -358,7 +377,6 @@ class MapScreen extends Component<IMapProps> {
             showPoles,
             showPois,
         } = this.props;
-
         return (
             <React.Fragment>
                 <MapView
@@ -402,10 +420,10 @@ class MapScreen extends Component<IMapProps> {
                 </MapView>
                 <FabButton
                     style={localStyles.button}
-                    onPress={this.addPoi}
+                    onPress={this.onAllowToAddPoi}
                 />
                 {
-                    this.state.allowAddPoi ? (
+                    this.props.allowAddPoi ? (
                         <View style={localStyles.allowAddPoi}>
                             <Text style={localStyles.allowAddPoiText}>Click on the map to set the location</Text>
                         </View>
@@ -423,21 +441,17 @@ const localStyles = StyleSheet.create({
         right: 20
     },
     allowAddPoi: {
-        width: Dimensions.get('window').width,
-        flex: 1,
-        alignSelf: 'center',
-        justifyContent: 'center',
+        width: Dimensions.get('window').width-20,
         position: 'absolute',
         top: 140,
-        left: 0,
+        left: 10,
         padding: 20,
+        borderRadius: 5,
         backgroundColor: 'white',
         textAlign: 'center',
-       // opacity: 0.9
     },
     allowAddPoiText: {
         color: COLORS.PRIMARY,
-      //  opacity: 0.7
     },
 });
 
@@ -448,9 +462,8 @@ const mapStateToProps = (state: any) => ({
     segments: locationSegmentsSelector(state),
     parcels: locationParcelsSelector(state),
     pois: locationPoisSelector(state),
-
+    allowAddPoi: state[moduleName].allowAddPoi,
     mapCenter: state[moduleName].mapCenter,
-
     showStations: state[moduleName].showStations,
     showPoles: state[moduleName].showPoles,
     showSegments: state[moduleName].showSegments,
@@ -461,6 +474,8 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         showDialogContent,
+        showAlert,
+        changeControls,
         fetchCategories
     }, dispatch)
 );

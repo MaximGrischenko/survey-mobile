@@ -98,7 +98,7 @@ const localStyles = StyleSheet.create({
     scroll: {
         flex: 1,
         width: '100%',
-        marginTop: 70,
+        marginTop: 90,
         paddingBottom: 30
     },
     row: {
