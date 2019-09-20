@@ -1,7 +1,6 @@
 import React from 'react';
 import {createMaterialTopTabNavigator, MaterialTopTabBar} from 'react-navigation-tabs';
 import {SafeAreaView} from "react-native";
-import TablesScreen from '../screens/lists';
 import {COLORS} from "../styles/colors";
 import GlobalStyles from "../styles/GlobalStyles";
 import {createAppContainer} from "react-navigation";

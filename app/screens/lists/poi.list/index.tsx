@@ -55,7 +55,7 @@ export default list;
 // import {locationPoisSelector, locationStationsSelector, moduleName} from "../../../redux/modules/map";
 // import {searchSelector} from "../../../redux/modules/auth";
 // import {showDialogContent} from "../../../redux/modules/dialogs";
-// import AddPoiDialog from "../../map/dialogs/add.poi";
+// import EditPoiDialog from "../../map/dialogs/edit.poi";
 //
 //
 // interface IMapProps {
@@ -84,7 +84,7 @@ export default list;
 //         showDialogContent(
 //             {
 //                 content: (
-//                     <AddPoiDialog selectedItem={poi} />
+//                     <EditPoiDialog selectedItem={poi} />
 //                 ),
 //                 header: (
 //                     <Text>Edit Stations ({poi.id})</Text>

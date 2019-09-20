@@ -17,27 +17,20 @@ import {addPoi, editPoi, removePoi} from "../../../../redux/modules/map/poi";
 import {AsyncStorage} from "react-native";
 import {Geometry} from "../../../../entities";
 
-class AddPoiDialog extends MainModalDialog {
+class EditPoiDialog extends MainModalDialog {
     constructor(p) {
         super(p);
         this.title = 'Poi';
         this.type = TYPES.POI;
     }
 
-    // componentDidUpdate(prevProps: any, prevState: any, snapshot?: any): void {
-    //     console.log('pos',this.props.position);
-    //     console.log('loc',this.props.location.id);
-    // }
-
     componentDidMount(): void {
         super.componentDidMount();
-      //  console.log('pos',this.props.position);
     }
 
     protected handleOk = async (e: any) => {
         try {
             this.setState({__pending: true});
-            // this.props.onFinishEditItem(record.data.data);
             const {id}: any = this.state;
             if (id) {
                 console.log('EDIT', this.state);
@@ -47,7 +40,6 @@ class AddPoiDialog extends MainModalDialog {
             } else {
 
                 let position = this.props.position;
-                // console.log('cur', this.state);
                 if(this.state.current === 'current') {
                     let location = await AsyncStorage.getItem('location');
                     if(location) {
@@ -88,7 +80,6 @@ class AddPoiDialog extends MainModalDialog {
 
 const mapStateToProps = (state: any) => ({
     itemsList: state[moduleName].poiList,
-    // allowAddPoi: state[moduleName].allowAddPoi,
     isAdmin: isSuperADMINAdminSelector(state),
     error: errorSelector(state),
     location: locationSelector(state),
@@ -107,5 +98,5 @@ const mapDispatchToProps = (dispatch: any) => (
     }, dispatch)
 );
 
-const edit = connect(mapStateToProps, mapDispatchToProps)(AddPoiDialog);
+const edit = connect(mapStateToProps, mapDispatchToProps)(EditPoiDialog);
 export default edit;

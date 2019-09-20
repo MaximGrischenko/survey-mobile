@@ -6,7 +6,7 @@ import EditStationDialog from '../../../components/dialog.component/dialogs/edit
 import EditParcelDialog from '../../../components/dialog.component/dialogs/edit.parcel';
 import EditSegmentDialog from '../../../components/dialog.component/dialogs/edit.segment';
 import EditPoleDialog from '../../../components/dialog.component/dialogs/edit.pole';
-import AddPoiDialog from '../../../components/dialog.component/dialogs/add.poi';
+import EditPoiDialog from '../../../components/dialog.component/dialogs/edit.poi';
 import {COLORS} from "../../../styles/colors";
 import Icon from "react-native-vector-icons/Ionicons";
 
@@ -91,7 +91,7 @@ export default class MainList extends Component<IMapProps> {
             showDialogContent(
                 {
                     content: (
-                        <AddPoiDialog selectedItem={entity}/>
+                        <EditPoiDialog selectedItem={entity}/>
                     ),
                     header: (
                         <Text>Edit Poi ({entity.id})</Text>

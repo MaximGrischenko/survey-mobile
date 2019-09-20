@@ -22,7 +22,7 @@ import EditStationDialog from '../../components/dialog.component/dialogs/edit.st
 import EditParcelDialog from '../../components/dialog.component/dialogs/edit.parcel';
 import EditSegmentDialog from '../../components/dialog.component/dialogs/edit.segment';
 import EditPoleDialog from '../../components/dialog.component/dialogs/edit.pole';
-import AddPoiDialog from '../../components/dialog.component/dialogs/add.poi';
+import EditPoiDialog from '../../components/dialog.component/dialogs/edit.poi';
 import {fetchCategories} from "../../redux/modules/admin/categories";
 import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";
@@ -172,7 +172,7 @@ class MapScreen extends Component<IMapProps> {
             showDialogContent(
                 {
                     content: (
-                        <AddPoiDialog selectedItem={marker} />
+                        <EditPoiDialog selectedItem={marker} />
                     ),
                     header: (
                         <Text>Edit Poi ({marker.id})</Text>
@@ -211,7 +211,7 @@ class MapScreen extends Component<IMapProps> {
             showDialogContent(
                 {
                     content: (
-                        <AddPoiDialog
+                        <EditPoiDialog
                             selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
                             position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
                     ),
@@ -234,7 +234,7 @@ class MapScreen extends Component<IMapProps> {
         showDialogContent(
             {
                 content: (
-                    <AddPoiDialog
+                    <EditPoiDialog
                         selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
                         position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
                 ),
