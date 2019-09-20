@@ -17,8 +17,7 @@ const TabNavigator = createMaterialTopTabNavigator({
         Stations: StationList,
         Pois: PoiList,
         Parcels: ParcelList,
-        Segments: SegmentList
-
+        Segments: SegmentList,
     },
     {
         tabBarComponent: props => (

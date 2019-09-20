@@ -31,13 +31,13 @@ interface IMapProps {
     poles: Array<Pole>,
     parcelsStatusSelected: Array<any>,
     segmentsStatusSelected: Array<any>,
-
     categoryPoiSelected: Array<number>,
     categories: Array<Category>,
 }
 
 interface IMapState {
-    search: string
+    search: string,
+    rendered: boolean,
 }
 
 class DrawerEntities extends Component<IMapProps, IMapState> {
@@ -48,9 +48,20 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
 
     state = {
         search: '',
-        selected: [],
         rendered: false
     };
+
+    componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<IMapState>, snapshot?: any): void {
+        if(this.props.categories.length && !this.state.rendered)  {
+            this.props.categories.forEach((cat)=> {
+                this.props.categoryPoiSelected.push(cat.id);
+            });
+
+            this.setState({
+                rendered: true
+            });
+        }
+    }
 
 
     private onSelectItem = (name: string) => {
@@ -91,23 +102,16 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
             categoryPoiSelected
         } = this.props;
 
-        // console.log('prop', this.props.pois[0]);
-
-        this.props.pois.forEach((p)=>{
-
-            // console.log('prop', p.title, p.points);
-        })
-
-        if(this.props.categories.length && !this.state.rendered)  {
-            this.props.categories.forEach((cat)=> {
-
-                categoryPoiSelected.push(cat.id)
-            });
-
-            this.setState({
-                rendered: true
-            });
-        }
+        // if(this.props.categories.length && !this.state.rendered)  {
+        //     this.props.categories.forEach((cat)=> {
+        //
+        //         categoryPoiSelected.push(cat.id)
+        //     });
+        //
+        //     this.setState({
+        //         rendered: true
+        //     });
+        // }
 
         const elements: any = [
             {

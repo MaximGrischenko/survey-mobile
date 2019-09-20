@@ -72,16 +72,14 @@ class MapScreen extends Component<IMapProps> {
     //     console.log('UPDATED', this.props);
     // }
 
-    componentWillReceiveProps(nextProps: any, nextContext: any): void {
-        console.log('getPropsHere', this.props.search, nextProps.search);
-
-        ////
-        this.renderPois(nextProps.search);
-        this.renderPoles(nextProps.search);
-        this.renderStations(nextProps.search);
-        this.renderSegments(nextProps.search);
-        this.renderParcels(nextProps.search);
-    }
+    // componentWillReceiveProps(nextProps: any, nextContext: any): void {
+    //     ////
+    //     this.renderPois(nextProps.search);
+    //     this.renderPoles(nextProps.search);
+    //     this.renderStations(nextProps.search);
+    //     this.renderSegments(nextProps.search);
+    //     this.renderParcels(nextProps.search);
+    // }
 
     private getLocationAsync = async () => {
         let location = await AsyncStorage.getItem('location');
@@ -202,26 +200,26 @@ class MapScreen extends Component<IMapProps> {
         }
 
         if (this.props.allowAddPoi) {
-            this.drawInMap(e.nativeEvent.coordinate);
-        //     const coordinate = [
-        //         e.nativeEvent.coordinate.latitude,
-        //         e.nativeEvent.coordinate.longitude
-        //     ];
-        //
-        //     console.log(coordinate);
-        //
-        //     showDialogContent(
-        //         {
-        //             content: (
-        //                 <AddPoiDialog
-        //                     selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
-        //                     position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
-        //             ),
-        //             header: (
-        //                 <Text>Add poi</Text>
-        //             )
-        //         }
-        //     )
+        //    this.drawInMap(e.nativeEvent.coordinate);
+            const coordinate = [
+                e.nativeEvent.coordinate.longitude,
+                e.nativeEvent.coordinate.latitude
+            ];
+
+          //  console.log(coordinate);
+
+            showDialogContent(
+                {
+                    content: (
+                        <AddPoiDialog
+                            selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
+                            position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
+                    ),
+                    header: (
+                        <Text>Add poi</Text>
+                    )
+                }
+            )
         }
     };
 
@@ -261,9 +259,9 @@ class MapScreen extends Component<IMapProps> {
         this.setState({mapRegion})
     };
 
-    private renderStations(search) {
-        if(!search) search = this.props.search;
-        const {stations} = this.props;
+    private renderStations() {
+       //if(!search) search = this.props.search;
+        const {stations, search} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(stations, search); i < list.length; i++) {
             markers.push(list[i]);
@@ -279,9 +277,9 @@ class MapScreen extends Component<IMapProps> {
         ));
     }
 
-    private renderPoles(search) {
-        if(!search) search = this.props.search;
-        const {poles} = this.props;
+    private renderPoles() {
+       // if(!search) search = this.props.search;
+        const {poles, search} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(poles, search); i < list.length; i++) {
             markers.push(list[i]);
@@ -297,9 +295,9 @@ class MapScreen extends Component<IMapProps> {
         ));
     }
 
-    private renderPois(search) {
-        if(!search) search = this.props.search;
-        const {pois} = this.props;
+    private renderPois() {
+      //  if(!search) search = this.props.search;
+        const {pois, search} = this.props;
 
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(pois, search); i < list.length; i++) {
@@ -317,9 +315,9 @@ class MapScreen extends Component<IMapProps> {
         ));
     }
 
-    private renderSegments(search) {
-        if(!search) search = this.props.search;
-        const {segments} = this.props;
+    private renderSegments() {
+      //  if(!search) search = this.props.search;
+        const {segments, search} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(segments, search); i < list.length; i++) {
             markers.push(list[i]);
@@ -370,9 +368,9 @@ class MapScreen extends Component<IMapProps> {
         })
     }
 
-    private renderParcels(search) {
-        if(!search) search = this.props.search;
-        const {parcels} = this.props;
+    private renderParcels() {
+       // if(!search) search = this.props.search;
+        const {parcels, search} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(parcels, search); i < list.length; i++) {
             markers.push(list[i]);
@@ -417,8 +415,6 @@ class MapScreen extends Component<IMapProps> {
             showPoles,
             showPois,
         } = this.props;
-
-        console.log('location', this.state.location);
 
         return (
             <React.Fragment>

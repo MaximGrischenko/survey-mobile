@@ -39,7 +39,8 @@ interface IMapState {
     errors: any,
     status: any,
     current: any,
-    date: any
+    date: any,
+    id: any,
     canDelete: boolean,
     __pending: boolean
 }
@@ -77,12 +78,10 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             __pending: false,
             canDelete: false,
             current: 'current',
-            categoryId: 1, //TODO refactor
+           // categoryId: 1, //TODO refactor
             errors: [],
             ...p.selectedItem
-        }
-
-        console.log('modal', this.state, this.props.categories);
+        };
     }
 
     private Select: any = null;
@@ -152,7 +151,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             await this.props.editItem(editItem);
             if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
         } catch (e) {
-            console.log(e);
             // toast.show(e.response ? e.response.data.error || e.response.data.message : e.meesage || e, {
             //     position: toast.POSITION.TOP_LEFT
             // });
