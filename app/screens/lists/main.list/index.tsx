@@ -2,11 +2,11 @@ import React, {Component} from 'react';
 import {View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, Platform} from "react-native";
 import {Parcel, Poi, Pole, Segment, Station} from "../../../entities";
 
-import EditStationDialog from '../../map/dialogs/edit.station';
-import EditParcelDialog from '../../map/dialogs/edit.parcel';
-import EditSegmentDialog from '../../map/dialogs/edit.segment';
-import EditPoleDialog from '../../map/dialogs/edit.pole';
-import AddPoiDialog from '../../map/dialogs/add.poi';
+import EditStationDialog from '../../../components/dialog.component/dialogs/edit.station';
+import EditParcelDialog from '../../../components/dialog.component/dialogs/edit.parcel';
+import EditSegmentDialog from '../../../components/dialog.component/dialogs/edit.segment';
+import EditPoleDialog from '../../../components/dialog.component/dialogs/edit.pole';
+import AddPoiDialog from '../../../components/dialog.component/dialogs/add.poi';
 import {COLORS} from "../../../styles/colors";
 import Icon from "react-native-vector-icons/Ionicons";
 

@@ -18,11 +18,11 @@ import {parcel_statuses, segment_statuses} from "../../redux/utils";
 import {AsyncStorage, Image, View, StyleSheet, Dimensions, TouchableOpacity, Platform} from "react-native";
 import {Text} from 'react-native';
 
-import EditStationDialog from './dialogs/edit.station';
-import EditParcelDialog from './dialogs/edit.parcel';
-import EditSegmentDialog from './dialogs/edit.segment';
-import EditPoleDialog from './dialogs/edit.pole';
-import AddPoiDialog from './dialogs/add.poi';
+import EditStationDialog from '../../components/dialog.component/dialogs/edit.station';
+import EditParcelDialog from '../../components/dialog.component/dialogs/edit.parcel';
+import EditSegmentDialog from '../../components/dialog.component/dialogs/edit.segment';
+import EditPoleDialog from '../../components/dialog.component/dialogs/edit.pole';
+import AddPoiDialog from '../../components/dialog.component/dialogs/add.poi';
 import {fetchCategories} from "../../redux/modules/admin/categories";
 import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";

@@ -92,9 +92,6 @@ class DialogContainer extends Component<IMapProps> {
                     </View>
                     {this.renderControls('Cancel', this.onClose)}
                 </View>
-                {/*<View style={localStyles.controls}>*/}
-                {/*    */}
-                {/*</View>*/}
             </Modal>
         )
     }

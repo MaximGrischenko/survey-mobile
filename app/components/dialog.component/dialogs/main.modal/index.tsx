@@ -7,11 +7,11 @@ import {Form, Field} from 'react-native-validate-form';
 import {View, Text, Platform, TouchableOpacity, StyleSheet, TextInput, Slider, ScrollView} from 'react-native';
 import { Dropdown } from 'react-native-material-dropdown';
 import Icon from "react-native-vector-icons/Ionicons";
-import {InputField, required} from "../../../../components/inputs/field.input";
+import {InputField, required} from "../../../inputs/field.input";
 import {TextField} from 'react-native-material-textfield';
 import MultiSelect from "react-native-multiple-select";
 import NumericInput from 'react-native-numeric-input';
-import {PrimaryButton} from "../../../../components/buttons/primary.button";
+import {PrimaryButton} from "../../../buttons/primary.button";
 import DatePicker from 'react-native-datepicker';
 
 
