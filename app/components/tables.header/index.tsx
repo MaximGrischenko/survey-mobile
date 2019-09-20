@@ -11,17 +11,21 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { DrawerActions } from 'react-navigation-drawer';
 import LogOutComponent from '../logout.component';
 import {COLORS} from "../../styles/colors";
-import {searchSelector} from "../../redux/modules/auth";
+import {changeSettings, searchSelector} from "../../redux/modules/auth";
 
 interface IMapProps {
     navigation: any,
     search: string,
+    changeSettings: Function,
 }
 
 class TablesHeader extends Component<IMapProps> {
 
     private onChangeText = (value) => {
-
+        this.props.changeSettings({
+            name: 'search',
+            value
+        })
     };
 
     render() {
@@ -92,7 +96,9 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => (
-    bindActionCreators({}, dispatch)
+    bindActionCreators({
+        changeSettings
+    }, dispatch)
 );
 
 export default connect(mapStateToProps, mapDispatchToProps)(TablesHeader);

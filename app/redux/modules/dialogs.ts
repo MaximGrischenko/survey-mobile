@@ -58,6 +58,7 @@ export const errorSelector = createSelector(stateSelector, state => state.error)
 
 
 export function showAlert(alertText: string) {
+    console.log('alert');
     return {
         type: SHOW_ALERT,
         payload: alertText

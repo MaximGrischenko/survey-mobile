@@ -87,7 +87,6 @@ export const fetchLocationPoisaga = function* (action: any) {
             type: FETCH_LOCATION_POIS_SUCCESS,
             payload: res.data.rows
         });
-
     } catch (error) {
         yield put({
             type: FETCH_LOCATION_POIS_ERROR,
@@ -143,9 +142,11 @@ export const editPoisaga = function* (action: any) {
             type: EDIT_POI_REQUEST,
         });
         const res = yield call(() => {
+            console.log('payload', action.payload);
                 return axios.put(`${API}api/projects/${action.payload.projectId}/poi/${action.payload.id}`, action.payload);
             },
         );
+        console.log('res', res);
         yield put({
             type: POI_EDIT_SUCCESS,
             payload: res.data.data

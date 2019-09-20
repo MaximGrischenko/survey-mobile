@@ -57,6 +57,31 @@ class ParcelList extends Component<IMapProps> {
         );
     };
 
+    private entityFilter(list: Array<any>, search: string) {
+        if(!search) return list;
+        let _list = [];
+        const keys = list.length ? list[0].keys() : [];
+        for (let i = 0; i < list.length; i++) {
+            const el: any = list[i];
+            if(search) {
+                let isInSearch = false;
+                // console.log('------------', el);
+                for(let j = 0; j < keys.length; j++) {
+                    const val = el[keys[j]];
+                    // console.log('search -- ', val && val.toString().toLowerCase(), search.toLowerCase());
+                    if(val && val.toString().toLowerCase().match(search.toLowerCase())) {
+                        // console.log('FOUND', val.toString().toLowerCase(), search.toLowerCase());
+                        isInSearch = true;
+                        break;
+                    }
+                }
+                if (!isInSearch) continue;
+            }
+            _list.push(el);
+        }
+        return _list;
+    }
+
     render() {
 
         return (
@@ -70,7 +95,7 @@ class ParcelList extends Component<IMapProps> {
                                 <FlatList
                                     nestedScrollEnabled={true}
                                     ItemSeparatorComponent={this.renderSeparator}
-                                    data={this.props.parcels}
+                                    data={this.entityFilter(this.props.parcels, this.props.search)}
                                     renderItem={({item, separators}) => {
                                         return (
                                             <View style={localStyles.row}>

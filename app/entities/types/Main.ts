@@ -43,6 +43,7 @@ export default class Main extends MainGlobal {
             'status',
             'comment',
             'type',
+            'title',
             'description',
             'createdAt',
             'updatedAt',

@@ -10,12 +10,12 @@ import StationList from '../screens/lists/station.list';
 import SegmentList from '../screens/lists/segment.list';
 import ParcelList from '../screens/lists/parcel.list';
 import PoleList from '../screens/lists/pole.list';
-
+import PoiList from '../screens/lists/poi.list';
 
 const TabNavigator = createMaterialTopTabNavigator({
         Poles: PoleList,
         Stations: StationList,
-      //  Pois: PoisList,
+        Pois: PoiList,
         Parcels: ParcelList,
         Segments: SegmentList
 
@@ -40,7 +40,7 @@ const TabNavigator = createMaterialTopTabNavigator({
             },
             labelStyle: {
                 textAlign: 'center',
-                fontSize: 12,
+                fontSize: 10,
                 textTransform: 'none'
             },
             indicatorStyle: {

@@ -64,6 +64,7 @@ export const USER_ROLE = {
 const MapRecord: any = {
     refreshed: Date.now(),
     search: null,
+    searchKey: null,
     user: null,
     userMedicationStatementInfo: null,
     userFamilyInfo: null,
@@ -162,6 +163,7 @@ export const isSuperADMINAdminSelector = createSelector(stateSelector, state => 
 
 
 export function changeSettings(data: any) {
+    console.log('changeSettings', data);
     return {
         type: CHANGE_SETTINGS,
         payload: data
@@ -209,6 +211,7 @@ export function loadUser() {
 }
 
 const changeSettingsSaga = function* ({payload}: any) {
+    console.log('changeSettingsSaga', payload);
     yield put({
         type: CHANGE_SETTINGST_SUCCESS,
         payload

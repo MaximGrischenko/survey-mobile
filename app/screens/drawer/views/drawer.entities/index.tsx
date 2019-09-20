@@ -42,9 +42,16 @@ interface IMapState {
 
 class DrawerEntities extends Component<IMapProps, IMapState> {
 
+    constructor(p) {
+        super(p);
+    }
+
     state = {
-        search: ''
+        search: '',
+        selected: [],
+        rendered: false
     };
+
 
     private onSelectItem = (name: string) => {
         this.props.changeControls({name, value: !this.props[name]})
@@ -83,6 +90,24 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
             segmentsStatusSelected,
             categoryPoiSelected
         } = this.props;
+
+        // console.log('prop', this.props.pois[0]);
+
+        this.props.pois.forEach((p)=>{
+
+            // console.log('prop', p.title, p.points);
+        })
+
+        if(this.props.categories.length && !this.state.rendered)  {
+            this.props.categories.forEach((cat)=> {
+
+                categoryPoiSelected.push(cat.id)
+            });
+
+            this.setState({
+                rendered: true
+            });
+        }
 
         const elements: any = [
             {

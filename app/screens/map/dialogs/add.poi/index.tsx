@@ -14,6 +14,8 @@ import {isSuperADMINAdminSelector} from "../../../../redux/modules/auth";
 import {categorySelector} from "../../../../redux/modules/admin";
 import {setDialogSaveButton, showDialogContent} from "../../../../redux/modules/dialogs";
 import {addPoi, editPoi, removePoi} from "../../../../redux/modules/map/poi";
+import {AsyncStorage} from "react-native";
+import {Geometry} from "../../../../entities";
 
 class AddPoiDialog extends MainModalDialog {
     constructor(p) {
@@ -29,7 +31,7 @@ class AddPoiDialog extends MainModalDialog {
 
     componentDidMount(): void {
         super.componentDidMount();
-        console.log('loc',this.props.location.id);
+      //  console.log('pos',this.props.position);
     }
 
     protected handleOk = async (e: any) => {
@@ -38,13 +40,24 @@ class AddPoiDialog extends MainModalDialog {
             // this.props.onFinishEditItem(record.data.data);
             const {id}: any = this.state;
             if (id) {
+                console.log('EDIT', this.state);
                 await this.props.editItem({
                     ...this.state,
                 });
             } else {
+
+                let position = this.props.position;
+                // console.log('cur', this.state);
+                if(this.state.current === 'current') {
+                    let location = await AsyncStorage.getItem('location');
+                    if(location) {
+                        const GEOPosition = JSON.parse(location);
+                        position = new Geometry(Geometry.TYPE.POINT, [GEOPosition.coords.longitude, GEOPosition.coords.latitude]);
+                    }
+                }
                 this.props.onAddItem({
                     ...this.state,
-                    points: this.props.position,
+                    points: position,
                     projectId: this.props.location.id
                 });
                 this.props.changeControls({

@@ -15,7 +15,7 @@ import {
 } from "../../redux/modules/map";
 import {showAlert, showDialogContent} from "../../redux/modules/dialogs";
 import {parcel_statuses, segment_statuses} from "../../redux/utils";
-import {AsyncStorage, Image, View, StyleSheet, Dimensions} from "react-native";
+import {AsyncStorage, Image, View, StyleSheet, Dimensions, TouchableOpacity, Platform} from "react-native";
 import {Text} from 'react-native';
 
 import EditStationDialog from './dialogs/edit.station';
@@ -26,6 +26,8 @@ import AddPoiDialog from './dialogs/add.poi';
 import {fetchCategories} from "../../redux/modules/admin/categories";
 import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";
+import {searchSelector} from "../../redux/modules/auth";
+import Icon from "react-native-vector-icons/Ionicons";
 
 interface IMapProps {
     fetchCategories: Function,
@@ -58,6 +60,7 @@ class MapScreen extends Component<IMapProps> {
         // mapCenter: null,
         // hasLocationPermissions: false,
         // locationResult: null
+
     };
 
     componentDidMount(): void {
@@ -65,10 +68,26 @@ class MapScreen extends Component<IMapProps> {
         this.getLocationAsync();
     }
 
+    // componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<{}>, snapshot?: any): void {
+    //     console.log('UPDATED', this.props);
+    // }
+
+    componentWillReceiveProps(nextProps: any, nextContext: any): void {
+        console.log('getPropsHere', this.props.search, nextProps.search);
+
+        ////
+        this.renderPois(nextProps.search);
+        this.renderPoles(nextProps.search);
+        this.renderStations(nextProps.search);
+        this.renderSegments(nextProps.search);
+        this.renderParcels(nextProps.search);
+    }
+
     private getLocationAsync = async () => {
         let location = await AsyncStorage.getItem('location');
         if(location) {
             const GEOPosition = JSON.parse(location);
+            console.log('geo', GEOPosition.coords);
             this.setState({
                 location: {
                     latitude: GEOPosition.coords.latitude,
@@ -82,13 +101,17 @@ class MapScreen extends Component<IMapProps> {
         if(!search) return list;
         let _list = [];
         const keys = list.length ? list[0].keys() : [];
+        console.log('keys', list[0],keys);
         for (let i = 0; i < list.length; i++) {
             const el: any = list[i];
             if(search) {
                 let isInSearch = false;
+                // console.log('------------', el);
                 for(let j = 0; j < keys.length; j++) {
                     const val = el[keys[j]];
+                    // console.log('search -- ', val && val.toString().toLowerCase(), search.toLowerCase());
                     if(val && val.toString().toLowerCase().match(search.toLowerCase())) {
+                        // console.log('FOUND', val.toString().toLowerCase(), search.toLowerCase());
                         isInSearch = true;
                         break;
                     }
@@ -206,8 +229,8 @@ class MapScreen extends Component<IMapProps> {
         const {showDialogContent} = this.props;
 
         const coordinate = [
-            event.latitude,
-            event.longitude
+            event.longitude,
+            event.latitude
         ];
 
         showDialogContent(
@@ -224,12 +247,23 @@ class MapScreen extends Component<IMapProps> {
         );
     }
 
+    private moveToCurrentLocation = () => {
+        let r = {
+            latitude: this.state.location.latitude,
+            longitude: this.state.location.longitude,
+            latitudeDelta: 2,
+            longitudeDelta: 2,
+        };
+        this.map.root.animateToRegion(r, 2000);
+    };
+
     private  handleMapRegionChange = mapRegion => {
         this.setState({mapRegion})
     };
 
-    private renderStations() {
-        const {stations, search} = this.props;
+    private renderStations(search) {
+        if(!search) search = this.props.search;
+        const {stations} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(stations, search); i < list.length; i++) {
             markers.push(list[i]);
@@ -239,14 +273,15 @@ class MapScreen extends Component<IMapProps> {
             <Marker
                 key={marker.id}
                 coordinate={marker.points.toGPS()}
-                image={require('../../../assets/images/station.png')}
+                image={Platform.OS === 'ios' ? require('../../../assets/images/station.png') : require('../../../assets/images/station-x4.png')}
                 onPress={() => this.showDialog(marker)}
             />
         ));
     }
 
-    private renderPoles() {
-        const {poles, search} = this.props;
+    private renderPoles(search) {
+        if(!search) search = this.props.search;
+        const {poles} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(poles, search); i < list.length; i++) {
             markers.push(list[i]);
@@ -256,16 +291,19 @@ class MapScreen extends Component<IMapProps> {
             <Marker
                 key={marker.id}
                 coordinate={marker.points.toGPS()}
-                image={require('../../../assets/images/pole.png')}
+                image={Platform.OS === 'ios' ? require('../../../assets/images/pole.png') : require('../../../assets/images/pole-x4.png')}
                 onPress={() => this.showDialog(marker)}
             />
         ));
     }
 
-    private renderPois() {
-        const {pois, search} = this.props;
+    private renderPois(search) {
+        if(!search) search = this.props.search;
+        const {pois} = this.props;
+
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(pois, search); i < list.length; i++) {
+            // console.log('PUSH', list[i]);
             markers.push(list[i]);
         }
 
@@ -273,14 +311,15 @@ class MapScreen extends Component<IMapProps> {
             <Marker
                 key={marker.id}
                 coordinate={marker.points.toGPS()}
-                image={require('../../../assets/images/poi.png')}
+                image={Platform.OS === 'ios' ? require('../../../assets/images/poi.png') : require('../../../assets/images/poi-x4.png')}
                 onPress={() => this.showDialog(marker)}
             />
         ));
     }
 
-    private renderSegments() {
-        const {segments, search} = this.props;
+    private renderSegments(search) {
+        if(!search) search = this.props.search;
+        const {segments} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(segments, search); i < list.length; i++) {
             markers.push(list[i]);
@@ -331,8 +370,9 @@ class MapScreen extends Component<IMapProps> {
         })
     }
 
-    private renderParcels() {
-        const {parcels, search} = this.props;
+    private renderParcels(search) {
+        if(!search) search = this.props.search;
+        const {parcels} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(parcels, search); i < list.length; i++) {
             markers.push(list[i]);
@@ -377,12 +417,15 @@ class MapScreen extends Component<IMapProps> {
             showPoles,
             showPois,
         } = this.props;
+
+        console.log('location', this.state.location);
+
         return (
             <React.Fragment>
                 <MapView
                     style={{flex: 1}}
                     onPress={this.onMapClick}
-                    //onRegionChange={this.handleMapRegionChange}
+                   // onRegionChange={this.handleMapRegionChange}
                     ref={ref => {
                         this.map = ref;
                     }}
@@ -418,6 +461,9 @@ class MapScreen extends Component<IMapProps> {
                         ) : null
                     }
                 </MapView>
+                <TouchableOpacity style={localStyles.location} onPress={this.moveToCurrentLocation}>
+                    <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={30} color={COLORS.PRIMARY}/>
+                </TouchableOpacity>
                 <FabButton
                     style={localStyles.button}
                     onPress={this.onAllowToAddPoi}
@@ -435,6 +481,11 @@ class MapScreen extends Component<IMapProps> {
 }
 
 const localStyles = StyleSheet.create({
+    location: {
+        position: 'absolute',
+        bottom: 70,
+        right: 33,
+    },
     button: {
         position: 'absolute',
         bottom: 20,
@@ -468,7 +519,8 @@ const mapStateToProps = (state: any) => ({
     showPoles: state[moduleName].showPoles,
     showSegments: state[moduleName].showSegments,
     showParcels: state[moduleName].showParcels,
-    showPois: state[moduleName].showPois
+    showPois: state[moduleName].showPois,
+    search: searchSelector(state)
 });
 
 const mapDispatchToProps = (dispatch: any) => (

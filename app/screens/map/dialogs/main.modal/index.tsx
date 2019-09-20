@@ -12,6 +12,8 @@ import {TextField} from 'react-native-material-textfield';
 import MultiSelect from "react-native-multiple-select";
 import NumericInput from 'react-native-numeric-input';
 import {PrimaryButton} from "../../../../components/buttons/primary.button";
+import DatePicker from 'react-native-datepicker';
+
 
 interface IMapProps {
     isAdmin: any,
@@ -36,6 +38,8 @@ interface IMapState {
     uploads: Array<Upload>,
     errors: any,
     status: any,
+    current: any,
+    date: any
     canDelete: boolean,
     __pending: boolean
 }
@@ -72,9 +76,13 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         this.state = {
             __pending: false,
             canDelete: false,
+            current: 'current',
+            categoryId: 1, //TODO refactor
             errors: [],
             ...p.selectedItem
         }
+
+        console.log('modal', this.state, this.props.categories);
     }
 
     private Select: any = null;
@@ -144,6 +152,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             await this.props.editItem(editItem);
             if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
         } catch (e) {
+            console.log(e);
             // toast.show(e.response ? e.response.data.error || e.response.data.message : e.meesage || e, {
             //     position: toast.POSITION.TOP_LEFT
             // });
@@ -266,14 +275,14 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                             id: el.id
                         }))
                     },
-                    // {
-                    //     type: 6,
-                    //     step: 1,
-                    //     min: 1,
-                    //     max: 12,
-                    //     name: 'time_of_operation',
-                    //     title: 'time of operation'
-                    // },
+                    {
+                        type: 4,
+                        // step: 1,
+                        // min: 1,
+                        // max: 12,
+                        name: 'time_of_operation',
+                        title: 'time of operation'
+                    },
                 );
             }
             if ([
@@ -314,6 +323,18 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                 }))
             );
         } else if (this.type === TYPES.POI) {
+            if(!this.state.id) {
+                fields.push(
+                    {
+                        title: 'Location',
+                        name: 'current',
+                        options: [{text:'current', value:'current'}, {text:'selected', value:'selected'}].map((el: any) => ({
+                            value: el.text,
+                            text: el.value
+                        })),
+                    },
+                )
+            }
             fields.push(
                 {
                     title: 'Project',
@@ -328,12 +349,14 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     title: 'Category',
                     name: 'categoryId',
                     required: true,
+                    // removeLater: 1,
                     options: this.props.categories.map((el: any) => ({
                         text: el.title,
                         value: el.id
                     })),
                     disabled:!isAdmin
                 },
+
             );
         }
         return fields;
@@ -390,12 +413,39 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                         />
                                     </View>
                                 )
+                            } else if(el.type === 4) {
+                                return (
+                                    <DatePicker
+                                        style={{width: 200}}
+                                        date={this.state.date}
+                                        mode="date"
+                                        placeholder="select date"
+                                        format="YYYY-MM-DD"
+                                        minDate="2016-05-01"
+                                        maxDate="2016-06-01"
+                                        confirmBtnText="Confirm"
+                                        cancelBtnText="Cancel"
+                                        customStyles={{
+                                            dateIcon: {
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 4,
+                                                marginLeft: 0
+                                            },
+                                            dateInput: {
+                                                marginLeft: 36
+                                            }
+                                            // ... You can check the source to find the other keys.
+                                        }}
+                                        onDateChange={(date) => {this.setState({date: date})}}
+                                    />
+                                )
                             } else if(el.options) {
                                 return (
                                     <Field
                                         key={el.name}
                                         onChangeText={this.onFieldChange(el.name)}
-                                        label={el.name}
+                                        label={el.title}
                                         placeholder={el.name}
                                         value={state[el.name]}
                                         data={el.options.map((el: any) => ({
@@ -428,6 +478,20 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     {
                         this.editTitle ? (
                             <View style={localStyles.comment}>
+                                <Field
+                                  //  key={title}
+                                    //required
+                                    label={"Title"}
+                                    placeholder={`Enter title`}
+                                    component={TextField}
+                                  //  count={0}
+                                  //  validations={[required]}
+                                    name={'title'}
+                                    value={title || ''}
+                                  //  disabled={el.disabled}
+                                    onChangeText={this.onFieldChange('title')}
+                                    customStyle={{width: '100%'}}
+                                />
                                 <Field
                                     required
                                     component = {InputField}
