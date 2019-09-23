@@ -149,8 +149,6 @@ export default class MainList extends Component<IMapProps> {
     protected _render() {
         const {selectedList}: any = this.props;
         const rows = this.getRows();
-        console.log('rows', rows.reduce((acc, keys) => `${acc}${keys.key_title}`, ''));
-
 
         return(
             <View style={localStyles.wrapper}>
@@ -191,7 +189,7 @@ const localStyles = StyleSheet.create({
     scroll: {
         flex: 1,
         width: '100%',
-        marginTop: 90,
+        marginTop: 80,
         paddingBottom: 30
     },
     row: {

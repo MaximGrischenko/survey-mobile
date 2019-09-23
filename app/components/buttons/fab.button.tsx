@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
         opacity: 0.5
     },
     icon: {
-        color: '#fff'
+        color: COLORS.SECONDARY,
+        height: 24,
     }
 });

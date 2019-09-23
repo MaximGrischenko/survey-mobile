@@ -13,7 +13,7 @@ export class Segment extends Main {
     parcel_number_for_permit: number = 0;
     time_of_operation: number = 1;
     shutdown_time: number = 1;
-    notes: string = '';
+   // notes: string = '';
     operation_type: any = '';
     track: number = 1;
    // nazwa_linii: any;
@@ -40,7 +40,7 @@ export class Segment extends Main {
         this.time_for_next_entry = data.time_for_next_entry||"";
         this.operation_type = data.operation_type || '';
         this.operation_type = this.operation_type.length ? this.operation_type.split(",") : [];
-        this.notes = data.notes || '';
+      //  this.notes = data.notes || '';
         this.track = data.track || 1;
         this.shutdown_time = data.shutdown_time || 1;
         this.przeslo = data.przeslo || '';

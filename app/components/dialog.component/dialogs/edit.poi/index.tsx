@@ -1,9 +1,12 @@
-import React, {Component} from "react";
+import React from "react";
+import * as Location from "expo-location";
+import * as Permissions from 'expo-permissions';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import MainModalDialog, {TYPES} from "../main.modal";
 
 import {
+    applyGeoposition,
     changeControls,
     errorSelector,
     locationSelector,
@@ -12,7 +15,7 @@ import {
 } from "../../../../redux/modules/map";
 import {isSuperADMINAdminSelector} from "../../../../redux/modules/auth";
 import {categorySelector} from "../../../../redux/modules/admin";
-import {setDialogSaveButton, showDialogContent} from "../../../../redux/modules/dialogs";
+import {setDialogSaveButton, showAlert, showDialogContent} from "../../../../redux/modules/dialogs";
 import {addPoi, editPoi, removePoi} from "../../../../redux/modules/map/poi";
 import {AsyncStorage} from "react-native";
 import {Geometry} from "../../../../entities";
@@ -38,15 +41,32 @@ class EditPoiDialog extends MainModalDialog {
                     ...this.state,
                 });
             } else {
-
                 let position = this.props.position;
                 if(this.state.current === 'current') {
-                    let location = await AsyncStorage.getItem('location');
-                    if(location) {
-                        const GEOPosition = JSON.parse(location);
-                        position = new Geometry(Geometry.TYPE.POINT, [GEOPosition.coords.longitude, GEOPosition.coords.latitude]);
+
+                    let hasLocationPermissions = false;
+                    let locationResult = null;
+
+                    let {status} = await Permissions.askAsync(Permissions.LOCATION);
+
+                    if(status !== 'granted') {
+                        locationResult = 'Permission to access location was denied';
+                        this.props.showAlert(locationResult);
+                    } else {
+                        hasLocationPermissions = true;
                     }
+
+                    // let location = await AsyncStorage.getItem('location');
+                    let location = await Location.getCurrentPositionAsync({
+                        enableHighAccuracy: true, timeout: 20000,
+                    });
+                    await applyGeoposition(location);
+                  //  if(location) {
+                  //      const GEOPosition = JSON.parse(location);
+                        position = new Geometry(Geometry.TYPE.POINT, [location.coords.longitude, location.coords.latitude]);
+                 //   }
                 }
+                console.log('before add');
                 this.props.onAddItem({
                     ...this.state,
                     points: position,
@@ -91,6 +111,7 @@ const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         setDialogSaveButton,
         showDialogContent,
+        showAlert,
         changeControls,
         editItem: editPoi,
         onDeleteItem: removePoi,

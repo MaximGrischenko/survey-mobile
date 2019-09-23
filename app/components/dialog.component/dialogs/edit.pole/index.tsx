@@ -14,10 +14,6 @@ class EditPoleDialog extends MainModalDialog {
         this.type = TYPES.POLE;
     }
 
-    componentDidUpdate(prevProps: any, prevState: any, snapshot?: any): void {
-        console.log('====', this.props.itemsList);
-    }
-
     render() {
         return super._render();
     }

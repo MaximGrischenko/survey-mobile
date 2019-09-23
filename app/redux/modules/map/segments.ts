@@ -121,15 +121,19 @@ export const editItemSaga = function* (action: any) {
             type: EDIT_SEGMENTS_REQUEST,
         });
         const res = yield call(() => {
+            console.log('API', `${API}api/projects/${action.payload.projectId}/segments/${action.payload.id}`);
+            console.log('PAYLOAD', action.payload);
                 return axios.put(`${API}api/projects/${action.payload.projectId}/segments/${action.payload.id}`, action.payload);
             },
         );
+        console.log('response', res);
         yield put({
             type: EDIT_SEGMENTS_SUCCESS,
             payload: res.data.data
         });
 
     } catch (error) {
+        console.log('error', error);
         yield put({
             type: EDIT_SEGMENTS_ERROR,
             error: error.response.data.message,

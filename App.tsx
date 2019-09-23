@@ -50,6 +50,7 @@ export default class App extends Component {
         const fontAssets = cacheFonts([]);
 
         const token = await AsyncStorage.getItem('access_token');
+        let location: any = '';
 
         let hasLocationPermissions = false;
         let locationResult =  null;
@@ -60,11 +61,10 @@ export default class App extends Component {
             locationResult = 'Permission to access location was denied';
         } else {
             hasLocationPermissions =  true;
+            location = await Location.getCurrentPositionAsync({
+                enableHighAccuracy: true, timeout: 20000,
+            });
         }
-
-        let location = await Location.getCurrentPositionAsync({
-            enableHighAccuracy: true, timeout: 20000,
-        });
 
         // this.setState({
         //    locationResult: JSON.stringify(location)

@@ -12,7 +12,7 @@ import {TextField} from 'react-native-material-textfield';
 import MultiSelect from "react-native-multiple-select";
 import NumericInput from 'react-native-numeric-input';
 import {PrimaryButton} from "../../../buttons/primary.button";
-import DatePicker from 'react-native-datepicker';
+import DateTimePicker from "react-native-modal-datetime-picker";
 
 
 interface IMapProps {
@@ -31,6 +31,7 @@ interface IMapProps {
     onDeleteItem: Function,
     onAddItem: Function,
     setDialogSaveButton: Function,
+    showAlert: Function,
     showDialogContent: Function
 }
 
@@ -120,7 +121,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
 
     private onChange = (e: any) => {
         let value = e.target.value;
-        if(e.target.getAttribute instanceof Function && e.target.getAttribute('type') === 'number') {
+        if(e.target.getAttribute instanceof Function) {
             value = parseFloat(value);
             const min = parseInt(e.target.getAttribute('min'));
             const max = parseInt(e.target.getAttribute('max'));
@@ -135,7 +136,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         const newState: any = {
             [e.target.name]: value
         };
-
         this.setState(newState);
     };
 
@@ -189,10 +189,12 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                         text: el.title,
                         value: el.id
                     })),
+                    disabled:!isAdmin
                 },
                 ...Pole.edit_keys.map((el: string) => ({
                     title: el,
-                    name: el
+                    name: el,
+                    disabled:!isAdmin
                 }))
             );
         } else if (this.type === TYPES.SEGMENT) {
@@ -305,13 +307,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     }
                 );
             }
-            fields.push(
-                {
-                    type: 5,
-                    name: 'notes',
-                    title: 'Notes'
-                }
-            );
         } else if (this.type === TYPES.STATION) {
             fields.push(
                 ...Station.edit_keys.map((el: string) => ({
@@ -360,6 +355,14 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         return fields;
     };
 
+    private confirm = () => {
+
+    };
+
+    private cancel = () => {
+
+    };
+
     protected _render() {
         const state: any = this.state;
         const {title, comment}: any = this.state;
@@ -385,14 +388,14 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                             totalHeight={40}
                                             type={'up-down'}
                                             iconSize={15}
-                                            step={0.01}
-                                            valueType='real'
+                                            step={el.step}
+                                            valueType='integer'
                                         />
                                     </View>
                                 )
                             } else if(el.type === 3) {
                                 return (
-                                    <View key={el.name} style={{paddingTop: 20}}>
+                                    <View key={el.name}>
                                         <MultiSelect
                                             hideSubmitButton={true}
                                             uniqueKey={'name'}
@@ -413,30 +416,9 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                 )
                             } else if(el.type === 4) {
                                 return (
-                                    <DatePicker
-                                        style={{width: 200}}
-                                        date={this.state.date}
-                                        mode="date"
-                                        placeholder="select date"
-                                        format="YYYY-MM-DD"
-                                        minDate="2016-05-01"
-                                        maxDate="2016-06-01"
-                                        confirmBtnText="Confirm"
-                                        cancelBtnText="Cancel"
-                                        customStyles={{
-                                            dateIcon: {
-                                                position: 'absolute',
-                                                left: 0,
-                                                top: 4,
-                                                marginLeft: 0
-                                            },
-                                            dateInput: {
-                                                marginLeft: 36
-                                            }
-                                            // ... You can check the source to find the other keys.
-                                        }}
-                                        onDateChange={(date) => {this.setState({date: date})}}
-                                    />
+                                    <View key={el.name}>
+                                        <DateTimePicker onConfirm={this.confirm} onCancel={this.cancel} />
+                                    </View>
                                 )
                             } else if(el.options) {
                                 return (
@@ -450,6 +432,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                             label: el.text,
                                             value: el.value
                                         }))}
+                                        disabled={el.disabled}
                                         component={Dropdown}
                                     />
                                 )
@@ -461,7 +444,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                         label={el.name}
                                         placeholder={`Enter ${el.name}`}
                                         component={TextField}
-                                        count={0}
                                         validations={[required]}
                                         name={el.name}
                                         value={state[el.name]}
@@ -492,15 +474,16 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                 />
                                 <Field
                                     required
-                                    component = {InputField}
-                                    placeholder = "Enter Comment"
+                                    component = {TextField}
+                                    label={'Notes'}
+                                    placeholder = "Enter notes"
                                     validations ={[required]}
                                     name ={ 'comment'}
                                     multiline = {true}
                                     numberOfLines = {5}
-                                    value = {comment}
+                                    value = {comment || ''}
                                     onChangeText = {this.onFieldChange('comment')}
-                                    customStyle = {{width: '100%', height: 150}}
+                                    customStyle = {{width: '100%'}}
                                 />
                             </View>
                         ) : null
@@ -529,6 +512,6 @@ const localStyles = StyleSheet.create({
         marginRight: 20
     },
     comment: {
-        marginTop: 30
+        marginTop: 20
     }
 });

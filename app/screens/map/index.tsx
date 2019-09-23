@@ -1,22 +1,23 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-
+import * as Location from "expo-location";
+import * as Permissions from 'expo-permissions';
 import MapView from 'react-native-map-clustering';
 import {Marker, Polygon, Polyline} from "react-native-maps";
 import {Geometry, GPSCoordinate, Parcel, Poi, Pole, Project, Segment, Station} from "../../entities";
 import {
+    applyGeoposition,
     changeControls,
     locationParcelsSelector, locationPoisSelector,
     locationPolesSelector,
     locationSegmentsSelector,
     locationSelector,
-    locationStationsSelector, moduleName
+    locationStationsSelector, moduleName, powerlineSelector
 } from "../../redux/modules/map";
 import {showAlert, showDialogContent} from "../../redux/modules/dialogs";
 import {parcel_statuses, segment_statuses} from "../../redux/utils";
-import {AsyncStorage, Image, View, StyleSheet, Dimensions, TouchableOpacity, Platform} from "react-native";
-import {Text} from 'react-native';
+import {AsyncStorage, Image, View, StyleSheet, Dimensions, TouchableOpacity, Platform, Text} from "react-native";
 
 import EditStationDialog from '../../components/dialog.component/dialogs/edit.station';
 import EditParcelDialog from '../../components/dialog.component/dialogs/edit.parcel';
@@ -30,6 +31,7 @@ import {searchSelector} from "../../redux/modules/auth";
 import Icon from "react-native-vector-icons/Ionicons";
 
 interface IMapProps {
+    selected_powerlines: Array<number>,
     fetchCategories: Function,
     project: Project,
     stations: Array<Station>,
@@ -56,6 +58,7 @@ class MapScreen extends Component<IMapProps> {
     state = {
         //mapRegion: this.props.mapCenter,
         location: this.props.mapCenter,
+        radius: 5,
         //allowAddPoi: false
         // mapCenter: null,
         // hasLocationPermissions: false,
@@ -63,15 +66,27 @@ class MapScreen extends Component<IMapProps> {
 
     };
 
-    componentDidMount(): void {
+    async componentDidMount() {
         this.props.fetchCategories();
-        this.getLocationAsync();
+        let location = await AsyncStorage.getItem('location');
+        if(location) {
+            const GEOPosition = JSON.parse(location);
+            this.setState({
+                location: {
+                    latitude: GEOPosition.coords.latitude,
+                    longitude: GEOPosition.coords.longitude
+                }
+            });
+        }
     }
 
-    // componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<{}>, snapshot?: any): void {
-    //     console.log('UPDATED', this.props);
-    // }
 
+    // static getDerivedStateFromProps(nextProps, prevState){
+    //     const markers: [] =
+    //     return {
+    //         visible : nextProps.visible
+    //     };
+    // }
     // componentWillReceiveProps(nextProps: any, nextContext: any): void {
     //     ////
     //     this.renderPois(nextProps.search);
@@ -82,24 +97,38 @@ class MapScreen extends Component<IMapProps> {
     // }
 
     private getLocationAsync = async () => {
-        let location = await AsyncStorage.getItem('location');
-        if(location) {
-            const GEOPosition = JSON.parse(location);
-            console.log('geo', GEOPosition.coords);
-            this.setState({
-                location: {
-                    latitude: GEOPosition.coords.latitude,
-                    longitude: GEOPosition.coords.longitude
-                }
-            });
+
+        let hasLocationPermissions = false;
+        let locationResult = null;
+
+        let {status} = await Permissions.askAsync(Permissions.LOCATION);
+
+        if(status !== 'granted') {
+            locationResult = 'Permission to access location was denied';
+            this.props.showAlert(locationResult);
+        } else {
+            hasLocationPermissions = true;
         }
+
+        let location = await Location.getCurrentPositionAsync({
+            enableHighAccuracy: true, timeout: 20000,
+        });
+
+        this.setState({
+            location: {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude
+            }
+        });
+        await applyGeoposition(location);
+
+        this.moveToCurrentLocation();
     };
 
     private static entityFilter(list: Array<any>, search: string) {
         if(!search) return list;
         let _list = [];
         const keys = list.length ? list[0].keys() : [];
-        console.log('keys', list[0],keys);
         for (let i = 0; i < list.length; i++) {
             const el: any = list[i];
             if(search) {
@@ -205,9 +234,6 @@ class MapScreen extends Component<IMapProps> {
                 e.nativeEvent.coordinate.longitude,
                 e.nativeEvent.coordinate.latitude
             ];
-
-          //  console.log(coordinate);
-
             showDialogContent(
                 {
                     content: (
@@ -245,14 +271,37 @@ class MapScreen extends Component<IMapProps> {
         );
     }
 
+    private onClusterPress = (cluster) => {
+        const coordinates = cluster.geometry.coordinates;
+        let region = {
+            latitude: coordinates[1],
+            longitude: coordinates[0],
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
+        };
+
+
+        this.map.root.animateToRegion(region, 2000);
+    };
+
+    private moveToLocation = (region, duration) => {
+        this.map.root.animateToRegion(region, duration);
+    };
+
+    private onRegionChangeComplete = () => {
+        this.setState({
+            radius: 0.5
+        })
+    };
+
     private moveToCurrentLocation = () => {
-        let r = {
+        let region = {
             latitude: this.state.location.latitude,
             longitude: this.state.location.longitude,
-            latitudeDelta: 2,
-            longitudeDelta: 2,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
         };
-        this.map.root.animateToRegion(r, 2000);
+        this.map.root.animateToRegion(region, 2000);
     };
 
     private  handleMapRegionChange = mapRegion => {
@@ -260,7 +309,6 @@ class MapScreen extends Component<IMapProps> {
     };
 
     private renderStations() {
-       //if(!search) search = this.props.search;
         const {stations, search} = this.props;
         const markers: Array<any> = [];
         for(let i = 0, list: Array<any> = MapScreen.entityFilter(stations, search); i < list.length; i++) {
@@ -421,14 +469,17 @@ class MapScreen extends Component<IMapProps> {
                 <MapView
                     style={{flex: 1}}
                     onPress={this.onMapClick}
+                    radius={this.state.radius}
+                    onClusterPress={this.onClusterPress}
                    // onRegionChange={this.handleMapRegionChange}
+                   // onRegionChangeComplete={this.onRegionChangeComplete}
                     ref={ref => {
                         this.map = ref;
                     }}
                     region={{
                         ...location,
-                        latitudeDelta: 2,
-                        longitudeDelta: 2
+                        latitudeDelta: 4,
+                        longitudeDelta: 4
                     }}
                 >
                     {
@@ -457,8 +508,8 @@ class MapScreen extends Component<IMapProps> {
                         ) : null
                     }
                 </MapView>
-                <TouchableOpacity style={localStyles.location} onPress={this.moveToCurrentLocation}>
-                    <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={30} color={COLORS.PRIMARY}/>
+                <TouchableOpacity style={localStyles.location} onPress={this.getLocationAsync}>
+                    <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={24} color={COLORS.SECONDARY} style={localStyles.icon}/>
                 </TouchableOpacity>
                 <FabButton
                     style={localStyles.button}
@@ -479,13 +530,29 @@ class MapScreen extends Component<IMapProps> {
 const localStyles = StyleSheet.create({
     location: {
         position: 'absolute',
-        bottom: 70,
-        right: 33,
+        bottom: 80,
+        right: 20,
+
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 50,
+        width: 50,
+        borderRadius: 100,
+        backgroundColor: COLORS.PRIMARY,
+        shadowColor: COLORS.PRIMARY,
+        shadowOpacity: 0.4,
+        shadowOffset: {height: 10, width: 0},
+        shadowRadius: 20
     },
     button: {
         position: 'absolute',
         bottom: 20,
         right: 20
+    },
+    icon: {
+        color: COLORS.SECONDARY,
+        height: 24,
     },
     allowAddPoi: {
         width: Dimensions.get('window').width-20,
@@ -503,6 +570,7 @@ const localStyles = StyleSheet.create({
 });
 
 const mapStateToProps = (state: any) => ({
+    selected_powerlines: powerlineSelector(state),
     project: locationSelector(state),
     stations: locationStationsSelector(state),
     poles: locationPolesSelector(state),
