@@ -1,10 +1,19 @@
 import React, {Component} from 'react';
-
 import {Upload, Pole, Parcel, Segment, Station, Category, Project, Powerline} from "../../../../entities";
 import {segment_statuses, parcel_statuses, segment_operation_type, checkError} from "../../../../redux/utils";
 
 import {Form, Field} from 'react-native-validate-form';
-import {View, Text, Platform, TouchableOpacity, StyleSheet, TextInput, Slider, ScrollView} from 'react-native';
+import {
+    View,
+    Text,
+    Platform,
+    TouchableOpacity,
+    StyleSheet,
+    TextInput,
+    Slider,
+    ScrollView,
+    Dimensions
+} from 'react-native';
 import { Dropdown } from 'react-native-material-dropdown';
 import Icon from "react-native-vector-icons/Ionicons";
 import {InputField, required} from "../../../inputs/field.input";
@@ -13,6 +22,13 @@ import MultiSelect from "react-native-multiple-select";
 import NumericInput from 'react-native-numeric-input';
 import {PrimaryButton} from "../../../buttons/primary.button";
 import DateTimePicker from "react-native-modal-datetime-picker";
+
+import Carousel from 'react-native-snap-carousel';
+import SliderEntry from "../../../uploads.preview";
+import {entries} from './entries/index';
+import {sliderWidth, itemWidth} from "../../../../styles/carousel/SliderEntry.style";
+import styles, {colors} from '../../../../styles/carousel/index.style';
+import UploadComponent from "../../../upload.component";
 
 
 interface IMapProps {
@@ -86,6 +102,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     }
 
     private Select: any = null;
+    private Carousel: any = null;
 
     componentDidMount(): void {
         this.props.setDialogSaveButton(
@@ -160,6 +177,20 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
 
     protected handleCancel = (e: any) => {
         this.props.showDialogContent(false);
+    };
+
+    private onUploadFile = () => {
+        this.setState({
+            uploads: [
+                ...this.state.uploads,
+            ]
+        })
+    };
+
+    private renderUploads = ({item, index}) => {
+        return (
+            <SliderEntry data={item} even={(index + 1) % 2 === 0} parallax={false} parallaxProps={{}}/>
+        )
     };
 
     private getFields = () => {
@@ -487,6 +518,37 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                 />
                             </View>
                         ) : null
+                    }
+                    {
+                        <View>
+                            {/*<Text>Uploads</Text>*/}
+                            <View>
+                                {/*<Carousel*/}
+                                {/*    ref={(ref) => {this.Carousel = ref;}}*/}
+                                {/*    data={entries}*/}
+                                {/*    layout={'stack'}*/}
+                                {/*    layoutCardOffset={18}*/}
+                                {/*    renderItem={this.renderUploads}*/}
+                                {/*    sliderWidth={sliderWidth}*/}
+                                {/*    itemWidth={itemWidth}*/}
+                                {/*    inactiveSlideScale={0.95}*/}
+                                {/*    inactiveSlideOpacity={1}*/}
+                                {/*    enableMomentum={true}*/}
+                                {/*    activeSlideAlignment={'start'}*/}
+                                {/*    containerCustomStyle={styles.slider}*/}
+                                {/*    contentContainerCustomStyle={styles.sliderContentContainer}*/}
+                                {/*    activeAnimationType={'spring'}*/}
+                                {/*    activeAnimationOptions={{*/}
+                                {/*        friction: 4,*/}
+                                {/*        tension: 40*/}
+                                {/*    }}*/}
+                                {/*/>*/}
+                                <UploadComponent
+                                    files={selectedItem.uploads}
+                                    onUpload = {this.onUploadFile}
+                                />
+                            </View>
+                        </View>
                     }
                 </Form>
             </ScrollView>

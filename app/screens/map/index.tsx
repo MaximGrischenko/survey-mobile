@@ -470,7 +470,7 @@ class MapScreen extends Component<IMapProps> {
                     style={{flex: 1}}
                     onPress={this.onMapClick}
                     radius={this.state.radius}
-                    onClusterPress={this.onClusterPress}
+                   // onClusterPress={this.onClusterPress}
                    // onRegionChange={this.handleMapRegionChange}
                    // onRegionChangeComplete={this.onRegionChangeComplete}
                     ref={ref => {

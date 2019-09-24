@@ -2,18 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/entries/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/upload.component/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/components/uploads.preview/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/styles/carousel/SliderEntry.style.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/styles/carousel/index.style.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/buttons/fab.button.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/buttons/fab.button.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.pole/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.pole/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/entities/types/Segment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Segment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/lists/main.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/main.list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn-error.log" beforeDir="false" afterPath="$PROJECT_DIR$/yarn-error.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -96,7 +94,7 @@
       <workItem from="1568371569995" duration="3961000" />
       <workItem from="1568376230364" duration="224000" />
       <workItem from="1568376461326" duration="41792000" />
-      <workItem from="1568708203280" duration="170164000" />
+      <workItem from="1568708203280" duration="199287000" />
     </task>
     <servers />
   </component>
