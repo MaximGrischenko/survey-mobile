@@ -52,12 +52,25 @@ interface IMapProps {
     showPois: boolean,
 }
 
-class MapScreen extends Component<IMapProps> {
+interface IMapState {
+    region: any,
+    radius: number
+}
+
+class MapScreen extends Component<IMapProps, IMapState> {
     private map: any;
+
+    constructor(p) {
+        super(p);
+        this.state = {
+            region: null,
+            radius: 5
+        }
+    }
 
     state = {
         //mapRegion: this.props.mapCenter,
-        location: this.props.mapCenter,
+        region: null,
         radius: 5,
         //allowAddPoi: false
         // mapCenter: null,
@@ -69,35 +82,50 @@ class MapScreen extends Component<IMapProps> {
     async componentDidMount() {
         this.props.fetchCategories();
         let location = await AsyncStorage.getItem('location');
+
+        const region = {
+            latitude: null,
+            longitude: null,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1
+        };
+
         if(location) {
             const GEOPosition = JSON.parse(location);
+            region.latitude = GEOPosition.coords.latitude;
+            region.longitude = GEOPosition.coords.longitude;
+
             this.setState({
-                location: {
-                    latitude: GEOPosition.coords.latitude,
-                    longitude: GEOPosition.coords.longitude
-                }
+                region
             });
+        } else {
+            region.latitude = this.props.mapCenter.latitude;
+            region.longitude = this.props.mapCenter.longitude;
+
+            this.setState({
+                region
+            })
         }
+
+        await applyGeoposition(location);
+
+        this.moveToLocation(this.state.region, 2000);
     }
 
+    componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<{}>, snapshot?: any): void {
+    }
 
-    // static getDerivedStateFromProps(nextProps, prevState){
-    //     const markers: [] =
-    //     return {
-    //         visible : nextProps.visible
-    //     };
-    // }
-    // componentWillReceiveProps(nextProps: any, nextContext: any): void {
-    //     ////
-    //     this.renderPois(nextProps.search);
-    //     this.renderPoles(nextProps.search);
-    //     this.renderStations(nextProps.search);
-    //     this.renderSegments(nextProps.search);
-    //     this.renderParcels(nextProps.search);
-    // }
+    static getDerivedStateFromProps(nextProps: Readonly<IMapProps>, prevState: Readonly<IMapState>): IMapState{
+        let nextState = {} as IMapState;
+
+        if(nextProps.project) {
+
+        }
+
+        return nextState;
+    }
 
     private getLocationAsync = async () => {
-
         let hasLocationPermissions = false;
         let locationResult = null;
 
@@ -115,14 +143,16 @@ class MapScreen extends Component<IMapProps> {
         });
 
         this.setState({
-            location: {
+            region: {
                 latitude: location.coords.latitude,
-                longitude: location.coords.longitude
-            }
+                longitude: location.coords.longitude,
+                latitudeDelta: 0.1,
+                longitudeDelta: 0.1,
+            },
         });
         await applyGeoposition(location);
 
-        this.moveToCurrentLocation();
+        this.moveToLocation(this.state.region, 2000);
     };
 
     private static entityFilter(list: Array<any>, search: string) {
@@ -249,27 +279,27 @@ class MapScreen extends Component<IMapProps> {
         }
     };
 
-    private drawInMap(event: any) {
-        const {showDialogContent} = this.props;
-
-        const coordinate = [
-            event.longitude,
-            event.latitude
-        ];
-
-        showDialogContent(
-            {
-                content: (
-                    <EditPoiDialog
-                        selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
-                        position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
-                ),
-                header: (
-                    <Text>Add poi</Text>
-                )
-            }
-        );
-    }
+    // private drawInMap(event: any) {
+    //     const {showDialogContent} = this.props;
+    //
+    //     const coordinate = [
+    //         event.longitude,
+    //         event.latitude
+    //     ];
+    //
+    //     showDialogContent(
+    //         {
+    //             content: (
+    //                 <EditPoiDialog
+    //                     selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
+    //                     position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
+    //             ),
+    //             header: (
+    //                 <Text>Add poi</Text>
+    //             )
+    //         }
+    //     );
+    // }
 
     private onClusterPress = (cluster) => {
         const coordinates = cluster.geometry.coordinates;
@@ -288,25 +318,25 @@ class MapScreen extends Component<IMapProps> {
         this.map.root.animateToRegion(region, duration);
     };
 
-    private onRegionChangeComplete = () => {
-        this.setState({
-            radius: 0.5
-        })
-    };
+    // private onRegionChangeComplete = () => {
+    //     this.setState({
+    //         radius: 0.5
+    //     })
+    // };
 
-    private moveToCurrentLocation = () => {
-        let region = {
-            latitude: this.state.location.latitude,
-            longitude: this.state.location.longitude,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
-        };
-        this.map.root.animateToRegion(region, 2000);
-    };
-
-    private  handleMapRegionChange = mapRegion => {
-        this.setState({mapRegion})
-    };
+    // private moveToCurrentLocation = () => {
+    //     let region = {
+    //         latitude: this.state.region.latitude,
+    //         longitude: this.state.region.longitude,
+    //         latitudeDelta: 0.1,
+    //         longitudeDelta: 0.1,
+    //     };
+    //     this.map.root.animateToRegion(region, 2000);
+    // };
+    //
+    // private  handleMapRegionChange = mapRegion => {
+    //     this.setState({mapRegion})
+    // };
 
     private renderStations() {
         const {stations, search} = this.props;
@@ -455,7 +485,7 @@ class MapScreen extends Component<IMapProps> {
     }
 
     render() {
-        const {location} = this.state;
+        const {region} = this.state;
         const {
             showStations,
             showSegments,
@@ -476,11 +506,7 @@ class MapScreen extends Component<IMapProps> {
                     ref={ref => {
                         this.map = ref;
                     }}
-                    region={{
-                        ...location,
-                        latitudeDelta: 4,
-                        longitudeDelta: 4
-                    }}
+                    region={region}
                 >
                     {
                         showStations ? (

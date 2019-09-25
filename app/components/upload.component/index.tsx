@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import axios from 'react-native-axios';
-import {View} from "react-native";
+import {Platform, View} from "react-native";
 import {PrimaryButton} from "../buttons/primary.button";
 
 import * as ImagePicker from 'expo-image-picker';
@@ -22,9 +22,8 @@ interface IMapProps {
 
 interface IMapState {
     files: Array<Upload>,
-    uri: any,
+    photo: any,
 }
-
 class UploadComponent extends Component<IMapProps, IMapState> {
 
     static defaultProps = {
@@ -37,7 +36,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
 
         this.state = {
             files: [...this.props.files],
-            uri: '',
+            photo: null,
         }
     }
 
@@ -62,12 +61,14 @@ class UploadComponent extends Component<IMapProps, IMapState> {
         let pickerResult = await ImagePicker.launchImageLibraryAsync({
            mediaTypes: ImagePicker.MediaTypeOptions.Images,
            allowsEditing: true,
-           aspect: [4, 3]
+           aspect: [4, 3],
+            // exif: true,
+            // base64: true,
         });
 
-        this.setState({
-            uri: pickerResult,
-        });
+        // this.setState({
+        //     photo: pickerResult,
+        // });
 
         await this.handleSave(pickerResult);
         //
@@ -87,7 +88,16 @@ class UploadComponent extends Component<IMapProps, IMapState> {
 
         try {
             if(!pickerResult.cancelled) {
-                uploadResponse = this.uploadImageAsync(pickerResult.uri);
+
+                const response = await fetch(Platform.OS === 'android' ? pickerResult.uri : pickerResult.uri.replace('file://', ''));
+                console.log('fetch', response);
+                const blob: any = await response.blob();
+                console.log('blob', blob.data);
+                const file = {uri: pickerResult.uri, name: 'photo.jpg',filename :'imageName.jpg',type: 'image/jpeg'}
+                // const file = new File([blob], blob.data.name, {type: blob.data.type, lastModified: Date.now()});
+                console.log('file', file);
+
+                uploadResponse = this.uploadImageAsync(file, pickerResult.uri); //pickerResult.uri
                 await uploadResponse.then((res)=>{
                     const {data}: any = res;
                     fileList.push(new Upload(data));
@@ -104,33 +114,46 @@ class UploadComponent extends Component<IMapProps, IMapState> {
 
     };
 
-    private uploadImageAsync = async (uri) => {
-
+    private uploadImageAsync = async (file: any, URI: any) => {
         return new Promise((resolve, reject) => {
-            fetch(uri).then((data) => {
-                data.blob().then((uploaded) => {
+            // fetch(Platform.OS === 'android' ? uri : uri.replace("file://", "")).then((data) => {
+            //     data.blob().then((uploaded) => {
                     const formData = new FormData();
-                    console.log('uploaded', uploaded);
-                    console.log('file', new File([uploaded], 'aaa.jpg'));
-                    formData.append('file', new File([uploaded], 'aaa.jpg'));
+            console.log(1111111, URI);
+            // formData.append('photo', {uri: URI, name: 'photo.jpg',filename :'imageName.jpg',type: 'image/jpeg'});
+            // formData.append('Content-Type', 'image/jpeg');
+                    // console.log('uploaded', uploaded);
+                    // console.log('file', new File([uploaded], 'aaa.jpg'));
+                    formData.append('fileData', file); // new File([uploaded], 'aaa.jpg')
+                    console.log('formData', formData);
 
-                    axios.post(`${API}api/uploads`, formData, {
-                        onUploadProgress: progressEvent => {
-                            uri.uploadStatus = (progressEvent.loaded / progressEvent.total * 100);
-                        },
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
+                    // axios.post(`${API}api/uploads`, formData, {
+                    //     // onUploadProgress: progressEvent => {
+                    //     //     blob.uploadStatus = (progressEvent.loaded / progressEvent.total * 100);
+                    //     // },
+                    //     headers: {
+                    //         'Content-Type': 'multipart/form-data'
+                    //     }
+                    // })
+                    axios({
+                        method: 'post',
+                        url: `${API}api/uploads`,
+                        data: formData,
+                        config: { headers: {'Content-Type': 'multipart/form-data' }}
                     }).then((res) => {
+                        console.log('response', res);
                         resolve(res)
-                    }).catch(reject)
+                    }).catch((error) => {
+                        console.log('error', error);
+                        reject(error);
+                    })
                 });
-            }).catch(reject)
-        });
+            // }).catch(reject)
+        // });
     };
 
     render() {
-        console.log('state', this.state.uri);
+        // console.log('state', this.state.uri);
         return (
             <React.Fragment>
                 <PrimaryButton
@@ -139,9 +162,9 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                     variant={"secondary"}
                     onPress={this.handlePick}
                 />
-                <View>
-                    <Image source={{uri: this.state.uri.uri}} style={{ width: 300, height: 300 }} />
-                </View>
+                {/*<View>*/}
+                {/*    <Image source={{uri: this.state.photo.uri}} style={{ width: 300, height: 300 }} />*/}
+                {/*</View>*/}
             </React.Fragment>
         )
     }

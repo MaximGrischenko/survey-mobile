@@ -125,7 +125,9 @@ const localStyles = StyleSheet.create({
         marginRight: 30,
     },
     input: {
-        marginLeft: 5
+        marginLeft: 5,
+        flex: 1,
+        height: 60,
     }
 });
 

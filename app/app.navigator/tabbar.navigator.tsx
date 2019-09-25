@@ -34,12 +34,12 @@ const TabNavigator = createMaterialTopTabNavigator({
             inactiveTintColor: COLORS.TEXT_COLOR,
             style: {
                 backgroundColor: '#f2f2f2',
-                height: 60
+                height: 60,
             },
             labelStyle: {
                 textAlign: 'center',
-                fontSize: 10,
-                textTransform: 'none'
+                fontSize: 9,
+                //textTransform: 'lowercase'
             },
             indicatorStyle: {
                 borderBottomColor: COLORS.PRIMARY,
