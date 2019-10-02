@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import axios from 'react-native-axios';
-import {Platform, View} from "react-native";
+import {Alert, AsyncStorage, Platform, View} from "react-native";
 import {PrimaryButton} from "../buttons/primary.button";
 
 import * as ImagePicker from 'expo-image-picker';
@@ -12,19 +12,31 @@ import {API} from "../../config";
 import {showAlert} from "../../redux/modules/dialogs";
 import {Upload} from "../../entities";
 
+
+import Carousel, {Pagination} from 'react-native-snap-carousel';
+
+import {sliderWidth, itemWidth} from "../../styles/carousel/SliderEntry.style";
+import styles, {colors} from '../../styles/carousel/index.style';
 import {Image} from 'react-native';
+import {entries} from "../dialog.component/dialogs/main.modal/entries";
+import SliderEntry from "../uploads.preview";
+import {COLORS} from "../../styles/colors";
 
 interface IMapProps {
     showAlert: Function,
     files: Array<Upload>,
-    onUpload: Function
+    onUpload: Function,
+    onUpdate: Function,
 }
 
 interface IMapState {
     files: Array<Upload>,
     photo: any,
+    active: number
 }
 class UploadComponent extends Component<IMapProps, IMapState> {
+
+    private carousel: null;
 
     static defaultProps = {
         onUpload: () => 0,
@@ -37,6 +49,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
         this.state = {
             files: [...this.props.files],
             photo: null,
+            active: 0
         }
     }
 
@@ -46,8 +59,8 @@ class UploadComponent extends Component<IMapProps, IMapState> {
 
     getPermissionsAync = async () => {
         let permissionResult = null;
-
         const {
+
             status: cameraRollPermission
         } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
@@ -58,98 +71,114 @@ class UploadComponent extends Component<IMapProps, IMapState> {
     };
 
     private handlePick = async () => {
-        let pickerResult = await ImagePicker.launchImageLibraryAsync({
-           mediaTypes: ImagePicker.MediaTypeOptions.Images,
-           allowsEditing: true,
-           aspect: [4, 3],
-            // exif: true,
-            // base64: true,
-        });
+        Alert.alert(
+            'Upload image',
+            '',
+            [
+                {
+                    text: 'Take a photo', onPress: async () => {
+                        let picker = await ImagePicker.launchCameraAsync( {
+                            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                            allowsEditing: false,
+                           // aspect: [4, 3],
+                            exif: true
+                        });
 
-        // this.setState({
-        //     photo: pickerResult,
+                        await this.handleSave(picker);
+                    }
+                },
+                {
+                    text: 'Upload image', onPress: async () => {
+                        let picker = await ImagePicker.launchImageLibraryAsync({
+                            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                            allowsEditing: false,
+                          //  aspect: [4, 3],
+                            exif: true,
+                        });
+
+                        await this.handleSave(picker);
+                    }
+                }
+            ]
+        );
+
+
+        // let pickerResult = await ImagePicker.launchImageLibraryAsync({
+        //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        //     allowsEditing: true,
+        //     aspect: [4, 3],
+        //     exif: true,
         // });
 
-        await this.handleSave(pickerResult);
-        //
-        // const {cancelled, uri} = result;
-        // if(!cancelled) {
-        //    await this.uploadImageAsync(uri);
-        // }
-
-
+      //  await this.handleSave(picker);
     };
 
-    private handleSave = async (pickerResult) => {
-        let uploadResponse;
-
-        const fileList: any = [...this.state.files];
-       // const fileListNew: any = [];
+    private handleSave = async (picker) => {
+        let response;
+        // const fileList: any = [...this.state.files];
 
         try {
-            if(!pickerResult.cancelled) {
+            if(!picker.cancelled) {
+                const file = {
+                    uri: picker.uri.toString(),
+                    name: 'photo.jpg',
+                    filename :'imageName.jpg',
+                    type: 'image/jpeg'
+                };
 
-                const response = await fetch(Platform.OS === 'android' ? pickerResult.uri : pickerResult.uri.replace('file://', ''));
-                console.log('fetch', response);
-                const blob: any = await response.blob();
-                console.log('blob', blob.data);
-                const file = {uri: pickerResult.uri, name: 'photo.jpg',filename :'imageName.jpg',type: 'image/jpeg'}
-                // const file = new File([blob], blob.data.name, {type: blob.data.type, lastModified: Date.now()});
-                console.log('file', file);
+                let token = await AsyncStorage.getItem('access_token');
 
-                uploadResponse = this.uploadImageAsync(file, pickerResult.uri); //pickerResult.uri
-                await uploadResponse.then((res)=>{
-                    const {data}: any = res;
-                    fileList.push(new Upload(data));
-                });
+                response = await this.uploadImageAsync(file, token);
+
+                // this.state.files.push(new Upload(response));
+
+                this.setState({
+                    files: [...this.state.files, new Upload(response)]
+                })
             }
         } catch (e) {
-
+            console.log(e);
         } finally {
-            this.props.onUpload(fileList);
+            this.props.onUpload(this.state.files);
         }
     };
 
-    private renderImage = () => {
+    private handleDelete = (el: any) => {
+        console.log('el', el);
 
+        this.setState({
+            files: this.state.files.filter((els) => el !== els.path)
+        }, () => {
+            this.props.onUpdate(this.state.files)
+        });
     };
 
-    private uploadImageAsync = async (file: any, URI: any) => {
-        return new Promise((resolve, reject) => {
-            // fetch(Platform.OS === 'android' ? uri : uri.replace("file://", "")).then((data) => {
-            //     data.blob().then((uploaded) => {
-                    const formData = new FormData();
-            console.log(1111111, URI);
-            // formData.append('photo', {uri: URI, name: 'photo.jpg',filename :'imageName.jpg',type: 'image/jpeg'});
-            // formData.append('Content-Type', 'image/jpeg');
-                    // console.log('uploaded', uploaded);
-                    // console.log('file', new File([uploaded], 'aaa.jpg'));
-                    formData.append('fileData', file); // new File([uploaded], 'aaa.jpg')
-                    console.log('formData', formData);
+    private renderUploads = ({item, index}, parallaxProps) => {
+        return (
+            <SliderEntry data={item} even={(index + 1) % 2 === 0} onPress={this.handleDelete} parallax={true} parallaxProps={parallaxProps}/>
+        )
+    };
 
-                    // axios.post(`${API}api/uploads`, formData, {
-                    //     // onUploadProgress: progressEvent => {
-                    //     //     blob.uploadStatus = (progressEvent.loaded / progressEvent.total * 100);
-                    //     // },
-                    //     headers: {
-                    //         'Content-Type': 'multipart/form-data'
-                    //     }
-                    // })
-                    axios({
-                        method: 'post',
-                        url: `${API}api/uploads`,
-                        data: formData,
-                        config: { headers: {'Content-Type': 'multipart/form-data' }}
-                    }).then((res) => {
-                        console.log('response', res);
-                        resolve(res)
-                    }).catch((error) => {
-                        console.log('error', error);
-                        reject(error);
-                    })
-                });
-            // }).catch(reject)
-        // });
+    private uploadImageAsync = async (file: any, token: any) => {
+        return new Promise((resolve, reject) => {
+
+            const body = new FormData();
+            body.append('filesData', file);
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', `${API}api/uploads`);
+            xhr.setRequestHeader('authorization', token);
+            xhr.responseType = 'json';
+            xhr.send(body);
+            xhr.onerror = function(e) {
+                reject(e)
+            };
+            xhr.onload = function() {
+                let responseObj = xhr.response;
+                console.log('RESP ', responseObj);
+                resolve(responseObj);
+            };
+        });
     };
 
     render() {
@@ -157,14 +186,48 @@ class UploadComponent extends Component<IMapProps, IMapState> {
         return (
             <React.Fragment>
                 <PrimaryButton
-                    style={{marginLeft: 15, marginRight: 15}}
-                    title={'UPLOAD'}
+                    style={{marginLeft: 15, marginRight: 15, marginTop: 10, borderColor: COLORS.PRIMARY, borderWidth: 1, borderRadius: 8}}
+                    title={'UPLOAD IMAGE'}
                     variant={"secondary"}
                     onPress={this.handlePick}
                 />
                 {/*<View>*/}
                 {/*    <Image source={{uri: this.state.photo.uri}} style={{ width: 300, height: 300 }} />*/}
                 {/*</View>*/}
+                <Carousel
+                    ref={(ref) => {this.carousel = ref;}}
+                    data={this.state.files}
+                    //layout={'stack'}
+                    hasParallaxImages={true}
+                   // layoutCardOffset={15}
+                    renderItem={this.renderUploads}
+                    sliderWidth={sliderWidth}
+                    itemWidth={itemWidth}
+                    inactiveSlideScale={0.9}
+                    inactiveSlideOpacity={0.7}
+                    enableMomentum={true}
+                    activeSlideAlignment={'center'}
+                    containerCustomStyle={styles.slider}
+                    contentContainerCustomStyle={styles.sliderContentContainer}
+                    onSnapToItem={(index) => this.setState({active: index})}
+                    //activeAnimationType={'spring'}
+                    //activeAnimationOptions={{
+                    //    friction: 4,
+                    //    tension: 40
+                    //}}
+                />
+                <Pagination
+                    dotsLength={this.state.files.length}
+                    activeDotIndex={this.state.active}
+                    containerStyle={styles.paginationContainer}
+                    dotColor={COLORS.PRIMARY}
+                    dotStyle={styles.paginationDot}
+                    inactiveDotColor={COLORS.PRIMARY}
+                    inactiveDotOpacity={0.4}
+                    inactiveDotScale={0.6}
+                    carouselRef={this.carousel}
+                    tappableDots={!!this.carousel}
+                />
             </React.Fragment>
         )
     }

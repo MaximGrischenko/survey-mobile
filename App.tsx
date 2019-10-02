@@ -45,6 +45,8 @@ export default class App extends Component {
             require('./assets/images/pole-x4.png'),
             require('./assets/images/station.png'),
             require('./assets/images/station-x4.png'),
+            require('./assets/images/location.png'),
+            require('./assets/images/location-x4.png')
         ]);
 
         const fontAssets = cacheFonts([]);

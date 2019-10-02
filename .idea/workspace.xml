@@ -2,14 +2,34 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/screens/map/backup/backup.last.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/location-x4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/location.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/.eslintrc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/CONTRIBUTORS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/index.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/lib/helpers/nodeTypes.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/lib/react-native-multi-select.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/lib/styles.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-multiple-select/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.expo-shared/assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/.expo-shared/assets.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/app.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/app.header/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/tables.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/tables.header/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/components/upload.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/upload.component/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/uploads.preview/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/uploads.preview/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/entities/types/Upload.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Upload.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/dialogs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/dialogs.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/lists/main.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/main.list/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/styles/carousel/SliderEntry.style.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/styles/carousel/SliderEntry.style.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -40,7 +60,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js.last.introduce.type" value="CONST" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/components/tables.header" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/custom-node-modules" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -51,6 +71,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/custom-node-modules" />
       <recent name="$PROJECT_DIR$/app/components/tables.header" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -91,7 +112,9 @@
       <workItem from="1568371569995" duration="3961000" />
       <workItem from="1568376230364" duration="224000" />
       <workItem from="1568376461326" duration="41792000" />
-      <workItem from="1568708203280" duration="217802000" />
+      <workItem from="1568708203280" duration="327000000" />
+      <workItem from="1569914308771" duration="25000" />
+      <workItem from="1569914385428" duration="46784000" />
     </task>
     <servers />
   </component>
@@ -113,5 +136,16 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/node_modules/expo-image-picker/build/ImagePicker.types.d.ts</url>
+          <line>29</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

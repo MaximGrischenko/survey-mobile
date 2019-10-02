@@ -8,7 +8,7 @@ export class Upload extends MainGlobal {
     constructor(data: any = {}) {
 
         super(data);
-        this.path = API + data.path || '';
+        this.path = data.path || '';
         this.metadata = data.metadata || '';
     }
 }

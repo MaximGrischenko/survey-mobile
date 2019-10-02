@@ -1,5 +1,6 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 import { colors } from './index.style';
+import {COLORS} from "../colors";
 
 const IS_IOS = Platform.OS === 'ios';
 const { width: viewportWidth, height: viewportHeight } = Dimensions.get('window');
@@ -9,17 +10,18 @@ function wp (percentage) {
     return Math.round(value);
 }
 
-const slideHeight = viewportHeight * 0.36;
+const slideHeight = viewportHeight * 0.25;
 const slideWidth = wp(75);
-const itemHorizontalMargin = wp(2);
+const itemHorizontalMargin = wp(1);
 
-export const sliderWidth = viewportWidth;
-export const itemWidth = slideWidth + itemHorizontalMargin * 2;
+export const sliderWidth = wp(80);
+export const itemWidth = slideWidth - itemHorizontalMargin * 2;
 
 const entryBorderRadius = 8;
 
 export default StyleSheet.create({
     slideInnerContainer: {
+        position: 'relative',
         width: itemWidth,
         height: slideHeight,
         paddingHorizontal: itemHorizontalMargin,
@@ -58,14 +60,16 @@ export default StyleSheet.create({
     radiusMask: {
         position: 'absolute',
         bottom: 0,
-        left: 0,
+        left: 4,
         right: 0,
-        height: entryBorderRadius,
-        backgroundColor: 'white'
+        maxWidth: itemWidth - 8,
+        backgroundColor: COLORS.PRIMARY,
+        borderBottomLeftRadius: entryBorderRadius,
+        borderBottomRightRadius: entryBorderRadius,
     },
-    radiusMaskEven: {
-        backgroundColor: colors.black
-    },
+    // radiusMaskEven: {
+    //     backgroundColor: colors.black
+    // },
     textContainer: {
         justifyContent: 'center',
         paddingTop: 20 - entryBorderRadius,

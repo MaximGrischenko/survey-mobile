@@ -148,8 +148,8 @@ export default class MainList extends Component<IMapProps> {
 
     protected _render() {
         const {selectedList}: any = this.props;
-        const rows = this.getRows();
-
+        const rows = this.getRows()
+        ;
         return(
             <View style={localStyles.wrapper}>
                 {
@@ -164,12 +164,10 @@ export default class MainList extends Component<IMapProps> {
                                     data={MainList.entityFilter(selectedList, this.props.search)}
                                     renderItem={({item, separators}) => {
                                         return (
-                                            <View style={localStyles.row}>
+                                            <TouchableOpacity style={localStyles.row} onPress={() => this.showDialog(item)}>
                                                 <Text style={localStyles.item}>{item[rows.reduce((acc, keys) => `${acc}${keys.key_title}`, '')]}</Text>
-                                                <TouchableOpacity onPress={() => this.showDialog(item)}>
-                                                    <Icon name={Platform.OS === 'ios' ? 'ios-play' : 'md-play'} size={30} />
-                                                </TouchableOpacity>
-                                            </View>
+                                                <Icon name={Platform.OS === 'ios' ? 'ios-play' : 'md-play'} size={30} />
+                                            </TouchableOpacity>
                                         )
                                     }}
                                 />

@@ -26,8 +26,6 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 import Carousel from 'react-native-snap-carousel';
 import SliderEntry from "../../../uploads.preview";
 import {entries} from './entries/index';
-import {sliderWidth, itemWidth} from "../../../../styles/carousel/SliderEntry.style";
-import styles, {colors} from '../../../../styles/carousel/index.style';
 import UploadComponent from "../../../upload.component";
 
 
@@ -55,7 +53,6 @@ interface IMapState {
     uploads: Array<Upload>,
     errors: any,
     status: any,
-    current: any,
     date: any,
     id: any,
     canDelete: boolean,
@@ -94,8 +91,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         this.state = {
             __pending: false,
             canDelete: false,
-            current: 'current',
-           // categoryId: 1, //TODO refactor
             errors: [],
             ...p.selectedItem
         };
@@ -179,18 +174,25 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         this.props.showDialogContent(false);
     };
 
-    private onUploadFile = () => {
+    private onUploadFile = (fileList) => {
         this.setState({
             uploads: [
                 ...this.state.uploads,
+                ...fileList
             ]
         })
     };
 
-    private renderUploads = ({item, index}) => {
-        return (
-            <SliderEntry data={item} even={(index + 1) % 2 === 0} parallax={false} parallaxProps={{}}/>
-        )
+    private  onUpdateFile = (fileList) => {
+        this.setState({
+            uploads: [
+                ...fileList
+            ]
+        })
+    };
+
+    private handleToggle = () => {
+        console.log('select', this.Select);
     };
 
     private getFields = () => {
@@ -347,18 +349,18 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                 }))
             );
         } else if (this.type === TYPES.POI) {
-            if(!this.state.id) {
-                fields.push(
-                    {
-                        title: 'Location',
-                        name: 'current',
-                        options: [{text:'current', value:'current'}, {text:'selected', value:'selected'}].map((el: any) => ({
-                            value: el.text,
-                            text: el.value
-                        })),
-                    },
-                )
-            }
+            // if(!this.state.id) {
+            //     fields.push(
+            //         {
+            //             title: 'Location',
+            //             name: 'current',
+            //             options: [{text:'current', value:'current'}, {text:'selected', value:'selected'}].map((el: any) => ({
+            //                 value: el.text,
+            //                 text: el.value
+            //             })),
+            //         },
+            //     )
+            // }
             fields.push(
                 {
                     title: 'Project',
@@ -400,7 +402,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         const {selectedItem}: any = this.props;
         const fields = this.getFields();
         const {isAdmin} = this.props;
-
         return (
             <ScrollView>
                 <Form style={localStyles.form}>
@@ -426,15 +427,16 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                 )
                             } else if(el.type === 3) {
                                 return (
-                                    <View key={el.name}>
+                                    <View key={el.name} style={{marginTop: 20}}>
                                         <MultiSelect
                                             hideSubmitButton={true}
+                                            // onToggleList={this.handleToggle}
                                             uniqueKey={'name'}
                                             selectText={el.name}
                                             styleDropdownMenuSubsection={{height: 60, paddingLeft: 10}}
-                                            styleInputGroup={{height: 60}}
+                                            styleInputGroup={{height: 60, justifyContent: 'flex-end', flexDirection: 'row'}}
                                             ref={(ref) => { this.Select = ref }}
-                                            searchInputStyle={{height: 40, color: '#000'}}
+                                            searchInputStyle={{display: 'none', width: 0}}
                                             styleRowList={{height: 40}}
                                             textColor={'#000'}
                                             itemTextColor={'#000'}
@@ -521,33 +523,11 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     }
                     {
                         <View>
-                            {/*<Text>Uploads</Text>*/}
-                            <View>
-                                {/*<Carousel*/}
-                                {/*    ref={(ref) => {this.Carousel = ref;}}*/}
-                                {/*    data={entries}*/}
-                                {/*    layout={'stack'}*/}
-                                {/*    layoutCardOffset={18}*/}
-                                {/*    renderItem={this.renderUploads}*/}
-                                {/*    sliderWidth={sliderWidth}*/}
-                                {/*    itemWidth={itemWidth}*/}
-                                {/*    inactiveSlideScale={0.95}*/}
-                                {/*    inactiveSlideOpacity={1}*/}
-                                {/*    enableMomentum={true}*/}
-                                {/*    activeSlideAlignment={'start'}*/}
-                                {/*    containerCustomStyle={styles.slider}*/}
-                                {/*    contentContainerCustomStyle={styles.sliderContentContainer}*/}
-                                {/*    activeAnimationType={'spring'}*/}
-                                {/*    activeAnimationOptions={{*/}
-                                {/*        friction: 4,*/}
-                                {/*        tension: 40*/}
-                                {/*    }}*/}
-                                {/*/>*/}
-                                <UploadComponent
-                                    files={selectedItem.uploads}
-                                    onUpload = {this.onUploadFile}
-                                />
-                            </View>
+                            <UploadComponent
+                                files={selectedItem.uploads}
+                                onUpload = {this.onUploadFile}
+                                onUpdate = {this.onUpdateFile}
+                            />
                         </View>
                     }
                 </Form>

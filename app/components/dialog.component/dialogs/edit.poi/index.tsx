@@ -42,30 +42,6 @@ class EditPoiDialog extends MainModalDialog {
                 });
             } else {
                 let position = this.props.position;
-                if(this.state.current === 'current') {
-
-                    let hasLocationPermissions = false;
-                    let locationResult = null;
-
-                    let {status} = await Permissions.askAsync(Permissions.LOCATION);
-
-                    if(status !== 'granted') {
-                        locationResult = 'Permission to access location was denied';
-                        this.props.showAlert(locationResult);
-                    } else {
-                        hasLocationPermissions = true;
-                    }
-
-                    // let location = await AsyncStorage.getItem('location');
-                    let location = await Location.getCurrentPositionAsync({
-                        enableHighAccuracy: true, timeout: 20000,
-                    });
-                    await applyGeoposition(location);
-                  //  if(location) {
-                  //      const GEOPosition = JSON.parse(location);
-                        position = new Geometry(Geometry.TYPE.POINT, [location.coords.longitude, location.coords.latitude]);
-                 //   }
-                }
                 console.log('before add');
                 this.props.onAddItem({
                     ...this.state,
