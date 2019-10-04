@@ -5,7 +5,7 @@ import {ActivityIndicator, Dimensions, StyleSheet, Text, View} from 'react-nativ
 import {Form, Field} from 'react-native-validate-form';
 import {NavigationParams, NavigationScreenProp, NavigationState} from "react-navigation";
 import {Image} from 'react-native-elements';
-import {InputField, email, required} from "../../components/inputs/field.input";
+import {email, required} from "../../utils/validators";
 import { TextField } from 'react-native-material-textfield';
 import {PrimaryButton} from "../../components/buttons/primary.button";
 import {moduleName, userSelector, signIn, changeSettings} from '../../redux/modules/auth';
@@ -23,7 +23,8 @@ interface IMapProps {
 interface IMapState {
     email: string,
     password: string,
-    errors: Array<any>
+    formErrors: Array<any>,
+    fieldError: any,
 }
 
 class SignInScreen extends React.Component<IMapProps, IMapState> {
@@ -55,7 +56,8 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
         pending: false,
         email: '',
         password: '',
-        errors: [],
+        formErrors: [],
+        fieldError: {},
     };
 
     componentDidMount():void {
@@ -73,20 +75,22 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
     };
 
     private submitForm = () => {
-        let submitResult = this.SignInForm.validate();
-        let errors = [];
+        let result = this.SignInForm.validate();
+        let formErrors = [];
+        const fieldError = {};
 
-        submitResult.forEach(item => {
-            errors.push({field: item.fieldName, error: item.error});
+        result.map((field) => {
+            formErrors.push({name: field.fieldName, error: field.error});
         });
 
-        this.setState({errors: errors});
+        formErrors.forEach((field) => {
+            fieldError[field.name] = field.error;
+        });
 
-        if(errors.filter((el: any) => el.error).length === 0) {
-            const newState: any = {pending: true};
-            this.setState(newState);
-            this.props.signIn(this.state);
-        }
+        this.setState({
+            formErrors,
+            fieldError
+        });
     };
 
     private onChange = (state) => {
@@ -106,15 +110,17 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
                     style={localStyles.form}
                     ref={(ref) => this.SignInForm = ref}
                     validate={true}
-                    errors={this.state.errors}
+                    submit={() => this.props.signIn(this.state)}
+                    errors={this.state.formErrors}
                 >
                     <Field
                         customStyle={localStyles.field}
                         required
                         label={'Email'}
                         placeholder='Enter email'
-                        component={InputField}
+                        component={TextField}
                         validations={[required, email]}
+                        error={this.state.fieldError['email']}
                         name='email'
                         value={this.state.email}
                         onChangeText={(email) => this.onChange({email})}
@@ -126,8 +132,9 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
                         label={'Password'}
                         secureTextEntry={true}
                         placeholder='Enter password'
-                        component={InputField}
+                        component={TextField}
                         validations={[required]}
+                        error={this.state.fieldError['password']}
                         name='password'
                         onChangeText={(password) => this.onChange({password})}
                     />

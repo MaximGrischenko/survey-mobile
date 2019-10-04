@@ -9,8 +9,8 @@ import {
     locationSelector,
     moduleName,
 } from "../../../../redux/modules/map";
-import {isSuperADMINAdminSelector} from "../../../../redux/modules/auth";
-import {setDialogSaveButton, showDialogContent} from "../../../../redux/modules/dialogs";
+import {isSuperAdminSelector} from "../../../../redux/modules/auth";
+import {setDialogDeleteButton, setDialogSaveButton, showDialogContent} from "../../../../redux/modules/dialogs";
 import {addPoleParcel, editParcel} from "../../../../redux/modules/map/parcels";
 
 class EditSParcelDialog extends MainModalDialog {
@@ -18,6 +18,8 @@ class EditSParcelDialog extends MainModalDialog {
         super(p);
         this.title = 'Parcel';
         this.type = TYPES.PARCEL;
+        this.canDelete = false;
+        this.editTitle = false;
     }
 
     render() {
@@ -29,7 +31,7 @@ const mapStateToProps = (state: any) => ({
     itemsList: state[moduleName].parcelList,
     error: errorSelector(state),
     location: locationSelector(state),
-    isAdmin: isSuperADMINAdminSelector(state),
+    isAdmin: isSuperAdminSelector(state),
     tempPosition: lastGeoPostionsSelector(state)
 });
 
@@ -38,6 +40,7 @@ const mapDispatchToProps = (dispatch: any) => (
         changeControls,
         showDialogContent,
         setDialogSaveButton,
+        setDialogDeleteButton,
         addItem: addPoleParcel,
         editItem: editParcel,
     }, dispatch)

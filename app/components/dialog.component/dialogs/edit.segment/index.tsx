@@ -9,8 +9,8 @@ import {
     locationSelector,
     moduleName
 } from "../../../../redux/modules/map";
-import {isSuperADMINAdminSelector} from "../../../../redux/modules/auth";
-import {showDialogContent, setDialogSaveButton} from "../../../../redux/modules/dialogs";
+import {isSuperAdminSelector} from "../../../../redux/modules/auth";
+import {showDialogContent, setDialogSaveButton, setDialogDeleteButton} from "../../../../redux/modules/dialogs";
 import {addSegments, editSegments} from "../../../../redux/modules/map/segments";
 
 class EditSegmentDialog extends MainModalDialog {
@@ -18,6 +18,8 @@ class EditSegmentDialog extends MainModalDialog {
         super(p);
         this.title = 'Segment';
         this.type = TYPES.SEGMENT;
+        this.canDelete = false;
+        this.editTitle = false;
     }
 
     render() {
@@ -29,7 +31,7 @@ const mapStateToProps = (state: any) => ({
     itemsList: state[moduleName].segmentList,
     error: errorSelector(state),
     location: locationSelector(state),
-    isAdmin: isSuperADMINAdminSelector(state),
+    isAdmin: isSuperAdminSelector(state),
     tempPosition: lastGeoPostionsSelector(state)
 });
 
@@ -37,6 +39,7 @@ const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         changeControls,
         setDialogSaveButton,
+        setDialogDeleteButton,
         showDialogContent,
         editItem: editSegments,
         addItem: addSegments

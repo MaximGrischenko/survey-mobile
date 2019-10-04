@@ -4,7 +4,7 @@ import store from './app/redux';
 
 import AppNavigator from './app/app.navigator/index';
 import DialogContainer from './app/components/dialog.component';
-import AlertContainer from './app/components/alert.component';
+import AlertContainer from './app/components/dialog.component/dialogs/alert.dialog';
 
 import {AppLoading} from "expo";
 import * as Font from 'expo-font';

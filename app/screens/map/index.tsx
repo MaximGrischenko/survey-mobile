@@ -30,7 +30,6 @@ import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";
 import {searchSelector} from "../../redux/modules/auth";
 import Icon from "react-native-vector-icons/Ionicons";
-import {Tooltip} from "react-native-elements";
 import _ from 'lodash';
 
 interface IMapProps {
@@ -64,11 +63,11 @@ interface IMapProps {
 interface IMapState {
    // initial: any,
     region: any,
-    radius: number,
+    //radius: number,
     showUserLocation: boolean,
    // isShowTooltip: boolean,
     location: any,
-    updated: any
+    options: any,
 }
 
 class MapScreen extends Component<IMapProps, IMapState> {
@@ -92,12 +91,17 @@ class MapScreen extends Component<IMapProps, IMapState> {
     state = {
         //mapRegion: this.props.mapCenter,
         location: null,
+        options: {
+            radius: 40,
+            nodeSize: 25,
+            maxZoom: 10,
+            minZoom: 1
+        },
         showUserLocation: false,
-        radius: 40,
+       // radius: 40,
        // cluster: [],
         // region: this.props.mapCenter,
       //  initial: null,
-        updated: null,
         region: null,
        // isShowTooltip: false,
        // region: {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1}
@@ -157,8 +161,7 @@ class MapScreen extends Component<IMapProps, IMapState> {
         if (
             nextProps.dateFilter !== this.props.dateFilter ||
             nextProps.search !== this.props.search ||
-            nextProps.selected_powerlines.length !== this.props.selected_powerlines.length ||
-            this.props.project && nextProps.project.id !== this.props.project.id
+            nextProps.selected_powerlines.length !== this.props.selected_powerlines.length
         ) {
             this.renderStations(nextProps.stations, nextProps.showStations, nextProps.search);
             this.renderPoles(nextProps.poles, nextProps.showPoles, nextProps.search);
@@ -167,20 +170,20 @@ class MapScreen extends Component<IMapProps, IMapState> {
             this.renderParcels(nextProps.parcels, nextProps.showParcels, nextProps.search);
         }
 
-        if(nextProps.showStations === true && nextProps.stations.length) {
+        if(!_.isEqual(nextProps.stations, this.props.stations) && nextProps.stations.length) {
             const location = nextProps.stations[Math.round(nextProps.stations.length / 2)].points.toGPS();
             const region = {...location, latitudeDelta: 1, longitudeDelta: 1};
             this.moveToLocation(region, 2000);
         }
     }
 
-    componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<IMapState>, snapshot?: any): void {
-        // if(!_.isEqual(prevProps.stations, this.props.stations) && this.props.stations.length) {
-        //     const location = this.props.stations[Math.round(this.props.stations.length / 2)].points.toGPS();
-        //     const region = {...location, latitudeDelta: 1, longitudeDelta: 1};
-        //     this.moveToLocation(region, 200);
-        // }
-    }
+    // componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<IMapState>, snapshot?: any): void {
+    //     // if(!_.isEqual(prevProps.stations, this.props.stations) && this.props.stations.length) {
+    //     //     const location = this.props.stations[Math.round(this.props.stations.length / 2)].points.toGPS();
+    //     //     const region = {...location, latitudeDelta: 1, longitudeDelta: 1};
+    //     //     this.moveToLocation(region, 200);
+    //     // }
+    // }
 
     componentWillUnmount(): void {
         console.log('unmounted');
@@ -396,39 +399,39 @@ class MapScreen extends Component<IMapProps, IMapState> {
         }
     };
 
-    private onClusterPress = (cluster) => {
-        const coordinates = cluster.geometry.coordinates;
+    // private onClusterPress = (cluster) => {
+    //     const coordinates = cluster.geometry.coordinates;
+    //
+    //     const region = {
+    //         latitude: coordinates[1],
+    //         longitude: coordinates[0],
+    //         latitudeDelta: this.state.region.latitudeDelta * 0.01,
+    //         longitudeDelta: this.state.region.latitudeDelta * 0.01,
+    //     };
+    //
+    //     this.setState({
+    //        // region,
+    //         radius: 0.01,
+    //     });
+    //
+    //     this.map.root.animateToRegion(region, 1500);
+    // };
 
-        const region = {
-            latitude: coordinates[1],
-            longitude: coordinates[0],
-            latitudeDelta: this.state.region.latitudeDelta * 0.01,
-            longitudeDelta: this.state.region.latitudeDelta * 0.01,
-        };
-
-        this.setState({
-           // region,
-            radius: 0.01,
-        });
-
-        this.map.root.animateToRegion(region, 1500);
-    };
-
-    private onZoomChange = (zoom) => {
-        console.log('zoom changed', zoom);
-        switch (zoom) {
-            case 6: {
-                this.setState({
-                    radius: 40
-                })
-            } break;
-            case 10: {
-                this.setState({
-                    radius: 0.1
-                })
-            }
-        }
-    };
+    // private onZoomChange = (zoom) => {
+    //     console.log('zoom changed', zoom);
+    //     switch (zoom) {
+    //         case 6: {
+    //             this.setState({
+    //                 radius: 40
+    //             })
+    //         } break;
+    //         case 10: {
+    //             this.setState({
+    //                 radius: 0.1
+    //             })
+    //         }
+    //     }
+    // };
 
     private moveToLocation = (region, duration) => {
         this.map.mapRef.animateToRegion(region, duration);
@@ -870,7 +873,7 @@ class MapScreen extends Component<IMapProps, IMapState> {
             showPois,
         } = this.props;
 
-        const {showUserLocation} = this.state;
+        const {showUserLocation, options, region} = this.state;
 
         return (
             <View style={{flex: 1}}>
@@ -878,9 +881,10 @@ class MapScreen extends Component<IMapProps, IMapState> {
                     this.state.region ? (
                         <View style={{flex: 1}}>
                             <ClusterMap
-                                region={{...this.state.region}}
+                                region={{...region}}
                                 ref={ref => this.map = ref}
                                 onPress={this.onMapClick}
+                                //superClusterOptions={{...options}}
                                 priorityMarker={
                                     showUserLocation ? (
                                         <Marker
@@ -890,30 +894,22 @@ class MapScreen extends Component<IMapProps, IMapState> {
                                         />
                                     ) : null
                                 }
-                                //onZoomChange={this.onZoomChange}
+                                // onZoomChange={(zoom) => {
+                                //     console.log('ZOOM', zoom);
+                                //     // if(zoom >= 10) {
+                                //     //     this.setState({
+                                //     //         options: {...this.state.options, radius: 0.005}
+                                //     //     })
+                                //     // } else {
+                                //     //     this.setState({
+                                //     //         options: {...this.state.options, radius: 40}
+                                //     //     })
+                                //     // }
+                                // }}
                                 // onClusterClick={() => {
-                                //     this.setState({
-                                //         radius: 0.005
-                                //     })
-                                // }}
-                                // superClusterOptions={{
-                                //     radius: this.state.radius,
-                                //     nodeSize: 25,
-                                //     maxZoom: 15,
-                                //     minZoom: 1
-                                // }}
-                                // superClusterOptions={{
-                                //     radius: 1,
-                                //     nodeSize: 25,
-                                //     maxZoom: 15,
-                                //     minZoom: 10
+                                //     console.log('CLICKED');
                                 // }}
                             >
-                                {/*{*/}
-                                {/*    showSegments ? (*/}
-                                {/*        this.renderSegments()*/}
-                                {/*    ) : null*/}
-                                {/*}*/}
                                 {
                                     this.cluster.length ? (
                                         this.renderCluster()

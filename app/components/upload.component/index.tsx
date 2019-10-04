@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import axios from 'react-native-axios';
-import {Alert, AsyncStorage, Platform, View} from "react-native";
+import {Alert, AsyncStorage} from "react-native";
 import {PrimaryButton} from "../buttons/primary.button";
 
 import * as ImagePicker from 'expo-image-picker';
@@ -11,14 +10,10 @@ import {API} from "../../config";
 
 import {showAlert} from "../../redux/modules/dialogs";
 import {Upload} from "../../entities";
-
-
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 
 import {sliderWidth, itemWidth} from "../../styles/carousel/SliderEntry.style";
 import styles, {colors} from '../../styles/carousel/index.style';
-import {Image} from 'react-native';
-import {entries} from "../dialog.component/dialogs/main.modal/entries";
 import SliderEntry from "../uploads.preview";
 import {COLORS} from "../../styles/colors";
 
@@ -81,7 +76,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             allowsEditing: false,
                            // aspect: [4, 3],
-                            exif: true
+                            exif: true,
                         });
 
                         await this.handleSave(picker);
@@ -101,22 +96,10 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                 }
             ]
         );
-
-
-        // let pickerResult = await ImagePicker.launchImageLibraryAsync({
-        //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        //     allowsEditing: true,
-        //     aspect: [4, 3],
-        //     exif: true,
-        // });
-
-      //  await this.handleSave(picker);
     };
 
     private handleSave = async (picker) => {
         let response;
-        // const fileList: any = [...this.state.files];
-
         try {
             if(!picker.cancelled) {
                 const file = {
@@ -130,8 +113,6 @@ class UploadComponent extends Component<IMapProps, IMapState> {
 
                 response = await this.uploadImageAsync(file, token);
 
-                // this.state.files.push(new Upload(response));
-
                 this.setState({
                     files: [...this.state.files, new Upload(response)]
                 })
@@ -144,8 +125,6 @@ class UploadComponent extends Component<IMapProps, IMapState> {
     };
 
     private handleDelete = (el: any) => {
-        console.log('el', el);
-
         this.setState({
             files: this.state.files.filter((els) => el !== els.path)
         }, () => {
@@ -175,14 +154,12 @@ class UploadComponent extends Component<IMapProps, IMapState> {
             };
             xhr.onload = function() {
                 let responseObj = xhr.response;
-                console.log('RESP ', responseObj);
                 resolve(responseObj);
             };
         });
     };
 
     render() {
-        // console.log('state', this.state.uri);
         return (
             <React.Fragment>
                 <PrimaryButton
@@ -191,9 +168,6 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                     variant={"secondary"}
                     onPress={this.handlePick}
                 />
-                {/*<View>*/}
-                {/*    <Image source={{uri: this.state.photo.uri}} style={{ width: 300, height: 300 }} />*/}
-                {/*</View>*/}
                 <Carousel
                     ref={(ref) => {this.carousel = ref;}}
                     data={this.state.files}

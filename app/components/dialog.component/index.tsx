@@ -2,12 +2,17 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import {View, ScrollView, TouchableOpacity, Dimensions, Platform, StyleSheet} from "react-native";
+import {View, Text, TouchableOpacity, Dimensions, Platform, StyleSheet} from "react-native";
 import Modal from 'react-native-modal';
 import {PrimaryButton} from '../buttons/primary.button';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import {contentSelector, dialogSaveBtnSelector, showDialogContent} from "../../redux/modules/dialogs";
+import {
+    contentSelector,
+    dialogDeleteBtnSelector,
+    dialogSaveBtnSelector,
+    showDialogContent
+} from "../../redux/modules/dialogs";
 import {COLORS} from "../../styles/colors";
 import {changeControls, moduleName} from "../../redux/modules/map";
 
@@ -16,13 +21,15 @@ interface IMapProps {
     changeControls: Function,
     allowAddPoi: any,
     dialogSaveBtn: any,
+    dialogDeleteBtn: any,
     content: any,
     alertText: any,
 }
 
 class DialogContainer extends Component<IMapProps> {
     static defaultProps: {
-        dialogSaveBtn: null
+        dialogSaveBtn: null,
+        dialogDeleteBtn: null,
     };
 
     private onClose = () => {
@@ -50,15 +57,22 @@ class DialogContainer extends Component<IMapProps> {
     private renderControls = (text, onPress) => {
         return (
             <View style={localStyles.controls}>
-                {
-                    this.props.dialogSaveBtn ? this.props.dialogSaveBtn : null
-                }
-                <PrimaryButton
-                    style={{marginLeft: 15, marginRight: 15}}
-                    title={text}
-                    variant={"secondary"}
-                    onPress={onPress}
-                />
+                <View style={localStyles.group}>
+                    {
+                        this.props.dialogSaveBtn ? this.props.dialogSaveBtn : null
+                    }
+                    <PrimaryButton
+                        style={{marginLeft: 15, marginRight: 15}}
+                        title={text}
+                        variant={"secondary"}
+                        onPress={onPress}
+                    />
+                </View>
+                <View>
+                    {
+                        this.props.dialogDeleteBtn ? this.props.dialogDeleteBtn : null
+                    }
+                </View>
             </View>
         )
     };
@@ -117,16 +131,22 @@ const localStyles = StyleSheet.create({
     controls: {
         display: 'flex',
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+    },
+    group: {
+        display: 'flex',
+        flexDirection: 'row',
         justifyContent: 'flex-start',
-        paddingTop: 10,
-        paddingLeft: 20
     }
 });
 
 const mapStateToProps = (state: any) => ({
     content: contentSelector(state),
     allowAddPoi: state[moduleName].allowAddPoi,
-    dialogSaveBtn: dialogSaveBtnSelector(state)
+    dialogSaveBtn: dialogSaveBtnSelector(state),
+    dialogDeleteBtn: dialogDeleteBtnSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (

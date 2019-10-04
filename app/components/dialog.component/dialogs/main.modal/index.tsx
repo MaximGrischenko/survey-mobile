@@ -6,28 +6,18 @@ import {Form, Field} from 'react-native-validate-form';
 import {
     View,
     Text,
-    Platform,
-    TouchableOpacity,
     StyleSheet,
-    TextInput,
-    Slider,
-    ScrollView,
-    Dimensions
+    ScrollView, Alert,
 } from 'react-native';
 import { Dropdown } from 'react-native-material-dropdown';
-import Icon from "react-native-vector-icons/Ionicons";
-import {InputField, required} from "../../../inputs/field.input";
+import {required} from "../../../../utils/validators";
 import {TextField} from 'react-native-material-textfield';
 import MultiSelect from "react-native-multiple-select";
 import NumericInput from 'react-native-numeric-input';
 import {PrimaryButton} from "../../../buttons/primary.button";
 import DateTimePicker from "react-native-modal-datetime-picker";
 
-import Carousel from 'react-native-snap-carousel';
-import SliderEntry from "../../../uploads.preview";
-import {entries} from './entries/index';
 import UploadComponent from "../../../upload.component";
-
 
 interface IMapProps {
     isAdmin: any,
@@ -45,17 +35,18 @@ interface IMapProps {
     onDeleteItem: Function,
     onAddItem: Function,
     setDialogSaveButton: Function,
+    setDialogDeleteButton: Function,
     showAlert: Function,
     showDialogContent: Function
 }
 
 interface IMapState {
     uploads: Array<Upload>,
-    errors: any,
+    formErrors: any,
+    fieldError: any,
     status: any,
     date: any,
     id: any,
-    canDelete: boolean,
     __pending: boolean
 }
 
@@ -69,10 +60,10 @@ export const TYPES = {
 };
 
 export default class MainModalDialog extends Component<IMapProps, IMapState> {
-    protected editTitle: boolean = true;
+    protected editTitle: boolean = false;
     protected title: string = '';
     protected type: number = TYPES.NONE;
-    private editForm: any;
+    protected canDelete: boolean = false;
     static defaultProps: {
         categories: [],
         projects: [],
@@ -90,29 +81,41 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         super(p);
         this.state = {
             __pending: false,
-            canDelete: false,
-            errors: [],
+            formErrors: [],
+            fieldError: {},
             ...p.selectedItem
         };
     }
 
-    private Select: any = null;
-    private Carousel: any = null;
+    private select: any = null;
+    private form: any = null;
 
     componentDidMount(): void {
+        if(this.canDelete) {
+            this.props.setDialogDeleteButton(
+                (
+                    <PrimaryButton
+                        style={{width: 70, marginRight: 10}}
+                        title={'Delete'}
+                        onPress={this.handleDelete}
+                    />
+                )
+            )
+        }
         this.props.setDialogSaveButton(
             (
                 <PrimaryButton
                     style={{width: 70, marginRight: 10}}
                     title={'Save'}
-                    onPress={this.handleOk}
+                    onPress={this.handleSubmit}
                 />
             )
         )
     }
 
     componentWillUnmount(): void {
-        this.props.setDialogSaveButton(null)
+        this.props.setDialogSaveButton(null);
+        this.props.setDialogDeleteButton(null);
     }
 
     componentWillReceiveProps(nextProps: any, nextContext: any): void {
@@ -151,7 +154,40 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         this.setState(newState);
     };
 
-    protected handleOk = async (e: any) => {
+    private handleSubmit = () => {
+        // const fields = this.getFields();
+        const formErrors = [];
+        const fieldError = {};
+        // const editItem: any = {
+        //     ...this.state,
+        // };
+        //
+        // fields.forEach((field) => {
+        //
+        //     console.log('name', field.name);
+        //     console.log('item', editItem);
+        //    if(!editItem[field.name]) {
+        //        console.log('inner');
+        //        formErrors.push({name: field.name, error: 'This is required field'});
+        //    }
+        // });
+        let result: any = this.form.validate();
+
+        result.map((field) => {
+            formErrors.push({name: field.fieldName, error: field.error});
+        });
+
+        formErrors.forEach((field) => {
+            fieldError[field.name] = field.error;
+        });
+
+        this.setState({
+            formErrors,
+            fieldError
+        });
+    };
+
+    protected handleSave = async () => {
         try {
             this.setState({__pending: true});
             const editItem: any = {
@@ -174,6 +210,41 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         this.props.showDialogContent(false);
     };
 
+    protected handleDelete = () => {
+        const editItem: any = {...this.state};
+        const title = `Are you sure to delete Poi (${editItem.id})`;
+
+        Alert.alert(
+            title,
+            '',
+            [
+                {
+                    text: 'Delete',
+                    onPress: () => this.onDelete(editItem)
+                },
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel pressed'),
+                    style: 'cancel'
+                }
+            ],
+            {
+                cancelable: true
+            }
+        )
+    };
+
+    private onDelete = async (item) => {
+        try {
+            this.props.onDeleteItem(item);
+            if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
+        } catch (e) {
+            console.log(e);
+        } finally {
+            this.props.setDialogDeleteButton(null);
+        }
+    };
+
     private onUploadFile = (fileList) => {
         this.setState({
             uploads: [
@@ -192,7 +263,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     };
 
     private handleToggle = () => {
-        console.log('select', this.Select);
+        console.log('select', this.select);
     };
 
     private getFields = () => {
@@ -349,18 +420,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                 }))
             );
         } else if (this.type === TYPES.POI) {
-            // if(!this.state.id) {
-            //     fields.push(
-            //         {
-            //             title: 'Location',
-            //             name: 'current',
-            //             options: [{text:'current', value:'current'}, {text:'selected', value:'selected'}].map((el: any) => ({
-            //                 value: el.text,
-            //                 text: el.value
-            //             })),
-            //         },
-            //     )
-            // }
             fields.push(
                 {
                     title: 'Project',
@@ -401,10 +460,17 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         const {title, comment}: any = this.state;
         const {selectedItem}: any = this.props;
         const fields = this.getFields();
-        const {isAdmin} = this.props;
+
         return (
             <ScrollView>
-                <Form style={localStyles.form}>
+                <Form
+                    style={localStyles.form}
+                    ref={(ref) => this.form = ref}
+                    validate={true}
+                    submit={() => this.handleSave()}
+                    failed={() => console.log('failed')}
+                    errors={this.state.formErrors}
+                >
                     {
                         fields.map((el: any) => {
                             if(el.type === 2) {
@@ -430,12 +496,11 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                     <View key={el.name} style={{marginTop: 20}}>
                                         <MultiSelect
                                             hideSubmitButton={true}
-                                            // onToggleList={this.handleToggle}
                                             uniqueKey={'name'}
                                             selectText={el.name}
                                             styleDropdownMenuSubsection={{height: 60, paddingLeft: 10}}
                                             styleInputGroup={{height: 60, justifyContent: 'flex-end', flexDirection: 'row'}}
-                                            ref={(ref) => { this.Select = ref }}
+                                            ref={(ref) => { this.select = ref }}
                                             searchInputStyle={{display: 'none', width: 0}}
                                             styleRowList={{height: 40}}
                                             textColor={'#000'}
@@ -472,14 +537,15 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                             } else {
                                 return (
                                     <Field
-                                        key={el.name}
                                         required
+                                        key={el.name}
                                         label={el.name}
                                         placeholder={`Enter ${el.name}`}
                                         component={TextField}
                                         validations={[required]}
                                         name={el.name}
-                                        value={state[el.name]}
+                                        value={state[el.name] || ''}
+                                        error={this.state.fieldError[el.name]}
                                         disabled={el.disabled}
                                         onChangeText={this.onFieldChange(el.name)}
                                         customStyle={{width: '100%'}}
@@ -490,45 +556,39 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     }
                     {
                         this.editTitle ? (
-                            <View style={localStyles.comment}>
+                            <View style={localStyles.title}>
                                 <Field
-                                  //  key={title}
-                                    //required
+                                    required
                                     label={"Title"}
                                     placeholder={`Enter title`}
                                     component={TextField}
-                                  //  count={0}
-                                  //  validations={[required]}
+                                    validations={[required]}
                                     name={'title'}
                                     value={title || ''}
-                                  //  disabled={el.disabled}
+                                    error={this.state.fieldError['title']}
                                     onChangeText={this.onFieldChange('title')}
                                     customStyle={{width: '100%'}}
                                 />
-                                <Field
-                                    required
-                                    component = {TextField}
-                                    label={'Notes'}
-                                    placeholder = "Enter notes"
-                                    validations ={[required]}
-                                    name ={ 'comment'}
-                                    multiline = {true}
-                                    numberOfLines = {5}
-                                    value = {comment || ''}
-                                    onChangeText = {this.onFieldChange('comment')}
-                                    customStyle = {{width: '100%'}}
-                                />
                             </View>
-                        ) : null
+                        ) : <View/>
                     }
+                    <Field
+                        component={TextField}
+                        label={'Notes'}
+                        placeholder="Enter notes"
+                        name={ 'comment'}
+                        multiline={true}
+                        numberOfLines={5}
+                        value={comment || ''}
+                        onChangeText = {this.onFieldChange('comment')}
+                        customStyle = {{width: '100%'}}
+                    />
                     {
-                        <View>
-                            <UploadComponent
-                                files={selectedItem.uploads}
-                                onUpload = {this.onUploadFile}
-                                onUpdate = {this.onUpdateFile}
-                            />
-                        </View>
+                        <UploadComponent
+                            files={selectedItem.uploads}
+                            onUpload = {this.onUploadFile}
+                            onUpdate = {this.onUpdateFile}
+                        />
                     }
                 </Form>
             </ScrollView>
@@ -553,7 +613,7 @@ const localStyles = StyleSheet.create({
     label: {
         marginRight: 20
     },
-    comment: {
+    title: {
         marginTop: 20
     }
 });

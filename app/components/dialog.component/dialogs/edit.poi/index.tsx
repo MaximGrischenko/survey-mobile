@@ -1,48 +1,48 @@
 import React from "react";
-import * as Location from "expo-location";
-import * as Permissions from 'expo-permissions';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import MainModalDialog, {TYPES} from "../main.modal";
 
 import {
-    applyGeoposition,
     changeControls,
     errorSelector,
     locationSelector,
     locationsSelector,
     moduleName
 } from "../../../../redux/modules/map";
-import {isSuperADMINAdminSelector} from "../../../../redux/modules/auth";
+import {isSuperAdminSelector} from "../../../../redux/modules/auth";
 import {categorySelector} from "../../../../redux/modules/admin";
-import {setDialogSaveButton, showAlert, showDialogContent} from "../../../../redux/modules/dialogs";
+import {
+    setDialogDeleteButton,
+    setDialogSaveButton,
+    showAlert,
+    showDialogContent
+} from "../../../../redux/modules/dialogs";
 import {addPoi, editPoi, removePoi} from "../../../../redux/modules/map/poi";
-import {AsyncStorage} from "react-native";
-import {Geometry} from "../../../../entities";
 
 class EditPoiDialog extends MainModalDialog {
     constructor(p) {
         super(p);
         this.title = 'Poi';
         this.type = TYPES.POI;
+        this.canDelete = true;
+        this.editTitle = true;
     }
 
     componentDidMount(): void {
         super.componentDidMount();
     }
 
-    protected handleOk = async (e: any) => {
+    protected handleSave = async () => {
         try {
             this.setState({__pending: true});
             const {id}: any = this.state;
             if (id) {
-                console.log('EDIT', this.state);
                 await this.props.editItem({
                     ...this.state,
                 });
             } else {
                 let position = this.props.position;
-                console.log('before add');
                 this.props.onAddItem({
                     ...this.state,
                     points: position,
@@ -61,7 +61,7 @@ class EditPoiDialog extends MainModalDialog {
             // });
         } finally {
             this.setState({__pending: false});
-            this.handleCancel(e);
+            this.handleCancel({});
         }
     };
 
@@ -76,7 +76,7 @@ class EditPoiDialog extends MainModalDialog {
 
 const mapStateToProps = (state: any) => ({
     itemsList: state[moduleName].poiList,
-    isAdmin: isSuperADMINAdminSelector(state),
+    isAdmin: isSuperAdminSelector(state),
     error: errorSelector(state),
     location: locationSelector(state),
     projects: locationsSelector(state),
@@ -86,6 +86,7 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         setDialogSaveButton,
+        setDialogDeleteButton,
         showDialogContent,
         showAlert,
         changeControls,

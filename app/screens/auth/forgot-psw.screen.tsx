@@ -5,7 +5,8 @@ import {NavigationParams, NavigationScreenProp, NavigationState} from "react-nav
 import {ActivityIndicator, Dimensions, StyleSheet, Text, View} from "react-native";
 import {Image} from 'react-native-elements';
 import {Form, Field} from 'react-native-validate-form';
-import {email, InputField, required} from "../../components/inputs/field.input";
+import {TextField} from 'react-native-material-textfield';
+import {email, required} from "../../utils/validators";
 import {PrimaryButton} from "../../components/buttons/primary.button";
 import {changeSettings, reqResetPsw, moduleName, userSelector} from "../../redux/modules/auth";
 import {COLORS} from "../../styles/colors";
@@ -22,7 +23,8 @@ interface IMapProps {
 
 interface IMapState {
     email: string,
-    errors: Array<any>
+    formErrors: any,
+    fieldError: any,
 }
 
 class ForgotPswScreen extends Component<IMapProps, IMapState> {
@@ -52,7 +54,8 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
 
     state = {
         email: '',
-        errors: []
+        formErrors: [],
+        fieldError: {}
     };
 
     componentDidMount(): void {
@@ -73,24 +76,22 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
     };
 
     private submitForm = async () => {
-        let submitResult = this.ResetPswForm.validate();
-        let errors = [];
+        let result = this.ResetPswForm.validate();
+        let formErrors = [];
+        const fieldError = {};
 
-        submitResult.forEach(item => {
-           errors.push({field: item.fieldName, error: item.error});
+        result.map((field) => {
+            formErrors.push({name: field.fieldName, error: field.error});
         });
 
-        this.setState({errors: errors});
+        formErrors.forEach((field) => {
+            fieldError[field.name] = field.error;
+        });
 
-        if(errors.filter((el: any) => el.error).length === 0) {
-            try {
-                const newState: any = {pending: true};
-                this.setState(newState);
-                await this.props.reqResetPsw(this.state);
-            } catch {
-
-            }
-        }
+        this.setState({
+            formErrors,
+            fieldError
+        });
     };
 
     private onChange = (state) => {
@@ -110,14 +111,17 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
                     style={localStyles.form}
                     ref={(ref) => this.ResetPswForm = ref}
                     validate={true}
-                    errors={this.state.errors}
+                    submit={() => this.props.reqResetPsw(this.state)}
+                    errors={this.state.formErrors}
                 >
                     <Field
-                        style={localStyles.field}
+                        customStyle={localStyles.field}
                         requered
+                        label={'Email'}
                         placeholder='Enter email'
-                        component={InputField}
+                        component={TextField}
                         validation={[required, email]}
+                        error={this.state.fieldError['email']}
                         name='email'
                         value={this.state.email}
                         onChangeText={(email) => this.onChange({email})}
@@ -138,7 +142,7 @@ class ForgotPswScreen extends Component<IMapProps, IMapState> {
                 {
                     authError ? (
                         <Text style={{color: 'red'}}>
-                            Error! Either email or password are wrong. Please try again
+                            Error! Email is wrong. Please try again
                         </Text>
                     ) : null
                 }
