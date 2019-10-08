@@ -26,7 +26,7 @@ export const dropTables = () => {
             })
         })
     })
-}
+};
 export const createTables = () => {
     return new Promise((resolve, reject) => {
         db().then((connect: any) => {
