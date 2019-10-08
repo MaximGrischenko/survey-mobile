@@ -2,92 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/app/utils/sync/connect.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/sync/sql/create.tables.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/sync/sql/survey.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/validators/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/App.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/__tests__/App-test.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/_BUCK" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/build_defs.bzl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/proguard-rules.pro" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/debug/AndroidManifest.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/java/com/example/MainActivity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/java/com/example/MainApplication.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/gradle.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/android/settings.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/app.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/babel.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/Podfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example-tvOS/Info.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example-tvOSTests/Info.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example.xcodeproj/project.pbxproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example.xcodeproj/xcshareddata/xcschemes/example-tvOS.xcscheme" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example.xcodeproj/xcshareddata/xcschemes/example.xcscheme" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example/AppDelegate.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example/AppDelegate.m" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example/Base.lproj/LaunchScreen.xib" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example/Images.xcassets/AppIcon.appiconset/Contents.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example/Images.xcassets/Contents.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example/Info.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/example/main.m" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/exampleTests/Info.plist" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/ios/exampleTests/exampleTests.m" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/metro.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/example/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/lib/cluster-map.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/lib/cluster-marker.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/lib/cluster-service.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/lib/index.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/lib/index.es.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/lib/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/lib/typings.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/lib/utils.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_node_modules/react-native-cluster-map/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dbnavigator.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/api/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/database/connect.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/database/initialize.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/sync/connect.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/sync/sync.data.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/sync/tables.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/alert.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/alert.dialog/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.parcel/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.parcel/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.pole/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.pole/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.segment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.segment/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.station/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.station/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/entries/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/inputs/field.input.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/upload.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/upload.component/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/dialogs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/dialogs.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/auth/forgot-psw.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/forgot-psw.screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/auth/sign-in.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/sign-in.screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/backup/backup.last.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/backup/map 2.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/backup/map.backup.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/locations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/locations.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
@@ -96,6 +24,20 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
   </component>
   <component name="FavoritesManager">
     <favorites_list name="survey-mobile" />
@@ -120,7 +62,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js.last.introduce.type" value="CONST" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/custom-node-modules" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -174,7 +116,9 @@
       <workItem from="1568376461326" duration="41792000" />
       <workItem from="1568708203280" duration="327000000" />
       <workItem from="1569914308771" duration="25000" />
-      <workItem from="1569914385428" duration="93180000" />
+      <workItem from="1569914385428" duration="94750000" />
+      <workItem from="1570444804712" duration="7215000" />
+      <workItem from="1570460928696" duration="19269000" />
     </task>
     <servers />
   </component>

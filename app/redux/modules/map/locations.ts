@@ -12,7 +12,6 @@ export const FETCH_LOCATIONS_REQUEST = `${appName}/${moduleName}/FETCH_LOCATIONS
 export const FETCH_LOCATIONS_ERROR = `${appName}/${moduleName}/FETCH_LOCATIONS_ERROR`;
 export const FETCH_LOCATIONS_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATIONS_SUCCESS`;
 
-
 export const ADD_LOCATIONS = `${appName}/${moduleName}/ADD_LOCATIONS`;
 export const ADD_LOCATIONS_REQUEST = `${appName}/${moduleName}/ADD_LOCATIONS_REQUEST`;
 export const ADD_LOCATIONS_ERROR = `${appName}/${moduleName}/ADD_LOCATIONS_ERROR`;
@@ -43,6 +42,7 @@ export function addLocation(data: any) {
 
 
 export const fetchLocationsSaga = function* (action: any) {
+    console.log('ACTION', action);
     try {
         yield put({
             type: FETCH_LOCATIONS_REQUEST,

@@ -13,7 +13,6 @@ import {
     FETCH_LOCATION_POLES,
     FETCH_LOCATION_POLES_ERROR,
 
-
     ADD_POLE,
     ADD_POLE_REQUEST,
     ADD_POLE_ERROR,
@@ -28,7 +27,6 @@ import {
     FETCH_LOCATION_PARCElSS_SUCCESS,
     FETCH_LOCATION_PARCElSS,
     FETCH_LOCATION_PARCElSS_ERROR,
-
 
     ADD_PARCElS,
     ADD_PARCElS_REQUEST,
@@ -81,12 +79,12 @@ import {
     fetchLocationStations, ADD_STATIONS_REQUEST, fetchLocationStationsaga
 } from "./stations";
 
-import *as POI from "./poi";
-import *as SEGMENTS from "./segments";
-import *as STATIONS from "./stations";
-import *as POLES from "./poles";
-import *as PARCELS from "./parcels";
-import *as POWERLINES from "./powerlines";
+import * as POI from "./poi";
+import * as SEGMENTS from "./segments";
+import * as STATIONS from "./stations";
+import * as POLES from "./poles";
+import * as PARCELS from "./parcels";
+import * as POWERLINES from "./powerlines";
 
 import {parcel_statuses, segment_statuses} from "../../utils";
 import {AsyncStorage} from "react-native";
@@ -539,23 +537,19 @@ export const saga = function* () {
         takeEvery(ADD_LOCATIONS, addLocationSaga),
         takeEvery(SELECT_LOCATION, selectLocationSaga),
 
-
         takeEvery(FETCH_LOCATION_POLES_MORE, fetchLocationMorePolesSaga),
         takeEvery(ADD_POLE, addPoleSaga),
         takeEvery(POLES.EDIT_POLE, POLES.editItemSaga),
         takeEvery(POLES.DELETE_POLE, POLES.deleteParcelSaga),
         takeEvery(FETCH_LOCATION_POLES, fetchLocationPolesSaga),
 
-
         takeEvery(CONTROLS_CHANGE, changeControlsSaga),
-
 
         takeEvery(ADD_PARCElS, addParcelSaga),
         takeEvery(FETCH_LOCATION_MORE_PARCElSS, onLoadMoreItemsSaga),
         takeEvery(EDIT_PARCElS, editParcelSaga),
         takeEvery(DELETE_PARCElS, deleteParcelSaga),
         takeEvery(FETCH_LOCATION_PARCElSS, fetchLocationParcelSaga),
-
 
         takeEvery(FETCH_LOCATION_SEGMENTSS, fetchLocationSegmentSaga),
         takeEvery(ADD_SEGMENTS, addSegmentSaga),
@@ -568,13 +562,11 @@ export const saga = function* () {
         takeEvery(STATIONS.EDIT_STATIONS, STATIONS.editItemSaga),
         takeEvery(STATIONS.DELETE_STATIONS, STATIONS.deleteItemSaga),
 
-
         takeEvery(POI.FETCH_LOCATION_POIS, POI.fetchLocationPoisaga),
         takeEvery(POI.ADD_POI, POI.addPoisaga),
         takeEvery(POI.POI_DELETE, POI.removePoisaga),
         takeEvery(POI.POI_EDIT, POI.editPoisaga),
         takeEvery(POI.FETCH_LOCATION_POIS_MORE, POI.fetchLocationPoiMoresaga),
-
 
         takeEvery(POWERLINES.FETCH_LOCATION_POWERLINES, POWERLINES.fetchProjectPowerlinesSaga),
     ]);

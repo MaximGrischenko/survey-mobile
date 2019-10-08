@@ -3,6 +3,7 @@ import { DrawerActions } from 'react-navigation-drawer';
 import {View, Text, StyleSheet, TouchableOpacity, Dimensions} from "react-native";
 import SvgUri from 'react-native-svg-uri';
 import {CirclesLoader} from 'react-native-indicator';
+import {sync} from "../../../../sync/sync.data";
 
 interface IMapProps {
     navigation: any
@@ -29,7 +30,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> {
                     this.state.isSync ? (
                         <CirclesLoader/>
                     ) : (
-                        <TouchableOpacity style={localStyles.item}>
+                        <TouchableOpacity style={localStyles.item} onPress={() => sync()}>
                             <SvgUri
                                 width={Dimensions.get('window').width * 0.2}
                                 height={28}
