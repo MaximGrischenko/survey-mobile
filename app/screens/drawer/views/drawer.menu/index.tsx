@@ -2,44 +2,56 @@ import React, {Component} from 'react';
 import { DrawerActions } from 'react-navigation-drawer';
 import {View, Text, StyleSheet, TouchableOpacity, Dimensions} from "react-native";
 import SvgUri from 'react-native-svg-uri';
-import {CirclesLoader} from 'react-native-indicator';
-import {sync} from "../../../../sync/sync.data";
+import {Observer, Emitter} from "../../../../utils/database/interfaces";
+import {Database} from "../../../../utils/database";
 
 interface IMapProps {
     navigation: any
 }
 
 interface IMapState {
-    isSync: any,
+    database: Database;
+    progress: Emitter;
 }
 
-class DrawerMenu extends Component<IMapProps, IMapState> {
+class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
     static navigationOptions = {
         header: null
     };
 
     state = {
-        isSync: false
+        database: new Database(),
+        progress: null,
     };
+
+    public update(emitter: Emitter): void {
+        this.setState({
+            progress: emitter
+        })
+    }
+
+    componentDidMount(): void {
+        this.state.database.attach(this);
+    }
+
+    componentWillUnmount(): void {
+        this.state.database.detach(this);
+    }
 
     render() {
         const {navigation} = this.props;
+        const {progress} = this.state;
+        console.log('PROGRESS', progress);
         return (
             <View style={localStyles.container}>
-                {
-                    this.state.isSync ? (
-                        <CirclesLoader/>
-                    ) : (
-                        <TouchableOpacity style={localStyles.item} onPress={() => sync()}>
-                            <SvgUri
-                                width={Dimensions.get('window').width * 0.2}
-                                height={28}
-                                source={require('../../../../../assets/images/sync.svg')}
-                            />
-                            <Text style={{marginTop: 10}}>Sync</Text>
-                        </TouchableOpacity>
-                    )
-                }
+                <TouchableOpacity style={localStyles.item} onPress={() => this.state.database.syncBD()}>
+                    <SvgUri
+                        width={Dimensions.get('window').width * 0.2}
+                        height={28}
+                        source={require('../../../../../assets/images/sync.svg')}
+                    />
+                    <Text style={{marginTop: 10}}>Sync</Text>
+                </TouchableOpacity>
 
                 <View style={localStyles.divider}/>
 

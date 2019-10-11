@@ -44,16 +44,18 @@ export const fetchProjectPowerlinesSaga = function* (action: any) {
             type: FETCH_LOCATION_POWERLINES_REQUEST,
         });
         const res = yield call(() => {
+            console.log('URL', `${API}api/projects/${action.payload.id}/powerlines?limit=${2000}`);
                 return axios.get(`${API}api/projects/${action.payload.id}/powerlines?limit=${2000}`);
             },
         );
-
+            console.log('RESPONSE', res.data.rows.length);
         yield put({
             type: FETCH_LOCATION_POWERLINES_SUCCESS,
             payload: res.data.rows
         });
 
     } catch (error) {
+        console.log('ERROR', error);
         yield put({
             type: FETCH_LOCATION_POWERLINES_ERROR,
             error: error.response.data.message,

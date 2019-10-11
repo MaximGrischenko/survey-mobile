@@ -3,7 +3,6 @@ import {Record} from 'immutable';
 import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
 import {createSelector} from 'reselect';
 
-
 export const ReducerRecord: any = Record({
     alertText: false,
     dialogSaveBtn: false,
@@ -61,7 +60,6 @@ export const contentSelector = createSelector(stateSelector, state => state.cont
 export const dialogSaveBtnSelector = createSelector(stateSelector, state => state.dialogSaveBtn);
 export const dialogDeleteBtnSelector = createSelector(stateSelector, state => state.dialogDeleteBtn);
 export const errorSelector = createSelector(stateSelector, state => state.error);
-
 
 export function showAlert(alertText: string) {
     return {

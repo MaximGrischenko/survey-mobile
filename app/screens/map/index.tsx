@@ -31,6 +31,7 @@ import {FabButton} from "../../components/buttons/fab.button";
 import {searchSelector} from "../../redux/modules/auth";
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
+import {connectionSelector} from "../../redux/modules/connect";
 
 interface IMapProps {
     selected_powerlines: Array<number>,
@@ -58,6 +59,8 @@ interface IMapProps {
     poiList: any,
     polesList: any,
     parcelList: any,
+
+    connection: any
 }
 
 interface IMapState {
@@ -866,12 +869,10 @@ class MapScreen extends Component<IMapProps, IMapState> {
 
     render() {
         const {
-            showStations,
-            showSegments,
-            showParcels,
-            showPoles,
-            showPois,
+            connection
         } = this.props;
+
+        console.log('CONNECTION', connection);
 
         const {showUserLocation, options, region} = this.state;
 
@@ -1091,6 +1092,8 @@ const mapStateToProps = (state: any) => ({
     poiList: state[moduleName].poiList,
     polesList: state[moduleName].polesList,
     parcelList: state[moduleName].parcelList,
+
+    connection: connectionSelector(state)
 });
 
 const mapDispatchToProps = (dispatch: any) => (

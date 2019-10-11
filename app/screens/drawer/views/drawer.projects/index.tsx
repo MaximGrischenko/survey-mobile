@@ -73,7 +73,7 @@ const localStyles = StyleSheet.create({
 });
 
 const mapStateToProps = (state: any) => ({
-   project: locationSelector(state)
+   project: locationSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (

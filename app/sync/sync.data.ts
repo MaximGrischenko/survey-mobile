@@ -3,20 +3,35 @@ import {db} from './connect';
 import {TABLES} from "./tables";
 import {API} from "../config";
 import SqlString from 'sqlstring';
-const LIMIT_TO_LOAD = 1;
+import {LOADED_PROJECT_DATA} from "../redux/modules/map";
+import {Database} from "../database";
+const LIMIT_TO_LOAD = 100000;
+
+let projectsList = [];
 
 export const dropTables = () => {
     return new Promise((resolve, reject) => {
         db().then((connect: any) => {
-            console.log('Create tables');
 
             connect.transaction((txn) => {
                 txn.executeSql(
                     `DROP TABLE IF EXISTS projects;`,
                     [],
                     (tx, res) => {
-                        console.log(' -- DROP TABLE Success -- ');
-                        resolve({tx, res})
+                        console.log(' -- DROP PROJECTS TABLE Success -- ');
+                        txn.executeSql(
+                            `DROP TABLE IF EXISTS stations;`,
+                            [],
+                            (tx, res) => {
+                                console.log(' -- DROP STATIONS TABLE Success -- ');
+                                resolve({tx, res})
+                            },
+                            (tx, res) => {
+                                console.log('DROP Err', tx, res);
+                                reject({tx, res})
+                            }
+                        )
+                        // resolve({tx, res})
                     },
                     (tx, res) => {
                         console.log('DROP Err', tx, res);
@@ -27,25 +42,21 @@ export const dropTables = () => {
         })
     })
 };
-export const createTables = () => {
+
+const queries = [
+    `CREATE TABLE IF NOT EXISTS projects (cloudId INTEGER, title VARCHAR(255), contractor VARCHAR(255), status INTEGER DEFAULT 1, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(cloudId));`,
+    `CREATE TABLE IF NOT EXISTS stations (cloudId INTEGER, title VARCHAR(255), description VARCHAR(255), nazw_stac VARCHAR(255), num_eksp_s VARCHAR(255), comment VARCHAR(255), type INTEGER DEFAULT 0, status INTEGER, userId INTEGER, projectId INTEGER, points VARCHAR(255), createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(cloudId));`
+];
+
+export const createTable = (query) => {
     return new Promise((resolve, reject) => {
         db().then((connect: any) => {
-
             connect.transaction((txn) => {
                 txn.executeSql(
-                    `
-CREATE TABLE IF NOT EXISTS projects (
-id SERIAL,
-title VARCHAR(255), 
-contractor VARCHAR(255), 
-status INTEGER DEFAULT 1, 
-createdAt TIMESTAMP WITH TIME ZONE NOT NULL, 
-updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, 
-deletedAt TIMESTAMP WITH TIME ZONE, 
-PRIMARY KEY (id));`,
+                    query,
                     [],
                     (tx, res) => {
-                        console.log(' -- CREATE TABLE SUCCESS -- ', res);
+                        console.log(' -- CREATE STATIONS TABLE SUCCESS -- ', res);
                         resolve({tx, res})
                     },
                     (tx, res) => reject({tx, res})
@@ -55,24 +66,132 @@ PRIMARY KEY (id));`,
     })
 };
 
+export const createTables = () => {
+    Promise.all(queries.map((query) => createTable(query)))
+        .then(res => console.log('TABLES CREATED'));
+};
+
+// export const createTables = () => {
+//     return new Promise((resolve, reject) => {
+//         db().then((connect: any) => {
+//
+//             connect.transaction((txn) => {
+//                 txn.executeSql(
+//                     `
+// CREATE TABLE IF NOT EXISTS projects (
+// cloudId INTEGER,
+// title VARCHAR(255),
+// contractor VARCHAR(255),
+// status INTEGER DEFAULT 1,
+// createdAt TIMESTAMP WITH TIME ZONE NOT NULL,
+// updatedAt TIMESTAMP WITH TIME ZONE NOT NULL,
+// deletedAt TIMESTAMP WITH TIME ZONE,
+// UNIQUE(cloudId));`,
+//                     [],
+//                     (tx, res) => {
+//                         console.log(' -- CREATE PROJECTS TABLE SUCCESS -- ', res);
+//
+//                         connect.transaction((txn) => {
+//                             txn.executeSql(
+//                                 `
+// CREATE TABLE IF NOT EXISTS stations (
+// cloudId INTEGER,
+// title VARCHAR(255),
+// description VARCHAR(255),
+// nazw_stac VARCHAR(255),
+// num_eksp_s VARCHAR(255),
+// comment VARCHAR(255),
+// type INTEGER DEFAULT 0,
+// status INTEGER,
+// userId INTEGER,
+// projectId INTEGER,
+// points VARCHAR(255),
+// createdAt TIMESTAMP WITH TIME ZONE NOT NULL,
+// updatedAt TIMESTAMP WITH TIME ZONE NOT NULL,
+// deletedAt TIMESTAMP WITH TIME ZONE,
+// UNIQUE(cloudId));
+// `,
+//                                 [],
+//                                 (tx, res) => {
+//                                     console.log(' -- CREATE STATIONS TABLE SUCCESS -- ', res);
+//                                     resolve({tx, res})
+//                                 },
+//                                 (tx, res) => reject({tx, res})
+//                             )
+//                         })
+//
+//                     },
+//                     (tx, res) => reject({tx, res})
+//                 )
+//             });
+//
+//
+//         });
+//
+//     })
+// };
+
 let toTimestamp = strDate => {
     return strDate ? Date.parse(strDate) : null;
 }
 
 
-export const loadAndStore = () => {
+export const globalSync = async () => {
+
+
+    return new Promise(async (resolve, reject) => {
+        // ---- SYNC PROJECT LIST
+
+        await syncProjects();
+
+        // ---- END SYNC PROJECT LIST
+
+        // ---- SYNC STATIONS FOR ALL PROJECTS
+
+        let projectIdsList = []
+        projectsList.forEach( async (project, key)=>{
+            projectIdsList.push(project.id);
+        })
+        await syncStationsByProject(projectIdsList)
+
+        resolve();
+        // if(key === projectsList.length -1) {
+        //     resolve();
+        // }
+
+        // ---- END SYNC STATIONS FOR ALL PROJECTS
+    });
+
+
+};
+
+export const syncProjects = async () => {
     return new Promise(async (resolve, reject) => {
         axios.get(`${API}api/projects?limit=${LIMIT_TO_LOAD}`)
             .then((res: any) => {
-                const list = res.data;
-                if(list.length) {
-                    const item = list[0];
-                    const query = `INSERT INTO projects 
-    (id, title, contractor, status, createdAt, updatedAt, deletedAt) 
-    VALUES
-    (${item.id}, "${item.title}", "${item.contractor}", ${item.status}, ${toTimestamp(item.createdAt)}, ${toTimestamp(item.updatedAt)}, ${toTimestamp(item.deletedAt)})`;
 
-                    console.log('item', item, query);
+                let queryValues = "";
+                if(res.data.length) {
+                    projectsList = res.data;
+
+                    let query = `INSERT OR IGNORE INTO projects 
+    (cloudId, title, contractor, status, createdAt, updatedAt, deletedAt) 
+    VALUES`;
+
+                    projectsList.forEach((item, key)=>{
+                        queryValues += `(
+                            ${item.id}, 
+                            "${item.title}", 
+                            "${item.contractor}", 
+                            ${item.status}, 
+                            ${toTimestamp(item.createdAt)}, 
+                            ${toTimestamp(item.updatedAt)}, 
+                            ${toTimestamp(item.deletedAt)}
+                            )`;
+                        queryValues += key === projectsList.length-1 ? "; " : ", ";
+                    });
+                    query += queryValues;
+
                     db().then((connect: any) => {
                         connect.transaction(function (txn) {
                             txn.executeSql(
@@ -86,95 +205,98 @@ export const loadAndStore = () => {
                             );
                         });
                     })
-
+                } else {
+                    projectsList = [];
                 }
             });
-
-
-        // const query = 'INSERT INTO projects (id, title, contractor, status, createdAt, updatedAt, deletedAt) VALUES (3209, "KWIATKI", "URZĄD MIASTA ZAKOPANE UTZRYMANIE ZIELENI", 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)';
-        // db().then((connect: any) => {
-        //     console.log('QUERY', query);
-        //     connect.transaction(function (txn) {
-        //         txn.executeSql(
-        //             query,
-        //             [],
-        //             (tx, resp) => {
-        //                 console.log("---------", resp);
-        //                 resolve(resp);
-        //             },
-        //             (tx, error) => reject({tx, error})
-        //         );
-        //     });
-        // })
     })
-  // return new Promise(async (resolve, reject) => {
-  //     axios.get(`${API}api/projects?limit=${LIMIT_TO_LOAD}`)
-  //         .then((res: any) => {
-  //             const list = res.data;
-  //             const headers = [];
-  //             // console.log('List', list);
-  //             if (list.length) {
-  //                 let query = 'INSERT INTO projects (';
-  //
-  //                 const keys = Object.keys(list[0]);
-  //                 console.log('keys', keys);
-  //
-  //                 for(let i = 0; i < keys.length; i++) {
-  //                    // headers.push(keys[i]);
-  //                     // console.log('i', i, 'i>=keys.length', i>=keys.length);
-  //                     // query += keys[i] + (i >= keys.length-1 ? ") VALUES(" : ",");
-  //                     for(let j = 0; j < keys.length; j++) {
-  //                         console.log('value', list[i][keys[j]]);
-  //
-  //                         if(list[i][keys[j]] instanceof Object) {
-  //                             return;
-  //                         }
-  //                     }
-  //                 }
-  //
-  //                 console.log('HEADERS', headers);
-  //
-  //                 // for (let i = 0; i < keys.length; i++) {
-  //                 //     query += keys[i] + (i >= keys.length-1 ? ") VALUES(" : ",");
-  //                 // }
-  //                 // for (let i = 0; i < list.length; i++) {
-  //                 //     for (let j = 0; j < keys.length; j++) {
-  //                 //         const val = list[i][keys[j]];
-  //                 //         let _val = typeof val === 'string' ? `"${val}"` : val;
-  //                 //         query += _val + (j >= keys.length ? "),(" : ",");
-  //                 //     }
-  //                 // }
-  //                 console.log('QUERY', query);
-  //                 // db().then((connect: any) => {
-  //                 //     console.log('QUERY', query);
-  //                 //     connect.transaction(function (txn) {
-  //                 //         txn.executeSql(
-  //                 //             query,
-  //                 //             [],
-  //                 //             (tx, resp) => {
-  //                 //                 console.log("---------", resp);
-  //                 //                 resolve(res.data);
-  //                 //             },
-  //                 //             (tx, error) => reject({tx, error})
-  //                 //         );
-  //                 //     });
-  //                 // })
-  //             }
-  //         })
-  //         .catch(reject)
-  // })
-};
+}
+
+export const syncStationsByProject = (projectIdsList) => {
+    return new Promise(async (resolve, reject) => {
+        axios.get(`${API}api/projects/${projectIdsList[0]}/stations?limit=${LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIdsList)}`).then((res)=>{
+
+            // console.log('RESP', res);
+            //
+            // return;
+
+            const stations = res.data.rows;
+
+            if(stations.length){
+                let queryValues = "";
+
+                let query = `INSERT OR IGNORE INTO stations 
+(cloudId, 
+ title,
+ description,
+ nazw_stac,
+ num_eksp_s,
+ comment,
+ type,
+ status,
+ userId,
+ projectId,
+ points, 
+ createdAt, 
+ updatedAt, 
+ deletedAt) 
+VALUES`;
+
+
+                stations.forEach((item, key)=>{
+                    queryValues += `(
+                        ${item.id}, 
+                        "${escape(item.title)}", 
+                        "${escape(item.description)}", 
+                        "${escape(item.nazw_stac)}", 
+                        "${escape(item.num_eksp_s)}", 
+                        "${escape(item.comment)}", 
+                        ${item.type || 1}, 
+                        ${item.status}, 
+                        ${item.userId}, 
+                        ${item.projectId}, 
+                        "qwe", 
+                        ${toTimestamp(item.createdAt)}, 
+                        ${toTimestamp(item.updatedAt)}, 
+                        ${toTimestamp(item.deletedAt)}
+                        )`;
+                    queryValues += key === stations.length-1 ? "; " : ", ";
+                });
+                query += queryValues;
+
+                console.log('---- STATIONS QUERY', query);
+                db().then((connect: any) => {
+                    connect.transaction(function (txn) {
+                        txn.executeSql(
+                            query,
+                            [],
+                            (tx, resp) => {
+                                console.log(" -- INSERT STATION SUCCESS -- ");
+                                resolve(resp);
+                            },
+                            (tx, error) => {
+                                console.log('ERROR', error);
+                                reject({tx, error})
+                            }
+                        );
+                    });
+                })
+
+            }
+        });
+    });
+}
 
 export const getValues = () => {
     return new Promise(async (resolve, reject) => {
-        const query = "select * from projects";
+        const query = "select ROWID, title from stations";
         db().then((connect: any) => {
             connect.transaction(function (txn) {
                 txn.executeSql(
                     query,
                     [],
                     (tx, resp) => {
-                        console.log('PROJECT TABLE CONTAIN: ', JSON.stringify(resp.rows));
+                        console.log('STATIONS TABLE CONTAIN: ', JSON.stringify(resp.rows));
                         resolve(tx);
                     },
                     (tx, error) => reject({tx, error})
@@ -184,17 +306,44 @@ export const getValues = () => {
     })
 };
 
-export const sync = async () => {
-    console.log('sync started');
+interface Observer {
+    update(emitter: { isOpen: boolean; isCreated: boolean; isUploaded: boolean }): void;
+}
 
-    try{
-        await dropTables();
-        await createTables();
-        await loadAndStore();
-        await getValues();
+export const sync = async () => {
+    console.log('database started');
+
+    class Observable implements Observer {
+        public update(emitter: { isOpen: boolean; isCreated: boolean; isUploaded: boolean }): void {
+            console.log('emitter', emitter);
+        }
+    }
+
+    const observer = new Observable();
+
+    const db = new Database();
+
+    db.attach(observer);
+
+    try {
+        await db.initDB();
+        // await db.dropDB();
+        await db.syncBD();
     } catch (e) {
-        console.log('Error', e);
+
     } finally {
         console.log('finished');
     }
+
+
+    // try{
+    //     await dropTables();
+    //     await createTables();
+    //     await globalSync();
+    //     await getValues();
+    // } catch (e) {
+    //     console.log('Error', e);
+    // } finally {
+    //     console.log('finished');
+    // }
 };

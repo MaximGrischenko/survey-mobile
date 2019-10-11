@@ -1,6 +1,5 @@
 import axios from "react-native-axios";
 import {API, appName} from "../../../config";
-
 import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
 import {
     LIMIT_TO_LOAD, LOADED_PROJECT_DATA,
