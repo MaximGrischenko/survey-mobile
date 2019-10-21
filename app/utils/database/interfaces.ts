@@ -1,10 +1,6 @@
 export interface Emitter {
-    isConnected: boolean;
-    isCreated: boolean;
-    isUploaded: boolean;
-    pending: boolean;
     logger: string;
-    progress: number;
+    pending: boolean;
 }
 
 export interface Observer {

@@ -4,15 +4,16 @@ import {bindActionCreators} from 'redux';
 
 import {Project} from '../../../../entities';
 import {locationSelector, locationsSelector, moduleName} from "../../../../redux/modules/map";
-import {fetchLocationStations} from "../../../../redux/modules/map/stations";
-import {fetchLocationPoi} from "../../../../redux/modules/map/poi";
-import {fetchProjectPowerlines} from "../../../../redux/modules/map/powerlines";
+import {fetchLocationStations, fetchStationsOffline} from "../../../../redux/modules/map/stations";
+import {fetchLocationPoi, fetchPoiOffline} from "../../../../redux/modules/map/poi";
+import {fetchPowerlinesOffline, fetchProjectPowerlines} from "../../../../redux/modules/map/powerlines";
 import {showDialogContent} from "../../../../redux/modules/dialogs";
-import {fetchLocations, selectLocation} from "../../../../redux/modules/map/locations";
+import {fetchLocations, fetchLocationsOffline, selectLocation} from "../../../../redux/modules/map/locations";
 import {View, Text, FlatList, StyleSheet, TouchableHighlight, Platform, TextInput, ScrollView} from "react-native";
 import {CirclesLoader} from 'react-native-indicator';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {COLORS} from "../../../../styles/colors";
+import {connectionSelector} from "../../../../redux/modules/connect";
 
 interface IMapProps {
     fetchLocationSegments: Function,
@@ -22,6 +23,12 @@ interface IMapProps {
     showDialogContent: Function,
     selectLocation: Function,
     fetchLocations: Function,
+
+    connection: any,
+    fetchLocationsOffline: Function,
+    fetchPowerlinesOffline: Function,
+    fetchStationsOffline: Function,
+    fetchPoiOffline: Function,
     project: Project,
     loading: boolean,
     projects: Array<Project>
@@ -37,17 +44,35 @@ class ProjectList extends Component<IMapProps, IMapState> {
         search: ''
     };
 
-    componentDidMount(): void {
-        this.props.fetchLocations();
+     componentDidMount(): void {
+        if(this.props.connection) {
+           this.props.fetchLocations();
+        } else {
+           this.props.fetchLocationsOffline();
+        }
+    }
+
+    componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
+        if(nextProps.connection !== this.props.connection && nextProps.connection) {
+            this.props.fetchLocations();
+        } else if(nextProps.connection !== this.props.connection && !nextProps.connection) {
+            this.props.fetchLocationsOffline();
+        }
     }
 
     private selectProject = (project: any) => {
         this.props.selectLocation(project);
         this.props.showDialogContent(false);
 
-        this.props.fetchLocationStations(project);
-        this.props.fetchLocationPoi(project);
-        this.props.fetchProjectPowerlines(project);
+        if(this.props.connection) {
+           this.props.fetchLocationStations(project);
+           this.props.fetchLocationPoi(project);
+           this.props.fetchProjectPowerlines(project);
+        } else {
+            this.props.fetchPowerlinesOffline(project);
+            this.props.fetchStationsOffline(project);
+            this.props.fetchPoiOffline(project);
+        }
     };
 
     private renderSeparator = () => {
@@ -167,7 +192,8 @@ const mapStateToProps = (state: any) => ({
     projects: locationsSelector(state),
     project: locationSelector(state),
     error: state[moduleName].error,
-    loading: state[moduleName].loading
+    loading: state[moduleName].loading,
+    connection: connectionSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -178,6 +204,10 @@ const mapDispatchToProps = (dispatch: any) => (
         showDialogContent,
         selectLocation,
         fetchLocations,
+        fetchLocationsOffline,
+        fetchPowerlinesOffline,
+        fetchStationsOffline,
+        fetchPoiOffline
     }, dispatch)
 );
 

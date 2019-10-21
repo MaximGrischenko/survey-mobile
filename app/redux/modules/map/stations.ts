@@ -5,14 +5,8 @@ import {
     LIMIT_TO_LOAD, LOADED_PROJECT_DATA,
     moduleName,
 } from './config';
-import {
-    DELETE_POLE_ERROR,
-    DELETE_POLE_REQUEST,
-    DELETE_POLE_SUCCESS,
-    EDIT_POLE_ERROR,
-    EDIT_POLE_REQUEST,
-    EDIT_POLE_SUCCESS
-} from "./poles";
+import {FETCH_LOCATIONS_ERROR} from "./locations";
+import {DBAdapter} from "../../../utils/database";
 
 export const ADD_STATIONS = `${appName}/${moduleName}/ADD_STATIONS`;
 export const ADD_STATIONS_REQUEST = `${appName}/${moduleName}/ADD_STATIONS_REQUEST`;
@@ -21,7 +15,9 @@ export const ADD_STATIONS_SUCCESS = `${appName}/${moduleName}/ADD_STATIONS_SUCCE
 
 
 export const EDIT_STATIONS = `${appName}/${moduleName}/EDIT_STATIONS`;
+export const EDIT_STATION_OFFLINE = `${appName}/${moduleName}/EDIT_STATION_OFFLINE`;
 export const EDIT_STATIONS_REQUEST = `${appName}/${moduleName}/EDIT_STATIONS_REQUEST`;
+export const EDIT_STATIONS_OFFLINE_REQUEST = `${appName}/${moduleName}/EDIT_STATIONS_OFFLINE_REQUEST`;
 export const EDIT_STATIONS_ERROR = `${appName}/${moduleName}/EDIT_STATIONS_ERROR`;
 export const EDIT_STATIONS_SUCCESS = `${appName}/${moduleName}/EDIT_STATIONS_SUCCESS`;
 
@@ -30,25 +26,29 @@ export const DELETE_STATIONS_REQUEST = `${appName}/${moduleName}/DELETE_STATIONS
 export const DELETE_STATIONS_ERROR = `${appName}/${moduleName}/DELETE_STATIONS_ERROR`;
 export const DELETE_STATIONS_SUCCESS = `${appName}/${moduleName}/DELETE_STATIONS_SUCCESS`;
 
+export const FETCH_LOCATION_STATIONS = `${appName}/${moduleName}/FETCH_LOCATION_STATIONS`;
+export const FETCH_STATIONS_OFFLINE = `${appName}/${moduleName}/FETCH_STATIONS_OFFLINE`;
+export const FETCH_LOCATION_STATIONS_REQUEST = `${appName}/${moduleName}/FETCH_LOCATION_STATIONS_REQUEST`;
+export const FETCH_STATIONS_OFFLINE_REQUEST = `${appName}/${moduleName}/FETCH_STATIONS_OFFLINE_REQUEST`;
+export const FETCH_LOCATION_STATIONS_ERROR = `${appName}/${moduleName}/FETCH_LOCATION_STATIONS_ERROR`;
+export const FETCH_LOCATION_STATIONS_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATION_STATIONS_SUCCESS`;
 
-export const FETCH_LOCATION_MORE_STATIONSS = `${appName}/${moduleName}/FETCH_LOCATION_MORE_STATIONSS`;
-export const FETCH_LOCATION_STATIONSS = `${appName}/${moduleName}/FETCH_LOCATION_STATIONSS`;
-export const FETCH_LOCATION_STATIONSS_REQUEST = `${appName}/${moduleName}/FETCH_LOCATION_STATIONSS_REQUEST`;
-export const FETCH_LOCATION_STATIONSS_ERROR = `${appName}/${moduleName}/FETCH_LOCATION_STATIONSS_ERROR`;
-export const FETCH_LOCATION_STATIONSS_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATION_STATIONSS_SUCCESS`;
+export const convertToTimeStamp = date => {
+    return date ? Date.parse(date) : null;
+};
 
 export function fetchLocationStations(location: any) {
     return {
-        type: FETCH_LOCATION_STATIONSS,
+        type: FETCH_LOCATION_STATIONS,
         payload: location
     };
 }
 
-export function fetchLocationMOREStations(location: any) {
+export function fetchStationsOffline(location: any) {
     return {
-        type: FETCH_LOCATION_MORE_STATIONSS,
+        type: FETCH_STATIONS_OFFLINE,
         payload: location
-    };
+    }
 }
 
 export function addStation(data: any) {
@@ -65,6 +65,13 @@ export function editStation(data: any) {
     };
 }
 
+export function editStationOffline(data: any) {
+    return {
+        type: EDIT_STATION_OFFLINE,
+        payload: data
+    }
+}
+
 export function deleteStation(data: any) {
     return {
         type: DELETE_STATIONS,
@@ -72,18 +79,10 @@ export function deleteStation(data: any) {
     };
 }
 
-
-export const fetchLocationMoreStationsaga = function* ({payload}: any) {
-    yield put({
-        type: FETCH_LOCATION_STATIONSS_SUCCESS,
-        payload: payload.rows
-    });
-};
-
-export const fetchLocationStationsaga = function* (action: any) {
+export const fetchLocationStationSaga = function* (action: any) {
     try {
         yield put({
-            type: FETCH_LOCATION_STATIONSS_REQUEST,
+            type: FETCH_LOCATION_STATIONS_REQUEST,
         });
         if (!LOADED_PROJECT_DATA.PROJECTS[action.payload.id]) LOADED_PROJECT_DATA.PROJECTS[action.payload.id] = {};
         if (!LOADED_PROJECT_DATA.PROJECTS[action.payload.id].stations) LOADED_PROJECT_DATA.PROJECTS[action.payload.id].stations = {startAt: 0};
@@ -92,18 +91,56 @@ export const fetchLocationStationsaga = function* (action: any) {
             },
         );
         yield put({
-            type: FETCH_LOCATION_STATIONSS_SUCCESS,
+            type: FETCH_LOCATION_STATIONS_SUCCESS,
             payload: res.data.rows
         });
 
     } catch (error) {
         yield put({
-            type: FETCH_LOCATION_STATIONSS_ERROR,
+            type: FETCH_LOCATION_STATIONS_ERROR,
             error: error.response.data.message,
         });
     }
 };
-export const addStationsaga = function* (action: any) {
+
+export const fetchStaionsOfflineSaga = function* (action: any) {
+    try {
+        yield put({
+           type: FETCH_STATIONS_OFFLINE_REQUEST,
+        });
+
+        const query = `SELECT * FROM stations WHERE ProjectId = ${action.payload.id}`;
+
+        const res = yield call(async () => {
+            return await DBAdapter.getRows(query);
+        });
+
+        const data = [];
+        res.rows._array.forEach((el) => {
+            const station = {
+                ...el,
+                title: unescape(el.title),
+                description: unescape(el.description),
+                nazw_stac: unescape(el.nazw_stac),
+                num_eksp_s: unescape(el.num_eksp_s),
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                points: JSON.parse(unescape(el.points))
+            };
+            data.push(station);
+        });
+        yield put({
+            type: FETCH_LOCATION_STATIONS_SUCCESS,
+            payload: data
+        });
+    } catch (error) {
+        yield put({
+            type: FETCH_LOCATION_STATIONS_ERROR,
+            error: error.message
+        })
+    }
+};
+
+export const addStationSaga = function* (action: any) {
     try {
         yield put({
             type: ADD_STATIONS_REQUEST,
@@ -146,6 +183,52 @@ export const editItemSaga = function* (action: any) {
         });
     }
 };
+
+export const editStationOfflineSaga = function* ({payload}: any) {
+    try {
+        yield put({
+            type: EDIT_STATIONS_OFFLINE_REQUEST
+        });
+
+        const update = `UPDATE stations SET
+            title = "${escape(payload.title)}",
+            nazw_stac = "${escape(payload.nazw_stac)}",
+            num_eksp_s = "${escape(payload.num_eksp_s)}",
+            comment = "${escape(payload.comment)}",
+            updatedAt = ${Date.now()}
+            WHERE id = ${payload.id}`;
+
+        const select = `SELECT * FROM stations WHERE id = ${payload.id}`;
+
+        const res = yield call(async () => {
+            return await DBAdapter.setRows(update, select);
+        });
+
+        let data = {};
+
+        res.rows._array.forEach((el) => {
+            data = {
+                ...el,
+                title: unescape(el.title),
+                description: unescape(el.description),
+                nazw_stac: unescape(el.nazw_stac),
+                num_eksp_s: unescape(el.num_eksp_s),
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                points: JSON.parse(unescape(el.points))
+            };
+        });
+        yield put({
+            type: EDIT_STATIONS_SUCCESS,
+            payload: data
+        });
+    } catch (error) {
+        yield put({
+            type: EDIT_STATIONS_ERROR,
+            error: error.message,
+        });
+    }
+};
+
 export const deleteItemSaga = function* (action: any) {
     try {
         yield put({

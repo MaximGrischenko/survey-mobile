@@ -5,12 +5,16 @@ import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
 import {
     moduleName,
 } from './config';
+import {DBAdapter} from "../../../utils/database";
 
 
 export const FETCH_LOCATIONS = `${appName}/${moduleName}/FETCH_LOCATIONS`;
 export const FETCH_LOCATIONS_REQUEST = `${appName}/${moduleName}/FETCH_LOCATIONS_REQUEST`;
 export const FETCH_LOCATIONS_ERROR = `${appName}/${moduleName}/FETCH_LOCATIONS_ERROR`;
 export const FETCH_LOCATIONS_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATIONS_SUCCESS`;
+
+export const FETCH_LOCATIONS_OFFLINE = `${appName}/${moduleName}/FETCH_LOCATIONS_OFFLINE`;
+export const FETCH_LOCATIONS_OFFLINE_REQUEST = `${appName}/${moduleName}/FETCH_LOCATIONS_OFFLINE_REQUEST`;
 
 export const ADD_LOCATIONS = `${appName}/${moduleName}/ADD_LOCATIONS`;
 export const ADD_LOCATIONS_REQUEST = `${appName}/${moduleName}/ADD_LOCATIONS_REQUEST`;
@@ -24,6 +28,12 @@ export function fetchLocations() {
     return {
         type: FETCH_LOCATIONS,
     };
+}
+
+export function fetchLocationsOffline() {
+    return {
+        type: FETCH_LOCATIONS_OFFLINE,
+    }
 }
 
 export function selectLocation(payload: any) {
@@ -40,9 +50,7 @@ export function addLocation(data: any) {
     };
 }
 
-
 export const fetchLocationsSaga = function* (action: any) {
-    console.log('ACTION', action);
     try {
         yield put({
             type: FETCH_LOCATIONS_REQUEST,
@@ -55,7 +63,6 @@ export const fetchLocationsSaga = function* (action: any) {
             type: FETCH_LOCATIONS_SUCCESS,
             payload: res.data
         });
-
     } catch (error) {
         yield put({
             type: FETCH_LOCATIONS_ERROR,
@@ -64,10 +71,40 @@ export const fetchLocationsSaga = function* (action: any) {
     }
 };
 
+export const fetchLocationsOfflineSaga = function* (action: any) {
+    try {
+        yield put({
+            type: FETCH_LOCATIONS_OFFLINE_REQUEST,
+        });
+
+        const query = 'SELECT * FROM projects';
+
+        const res = yield call(async () => {
+            return await DBAdapter.getRows(query);
+        });
+        const data = [];
+        res.rows._array.forEach((el) => {
+            const project = {
+                ...el,
+                title: unescape(el.title),
+                contractor: unescape(el.contractor)
+            };
+            data.push(project);
+        });
+        yield put({
+          type: FETCH_LOCATIONS_SUCCESS,
+          payload: data
+        });
+    } catch (error) {
+        yield put({
+          type: FETCH_LOCATIONS_ERROR,
+          error: error.message
+        })
+    }
+};
 
 export const addLocationSaga = function* (action: any) {
     try {
-
         yield put({
             type: ADD_LOCATIONS_REQUEST,
         });
@@ -89,7 +126,6 @@ export const addLocationSaga = function* (action: any) {
 };
 export const selectLocationSaga = function* (action: any) {
     try {
-
         yield put({
             type: SELECT_LOCATION_SUCCESS,
             payload: action.payload

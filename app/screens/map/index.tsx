@@ -25,7 +25,7 @@ import EditParcelDialog from '../../components/dialog.component/dialogs/edit.par
 import EditSegmentDialog from '../../components/dialog.component/dialogs/edit.segment';
 import EditPoleDialog from '../../components/dialog.component/dialogs/edit.pole';
 import EditPoiDialog from '../../components/dialog.component/dialogs/edit.poi';
-import {fetchCategories} from "../../redux/modules/admin/categories";
+import {fetchCategories, fetchCategoriesOffline} from "../../redux/modules/admin/categories";
 import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";
 import {searchSelector} from "../../redux/modules/auth";
@@ -34,9 +34,11 @@ import _ from 'lodash';
 import {connectionSelector} from "../../redux/modules/connect";
 
 interface IMapProps {
+    connection: boolean,
     selected_powerlines: Array<number>,
     dateFilter: any,
     fetchCategories: Function,
+    fetchCategoriesOffline: Function,
     project: Project,
     stations: Array<Station>,
     poles: Array<Pole>,
@@ -59,8 +61,6 @@ interface IMapProps {
     poiList: any,
     polesList: any,
     parcelList: any,
-
-    connection: any
 }
 
 interface IMapState {
@@ -116,7 +116,11 @@ class MapScreen extends Component<IMapProps, IMapState> {
     };
 
     async componentDidMount(){
-        this.props.fetchCategories();
+        if(this.props.connection) {
+            this.props.fetchCategories();
+        } else {
+            this.props.fetchCategoriesOffline();
+        }
 
         const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
 
@@ -140,6 +144,12 @@ class MapScreen extends Component<IMapProps, IMapState> {
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
+        if(nextProps.connection !== this.props.connection && nextProps.connection) {
+            this.props.fetchCategories();
+        } else if(nextProps.connection !== this.props.connection && !nextProps.connection) {
+            this.props.fetchCategoriesOffline();
+        }
+
         if(nextProps.stationList !== this.stationList || nextProps.showStations !== this.props.showStations) {
             this.renderStations(nextProps.stations, nextProps.showStations, nextProps.search);
             this.stationList = nextProps.stationList;
@@ -868,14 +878,7 @@ class MapScreen extends Component<IMapProps, IMapState> {
     // }
 
     render() {
-        const {
-            connection
-        } = this.props;
-
-        console.log('CONNECTION', connection);
-
         const {showUserLocation, options, region} = this.state;
-
         return (
             <View style={{flex: 1}}>
                 {
@@ -1092,8 +1095,7 @@ const mapStateToProps = (state: any) => ({
     poiList: state[moduleName].poiList,
     polesList: state[moduleName].polesList,
     parcelList: state[moduleName].parcelList,
-
-    connection: connectionSelector(state)
+    connection: connectionSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -1101,7 +1103,8 @@ const mapDispatchToProps = (dispatch: any) => (
         showDialogContent,
         showAlert,
         changeControls,
-        fetchCategories
+        fetchCategories,
+        fetchCategoriesOffline,
     }, dispatch)
 );
 

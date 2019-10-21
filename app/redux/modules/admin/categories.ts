@@ -5,6 +5,7 @@ import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
 import {
     moduleName,
 } from './config';
+import {DBAdapter} from "../../../utils/database";
 
 export const ADD_CATEGORY = `${appName}/${moduleName}/ADD_CATEGORY`;
 export const ADD_CATEGORY_REQUEST = `${appName}/${moduleName}/ADD_CATEGORY_REQUEST`;
@@ -22,22 +23,23 @@ export const EDIT_CATEGORY_ERROR = `${appName}/${moduleName}/EDIT_CATEGORY_ERROR
 export const EDIT_CATEGORY_SUCCESS = `${appName}/${moduleName}/EDIT_CATEGORY_SUCCESS`;
 
 
-export const FETCH_CATEGORYS_MORE = `${appName}/${moduleName}/FETCH_CATEGORYS_MORE`;
-export const FETCH_CATEGORYS = `${appName}/${moduleName}/FETCH_CATEGORYS`;
-export const FETCH_CATEGORYS_REQUEST = `${appName}/${moduleName}/FETCH_CATEGORYS_REQUEST`;
-export const FETCH_CATEGORYS_ERROR = `${appName}/${moduleName}/FETCH_CATEGORYS_ERROR`;
-export const FETCH_CATEGORYS_SUCCESS = `${appName}/${moduleName}/FETCH_CATEGORYS_SUCCESS`;
+export const FETCH_CATEGORYIES_OFFLINE = `${appName}/${moduleName}/FETCH_CATEGORYIES_OFFLINE`;
+export const FETCH_CATEGORIES = `${appName}/${moduleName}/FETCH_CATEGORIES`;
+export const FETCH_CATEGORIES_REQUEST = `${appName}/${moduleName}/FETCH_CATEGORIES_REQUEST`;
+export const FETCH_CATEGORYIES_OFFLINE_REQUEST = `${appName}/${moduleName}/FETCH_CATEGORYIES_OFFLINE_REQUEST`;
+export const FETCH_CATEGORIES_ERROR = `${appName}/${moduleName}/FETCH_CATEGORIES_ERROR`;
+export const FETCH_CATEGORIES_SUCCESS = `${appName}/${moduleName}/FETCH_CATEGORIES_SUCCESS`;
 
-export function fetchMoreCategories(location: any) {
+export function fetchCategoriesOffline(location: any) {
     return {
-        type: FETCH_CATEGORYS_MORE,
+        type: FETCH_CATEGORYIES_OFFLINE,
         payload: location
     };
 }
 
 export function fetchCategories(location: any) {
     return {
-        type: FETCH_CATEGORYS,
+        type: FETCH_CATEGORIES,
         payload: location
     };
 }
@@ -64,29 +66,53 @@ export function editCategory(data: any) {
 }
 
 
-export const fetchCategoriesMoreSaga = function* ({payload}: any) {
-    yield put({
-        type: FETCH_CATEGORYS_SUCCESS,
-        payload: payload.rows
-    })
+export const fetchCategoriesOfflineSaga = function* ({payload}: any) {
+    try {
+        yield put({
+            type: FETCH_CATEGORYIES_OFFLINE_REQUEST,
+        });
+        const query = `SELECT * FROM categories`;
+
+        const res = yield call(async () => {
+            return await DBAdapter.getRows(query);
+        });
+        const data = [];
+        res.rows._array.forEach((el) => {
+            const powerline = {
+                ...el,
+                title: unescape(el.title),
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+            };
+            data.push(powerline);
+        });
+        yield put({
+            type: FETCH_CATEGORIES_SUCCESS,
+            payload: data
+        })
+    } catch (error) {
+        yield put({
+            type: FETCH_CATEGORIES_ERROR,
+            error: error.message
+        })
+    }
 };
 export const fetchCategoriesSaga = function* (action: any) {
     try {
         yield put({
-            type: FETCH_CATEGORYS_REQUEST,
+            type: FETCH_CATEGORIES_REQUEST,
         });
         const res = yield call(() => {
                 return axios.get(`${API}api/category`);
             },
         );
         yield put({
-            type: FETCH_CATEGORYS_SUCCESS,
+            type: FETCH_CATEGORIES_SUCCESS,
             payload: res.data.rows
         });
 
     } catch (error) {
         yield put({
-            type: FETCH_CATEGORYS_ERROR,
+            type: FETCH_CATEGORIES_ERROR,
             error: error.response.data.message,
         });
     }

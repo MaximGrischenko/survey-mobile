@@ -19,14 +19,16 @@ import {
     ADD_POLE_SUCCESS,
 
     addPoleSaga,
-    fetchLocationPolesSaga, fetchLocationMorePolesSaga, FETCH_LOCATION_POLES_MORE
+    fetchLocationPolesSaga,
+    FETCH_POLES_OFFLINE,
+    fetchPolesOfflineSaga
 } from './poles';
 
 import {
-    FETCH_LOCATION_PARCElSS_REQUEST,
-    FETCH_LOCATION_PARCElSS_SUCCESS,
-    FETCH_LOCATION_PARCElSS,
-    FETCH_LOCATION_PARCElSS_ERROR,
+    FETCH_LOCATION_PARCElS_REQUEST,
+    FETCH_LOCATION_PARCElS_SUCCESS,
+    FETCH_LOCATION_PARCElS,
+    FETCH_LOCATION_PARCElS_ERROR,
 
     ADD_PARCElS,
     ADD_PARCElS_REQUEST,
@@ -35,14 +37,17 @@ import {
 
     editParcelSaga,
     addParcelSaga,
-    onLoadMoreItemsSaga,
-    FETCH_LOCATION_MORE_PARCElSS,
     fetchLocationParcelSaga,
     EDIT_PARCElS,
     EDIT_PARCElS_SUCCESS,
-    DELETE_LOCATION_PARCElSS_SUCCESS,
+    DELETE_LOCATION_PARCElS_SUCCESS,
     deleteParcelSaga,
-    DELETE_PARCElS
+    DELETE_PARCElS,
+    FETCH_PARCELS_OFFLINE_REQUEST,
+    fetchParcelsOfflineSaga,
+    FETCH_PARCELS_OFFLINE,
+    EDIT_PARCEL_OFFLINE,
+    editParcelOfflineSaga
 } from './parcels';
 import {
     LOADED_PROJECT_DATA,
@@ -50,11 +55,11 @@ import {
 } from './config';
 import {
     ADD_SEGMENTS_SUCCESS,
-    FETCH_LOCATION_SEGMENTSS_SUCCESS,
-    FETCH_LOCATION_SEGMENTSS,
+    FETCH_LOCATION_SEGMENTS_SUCCESS,
+    FETCH_LOCATION_SEGMENTS,
     ADD_SEGMENTS,
     fetchLocationSegmentSaga,
-    addSegmentSaga
+    addSegmentSaga, FETCH_SEGMENTS_OFFLINE
 } from "./segments";
 import {
     FETCH_LOCATIONS,
@@ -69,14 +74,13 @@ import {
     SELECT_LOCATION_SUCCESS,
     addLocationSaga,
     fetchLocationsSaga,
-    selectLocationSaga
+    selectLocationSaga, FETCH_LOCATIONS_OFFLINE, fetchLocationsOfflineSaga
 } from "./locations";
 import {
-    FETCH_LOCATION_STATIONSS_SUCCESS,
-    FETCH_LOCATION_STATIONSS,
-    FETCH_LOCATION_STATIONSS_ERROR,
-    FETCH_LOCATION_STATIONSS_REQUEST,
-    fetchLocationStations, ADD_STATIONS_REQUEST, fetchLocationStationsaga
+    FETCH_LOCATION_STATIONS_SUCCESS,
+    FETCH_LOCATION_STATIONS_ERROR,
+    FETCH_LOCATION_STATIONS_REQUEST,
+    fetchLocationStations, ADD_STATIONS_REQUEST, fetchLocationStationSaga, FETCH_LOCATION_STATIONS, EDIT_STATION_OFFLINE
 } from "./stations";
 
 import * as POI from "./poi";
@@ -88,6 +92,7 @@ import * as POWERLINES from "./powerlines";
 
 import {parcel_statuses, segment_statuses} from "../../utils";
 import {AsyncStorage} from "react-native";
+import {EDIT_POI_OFFLINE} from "./poi";
 
 export * from './config';
 
@@ -169,7 +174,6 @@ export default function reducer(state = new ReducerRecord(), action: any) {
 
 
         case ADD_LOCATIONS_SUCCESS: {
-
             return state
                 .set('loading', false)
                 .set('locations', [...state.locations, action.payload])
@@ -217,8 +221,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('error', null);
         }
 
-
-        case FETCH_LOCATION_SEGMENTSS_SUCCESS: {
+        case FETCH_LOCATION_SEGMENTS_SUCCESS: {
             const loaded = state.segments.map((el: any) => el.id);
             for (let i = 0; i < action.payload.length; i++) {
                 if (loaded.indexOf(action.payload[i].id) < 0) {
@@ -264,8 +267,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('error', null);
         }
 
-
-        case FETCH_LOCATION_STATIONSS_SUCCESS: {
+        case FETCH_LOCATION_STATIONS_SUCCESS: {
             const loaded = state.stations.map((el: any) => el.id);
             for (let i = 0; i < action.payload.length; i++) {
                 if (loaded.indexOf(action.payload[i].id) < 0) {
@@ -304,7 +306,6 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('error', null);
         }
 
-
         case CONTROLS_CHANGE_SUCCESS: {
             if (action.payload.name === 'selected_powerlines') {
                 return state
@@ -320,7 +321,6 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('error', null);
         }
 
-
         case ADD_PARCElS_SUCCESS: {
             return state
                 .set('loading', false)
@@ -328,7 +328,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('tempPosition', [])
                 .set('error', null);
         }
-        case FETCH_LOCATION_PARCElSS_SUCCESS: {
+        case FETCH_LOCATION_PARCElS_SUCCESS: {
             const loaded = state.parcels.map((el: any) => el.id);
             for (let i = 0; i < action.payload.length; i++) {
                 if (loaded.indexOf(action.payload[i].id) < 0) {
@@ -354,14 +354,13 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 })])
                 .set('error', null);
         }
-        case DELETE_LOCATION_PARCElSS_SUCCESS: {
+        case DELETE_LOCATION_PARCElS_SUCCESS: {
             return state
                 .set('loading', false)
                 .set('parcelList', Date.now())
                 .set('parcels', [...state.parcels.filter((el: Poi) => el.id !== action.payload.id)])
                 .set('error', null);
         }
-
 
         case POI.FETCH_LOCATION_POIS_SUCCESS: {
             const loaded = state.pois.map((el: any) => el.id);
@@ -402,6 +401,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('pois', [...state.pois, new Poi(action.payload)])
                 .set('error', null);
         }
+
         case SELECT_LOCATION_SUCCESS: {
             return state
                 .set('location', action.payload)
@@ -410,7 +410,6 @@ export default function reducer(state = new ReducerRecord(), action: any) {
         case FETCH_LOCATIONS_SUCCESS: {
             const list = action.payload;
             const _list = list.filter((el: any) => el.id === 3449);
-
             return state
                 .set('loading', false)
                 .set('locations', _list.length ? [new Project(_list[0]), ...list.filter((el: any) => el.id !== 3449).map((el) => new Project(el))] : [...list.map((el) => new Project(el))])
@@ -436,17 +435,16 @@ export default function reducer(state = new ReducerRecord(), action: any) {
             return new ReducerRecord(_.cloneDeep(MapRecord));
         }
 
-
         case POLES.DELETE_POLE_ERROR:
         case POLES.EDIT_POLE_ERROR:
         case SEGMENTS.EDIT_SEGMENTS_ERROR:
         case SEGMENTS.DELETE_SEGMENTS_ERROR:
-        case PARCELS.DELETE_LOCATION_PARCElSS_ERROR:
+        case PARCELS.DELETE_LOCATION_PARCElS_ERROR:
         case PARCELS.EDIT_PARCElS_ERROR:
         case POI.EDIT_POI_ERROR:
         case POI.DELETE_POI_ERROR:
         case POI.FETCH_LOCATION_POIS_ERROR:
-        case FETCH_LOCATION_STATIONSS_ERROR:
+        case FETCH_LOCATION_STATIONS_ERROR:
         case FETCH_LOCATION_POLES_ERROR:
         case ADD_POLE_ERROR:
         case ADD_LOCATIONS_ERROR:
@@ -465,7 +463,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
 export const stateSelector = (state: any) => state[moduleName];
 export const locationsSelector = createSelector(stateSelector, state => state.locations);
 export const locationSelector = createSelector(stateSelector, state => state.location);
-export const powerlinesSelector = createSelector(stateSelector, state => state.powerlines.filter((el: any) => el.project_powerline.projectId === state.location.id));
+export const powerlinesSelector = createSelector(stateSelector, state => state.powerlines.filter((el: any) => el.projectId === state.location.id));
 export const powerlineSelector = createSelector(stateSelector, state => state.selected_powerlines);
 export const categoryPoiSelected = createSelector(stateSelector, state => state.categoryPoiSelected);
 export const polesSelector = createSelector(stateSelector, state => state.poles);
@@ -506,11 +504,7 @@ export const locationSegmentsSelector = createSelector(stateSelector, state => {
             (state.selected_powerlines.indexOf(el.powerLineId) > -1) &&
             (state.dateFilter === 'All' || _m.isAfter(el.updatedAt)) && state.segmentsStatusSelected.indexOf(el.status) > -1
     })
-    // .map((el: Segment) => {
-    //     return el
-    // })
 });
-
 export const errorSelector = createSelector(stateSelector, state => state.error);
 export const currentModeSelector = createSelector(stateSelector, state => state.drawMode);
 export const modesSelector = createSelector(stateSelector, state => state.drawModeList);
@@ -534,40 +528,49 @@ export const changeControlsSaga = function* (action: any) {
 export const saga = function* () {
     yield all([
         takeEvery(FETCH_LOCATIONS, fetchLocationsSaga),
+        takeEvery(FETCH_LOCATIONS_OFFLINE, fetchLocationsOfflineSaga),
+
         takeEvery(ADD_LOCATIONS, addLocationSaga),
         takeEvery(SELECT_LOCATION, selectLocationSaga),
 
-        takeEvery(FETCH_LOCATION_POLES_MORE, fetchLocationMorePolesSaga),
+        takeEvery(FETCH_POLES_OFFLINE, fetchPolesOfflineSaga),
         takeEvery(ADD_POLE, addPoleSaga),
         takeEvery(POLES.EDIT_POLE, POLES.editItemSaga),
+        takeEvery(POLES.EDIT_POLE_OFFLINE, POLES.editPoleOfflineSaga),
         takeEvery(POLES.DELETE_POLE, POLES.deleteParcelSaga),
         takeEvery(FETCH_LOCATION_POLES, fetchLocationPolesSaga),
 
         takeEvery(CONTROLS_CHANGE, changeControlsSaga),
 
         takeEvery(ADD_PARCElS, addParcelSaga),
-        takeEvery(FETCH_LOCATION_MORE_PARCElSS, onLoadMoreItemsSaga),
         takeEvery(EDIT_PARCElS, editParcelSaga),
+        takeEvery(EDIT_PARCEL_OFFLINE, editParcelOfflineSaga),
         takeEvery(DELETE_PARCElS, deleteParcelSaga),
-        takeEvery(FETCH_LOCATION_PARCElSS, fetchLocationParcelSaga),
+        takeEvery(FETCH_LOCATION_PARCElS, fetchLocationParcelSaga),
+        takeEvery(FETCH_PARCELS_OFFLINE, fetchParcelsOfflineSaga),
 
-        takeEvery(FETCH_LOCATION_SEGMENTSS, fetchLocationSegmentSaga),
+        takeEvery(FETCH_LOCATION_SEGMENTS, fetchLocationSegmentSaga),
         takeEvery(ADD_SEGMENTS, addSegmentSaga),
-        takeEvery(SEGMENTS.FETCH_LOCATION_SEGMENTSS_MORE, SEGMENTS.fetchLocationSegmentMoreSaga),
+        takeEvery(SEGMENTS.FETCH_SEGMENTS_OFFLINE, SEGMENTS.fetchSegmentsOfflineSaga),
         takeEvery(SEGMENTS.EDIT_SEGMENTS, SEGMENTS.editItemSaga),
+        takeEvery(SEGMENTS.EDIT_SEGMENT_OFFLINE, SEGMENTS.editSegmentOfflineSaga),
         takeEvery(SEGMENTS.DELETE_SEGMENTS, SEGMENTS.deleteItemSaga),
 
-        takeEvery(FETCH_LOCATION_STATIONSS, fetchLocationStationsaga),
-        takeEvery(STATIONS.FETCH_LOCATION_MORE_STATIONSS, STATIONS.fetchLocationMOREStations),
+        takeEvery(FETCH_LOCATION_STATIONS, fetchLocationStationSaga),
+        takeEvery(STATIONS.FETCH_STATIONS_OFFLINE, STATIONS.fetchStaionsOfflineSaga),
         takeEvery(STATIONS.EDIT_STATIONS, STATIONS.editItemSaga),
+        takeEvery(STATIONS.EDIT_STATION_OFFLINE, STATIONS.editStationOfflineSaga),
         takeEvery(STATIONS.DELETE_STATIONS, STATIONS.deleteItemSaga),
 
-        takeEvery(POI.FETCH_LOCATION_POIS, POI.fetchLocationPoisaga),
-        takeEvery(POI.ADD_POI, POI.addPoisaga),
-        takeEvery(POI.POI_DELETE, POI.removePoisaga),
-        takeEvery(POI.POI_EDIT, POI.editPoisaga),
-        takeEvery(POI.FETCH_LOCATION_POIS_MORE, POI.fetchLocationPoiMoresaga),
+        takeEvery(POI.FETCH_LOCATION_POIS, POI.fetchLocationPoiSaga),
+        takeEvery(POI.FETCH_POIS_OFFLINE, POI.fetchPoiOfflineSaga),
+        takeEvery(POI.ADD_POI, POI.addPoiSaga),
+        takeEvery(POI.POI_DELETE, POI.removePoiSaga),
+        takeEvery(POI.POI_EDIT, POI.editPoiSaga),
+        takeEvery(POI.EDIT_POI_OFFLINE, POI.editPoiOfflineSaga),
+        takeEvery(POI.FETCH_POIS_OFFLINE, POI.fetchPoiOfflineSaga),
 
         takeEvery(POWERLINES.FETCH_LOCATION_POWERLINES, POWERLINES.fetchProjectPowerlinesSaga),
+        takeEvery(POWERLINES.FETCH_POWERLINES_OFFLINE, POWERLINES.fetchPowelinesOfflineSaga),
     ]);
 };

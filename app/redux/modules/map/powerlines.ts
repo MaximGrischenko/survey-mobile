@@ -7,11 +7,18 @@ import {
     moduleName,
     LIMIT_TO_LOAD
 } from './config';
-import {SELECT_LOCATION, SELECT_LOCATION_SUCCESS} from "./locations";
+import {
+    FETCH_LOCATIONS_ERROR,
+    SELECT_LOCATION,
+    SELECT_LOCATION_SUCCESS
+} from "./locations";
+import {DBAdapter} from "../../../utils/database";
 
 
 export const FETCH_LOCATION_POWERLINES = `${appName}/${moduleName}/FETCH_LOCATION_POWERLINES`;
+export const FETCH_POWERLINES_OFFLINE = `${appName}/${moduleName}/FETCH_LOCATION_POWERLINES_OFFLINE`;
 export const FETCH_LOCATION_POWERLINES_REQUEST = `${appName}/${moduleName}/FETCH_LOCATION_POWERLINES_REQUEST`;
+export const FETCH_POWERLINES_OFFLINE_REQUEST = `${appName}/${moduleName}/FETCH_LOCATION_POWERLINES_OFFLINE_REQUEST`;
 export const FETCH_LOCATION_POWERLINES_ERROR = `${appName}/${moduleName}/FETCH_LOCATION_POWERLINES_ERROR`;
 export const FETCH_LOCATION_POWERLINES_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATION_POWERLINES_SUCCESS`;
 
@@ -27,16 +34,13 @@ export function fetchProjectPowerlines(location: any) {
         payload: location
     };
 }
-/*
 
-export function selectProjectPowerline(data: any) {
+export function fetchPowerlinesOffline(location: any) {
     return {
-        type: SELECT_LOCATION_POWERLINES,
-        payload: data
-    };
+        type: FETCH_POWERLINES_OFFLINE,
+        payload: location
+    }
 }
-*/
-
 
 export const fetchProjectPowerlinesSaga = function* (action: any) {
     try {
@@ -44,35 +48,49 @@ export const fetchProjectPowerlinesSaga = function* (action: any) {
             type: FETCH_LOCATION_POWERLINES_REQUEST,
         });
         const res = yield call(() => {
-            console.log('URL', `${API}api/projects/${action.payload.id}/powerlines?limit=${2000}`);
                 return axios.get(`${API}api/projects/${action.payload.id}/powerlines?limit=${2000}`);
             },
         );
-            console.log('RESPONSE', res.data.rows.length);
         yield put({
             type: FETCH_LOCATION_POWERLINES_SUCCESS,
             payload: res.data.rows
         });
 
     } catch (error) {
-        console.log('ERROR', error);
         yield put({
             type: FETCH_LOCATION_POWERLINES_ERROR,
             error: error.response.data.message,
         });
     }
 };
-/*
-export const selectProjectPowerlineSaga = function* (action: any) {
+
+export const fetchPowelinesOfflineSaga = function* (action: any) {
     try {
-
         yield put({
-            type: SELECT_LOCATION_POWERLINES_SUCCESS,
-            payload: action.payload
+            type: FETCH_POWERLINES_OFFLINE_REQUEST,
         });
+        const query = `SELECT * FROM powerlines WHERE ProjectId = ${action.payload.id}`;
 
+        const res = yield call(async () => {
+            return await DBAdapter.getRows(query);
+        });
+        const data = [];
+        res.rows._array.forEach((el) => {
+            const powerline = {
+                ...el,
+                title: unescape(el.title),
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+            };
+            data.push(powerline);
+        });
+        yield put({
+            type: FETCH_LOCATION_POWERLINES_SUCCESS,
+            payload: data
+        });
     } catch (error) {
-
+        yield put({
+            type: FETCH_LOCATION_POWERLINES_ERROR,
+            error: error.message
+        })
     }
 };
-*/

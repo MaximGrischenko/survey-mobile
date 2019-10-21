@@ -3,23 +3,28 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {FlatList, ScrollView, Text, StyleSheet, View, TouchableOpacity} from "react-native";
 import {changeControls, locationSelector, powerlineSelector, powerlinesSelector} from "../../../../redux/modules/map";
-import {fetchLocationParcels} from "../../../../redux/modules/map/parcels";
-import {fetchLocationPoles} from "../../../../redux/modules/map/poles";
+import {fetchLocationParcels, fetchParcelsOffline} from "../../../../redux/modules/map/parcels";
+import {fetchLocationPoles, fetchPolesOffline} from "../../../../redux/modules/map/poles";
 import {showDialogContent} from "../../../../redux/modules/dialogs";
-import {fetchLocationSegments} from "../../../../redux/modules/map/segments";
+import {fetchLocationSegments, fetchSegmentsOffline} from "../../../../redux/modules/map/segments";
 import {Powerline, Project} from "../../../../entities";
 import {COLORS} from "../../../../styles/colors";
 import CheckBox from "../../../../components/checkbox";
+import {connectionSelector} from "../../../../redux/modules/connect";
 
 interface IMapProps {
     changeControls: Function,
     fetchLocationParcels: Function,
+    fetchParcelsOffline: Function,
     fetchLocationPoles: Function,
+    fetchPolesOffline: Function,
     fetchLocationSegments: Function,
+    fetchSegmentsOffline: Function,
     showDialogContent: Function,
     project: Project,
     powerlines: Array<Powerline>,
-    selected_powerlines: Array<number>
+    selected_powerlines: Array<number>,
+    connection: boolean,
 }
 
 class DrawerPowerlines extends Component<IMapProps> {
@@ -76,9 +81,15 @@ class DrawerPowerlines extends Component<IMapProps> {
     private loadItemData = (item: any) => {
         const reqData = {...this.props.project, powerLineId: item.id};
 
-        this.props.fetchLocationParcels(reqData);
-        this.props.fetchLocationPoles(reqData);
-        this.props.fetchLocationSegments(reqData);
+        if(this.props.connection) {
+           this.props.fetchLocationParcels(reqData);
+           this.props.fetchLocationPoles(reqData);
+           this.props.fetchLocationSegments(reqData);
+        } else {
+            this.props.fetchParcelsOffline(reqData);
+            this.props.fetchPolesOffline(reqData);
+            this.props.fetchSegmentsOffline(reqData);
+        }
     };
 
     private renderDivider = () => {
@@ -228,9 +239,10 @@ const localStyles = StyleSheet.create({
 });
 
 const mapStateToProps = (state: any) => ({
-   project: locationSelector(state),
-   powerlines: powerlinesSelector(state),
-   selected_powerlines: powerlineSelector(state),
+    project: locationSelector(state),
+    powerlines: powerlinesSelector(state),
+    selected_powerlines: powerlineSelector(state),
+    connection: connectionSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -240,6 +252,9 @@ const mapDispatchToProps = (dispatch: any) => (
         fetchLocationPoles,
         fetchLocationSegments,
         showDialogContent,
+        fetchParcelsOffline,
+        fetchPolesOffline,
+        fetchSegmentsOffline
     }, dispatch)
 );
 

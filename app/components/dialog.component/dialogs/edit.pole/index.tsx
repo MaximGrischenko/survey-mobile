@@ -4,8 +4,9 @@ import {bindActionCreators} from 'redux';
 import MainModalDialog, {TYPES} from "../main.modal";
 import {errorSelector, locationSelector, moduleName, powerlinesSelector} from "../../../../redux/modules/map";
 import {isSuperAdminSelector} from "../../../../redux/modules/auth";
-import {addPole, editPole} from "../../../../redux/modules/map/poles";
+import {addPole, editPole, editPoleOffline} from "../../../../redux/modules/map/poles";
 import {setDialogDeleteButton, setDialogSaveButton, showDialogContent} from "../../../../redux/modules/dialogs";
+import {connectionSelector} from "../../../../redux/modules/connect";
 
 class EditPoleDialog extends MainModalDialog {
     constructor(p: any) {
@@ -27,6 +28,7 @@ const mapStateToProps = (state: any) => ({
     isAdmin: isSuperAdminSelector(state),
     location: locationSelector(state),
     powerlines: powerlinesSelector(state),
+    connection: connectionSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -35,6 +37,7 @@ const mapDispatchToProps = (dispatch: any) => (
         setDialogDeleteButton,
         showDialogContent,
         editItem: editPole,
+        editItemOffline: editPoleOffline,
         addItem: addPole,
     }, dispatch)
 );

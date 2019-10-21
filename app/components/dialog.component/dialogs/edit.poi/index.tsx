@@ -18,7 +18,8 @@ import {
     showAlert,
     showDialogContent
 } from "../../../../redux/modules/dialogs";
-import {addPoi, editPoi, removePoi} from "../../../../redux/modules/map/poi";
+import {addPoi, editPoi, editPoiOffline, removePoi} from "../../../../redux/modules/map/poi";
+import {connectionSelector} from "../../../../redux/modules/connect";
 
 class EditPoiDialog extends MainModalDialog {
     constructor(p) {
@@ -38,9 +39,15 @@ class EditPoiDialog extends MainModalDialog {
             this.setState({__pending: true});
             const {id}: any = this.state;
             if (id) {
-                await this.props.editItem({
-                    ...this.state,
-                });
+                if(this.props.connection) {
+                    await this.props.editItem({
+                        ...this.state,
+                    });
+                } else {
+                    this.props.editItemOffline({
+                        ...this.state,
+                    });
+                }
             } else {
                 let position = this.props.position;
                 this.props.onAddItem({
@@ -81,6 +88,7 @@ const mapStateToProps = (state: any) => ({
     location: locationSelector(state),
     projects: locationsSelector(state),
     categories: categorySelector(state),
+    connection: connectionSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -91,6 +99,7 @@ const mapDispatchToProps = (dispatch: any) => (
         showAlert,
         changeControls,
         editItem: editPoi,
+        editItemOffline: editPoiOffline,
         onDeleteItem: removePoi,
         onAddItem: addPoi,
     }, dispatch)

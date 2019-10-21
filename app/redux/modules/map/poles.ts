@@ -15,6 +15,8 @@ import {
     EDIT_SEGMENTS_REQUEST,
     EDIT_SEGMENTS_SUCCESS
 } from "./segments";
+import {FETCH_LOCATION_PARCElS_ERROR, FETCH_LOCATION_PARCElS_SUCCESS, FETCH_PARCELS_OFFLINE_REQUEST} from "./parcels";
+import {DBAdapter} from "../../../utils/database";
 
 export const ADD_POLE = `${appName}/${moduleName}/ADD_POLE`;
 export const ADD_POLE_REQUEST = `${appName}/${moduleName}/ADD_POLE_REQUEST`;
@@ -23,7 +25,9 @@ export const ADD_POLE_SUCCESS = `${appName}/${moduleName}/ADD_POLE_SUCCESS`;
 
 
 export const EDIT_POLE = `${appName}/${moduleName}/EDIT_POLE`;
+export const EDIT_POLE_OFFLINE = `${appName}/${moduleName}/EDIT_POLE_OFFLINE`;
 export const EDIT_POLE_REQUEST = `${appName}/${moduleName}/EDIT_POLE_REQUEST`;
+export const EDIT_POLE_OFFLINE_REQUEST = `${appName}/${moduleName}/EDIT_POLE_OFFLINE_REQUEST`;
 export const EDIT_POLE_ERROR = `${appName}/${moduleName}/EDIT_POLE_ERROR`;
 export const EDIT_POLE_SUCCESS = `${appName}/${moduleName}/EDIT_POLE_SUCCESS`;
 
@@ -33,16 +37,17 @@ export const DELETE_POLE_ERROR = `${appName}/${moduleName}/DELETE_POLE_ERROR`;
 export const DELETE_POLE_SUCCESS = `${appName}/${moduleName}/DELETE_POLE_SUCCESS`;
 
 
-export const FETCH_LOCATION_POLES_MORE = `${appName}/${moduleName}/FETCH_LOCATION_POLES_MORE`;
+export const FETCH_POLES_OFFLINE = `${appName}/${moduleName}/FETCH_POLES_OFFLINE`;
 export const FETCH_LOCATION_POLES = `${appName}/${moduleName}/FETCH_LOCATION_POLES`;
 export const FETCH_LOCATION_POLES_REQUEST = `${appName}/${moduleName}/FETCH_LOCATION_POLES_REQUEST`;
+export const FETCH_POLES_OFFLINE_REQUEST = `${appName}/${moduleName}/FETCH_POLES_OFFLINE_REQUEST`;
 export const FETCH_LOCATION_POLES_ERROR = `${appName}/${moduleName}/FETCH_LOCATION_POLES_ERROR`;
 export const FETCH_LOCATION_POLES_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATION_POLES_SUCCESS`;
 
-export function fetchLocationMorePoles(data: any) {
+export function fetchPolesOffline(location: any) {
     return {
-        type: FETCH_LOCATION_POLES_MORE,
-        payload: data
+        type: FETCH_POLES_OFFLINE,
+        payload: location
     };
 }
 
@@ -67,6 +72,13 @@ export function editPole(data: any) {
     };
 }
 
+export function editPoleOffline(data: any) {
+    return {
+        type: EDIT_POLE_OFFLINE,
+        payload: data
+    }
+}
+
 export function deletePole(data: any) {
     return {
         type: DELETE_POLE,
@@ -75,11 +87,40 @@ export function deletePole(data: any) {
 }
 
 
-export const fetchLocationMorePolesSaga = function* ({payload}: any) {
-    yield put({
-        type: FETCH_LOCATION_POLES_SUCCESS,
-        payload: payload.rows
-    });
+export const fetchPolesOfflineSaga = function* (action: any) {
+    try {
+        yield put({
+            type: FETCH_POLES_OFFLINE_REQUEST,
+        });
+        const query = `SELECT * FROM poles WHERE powerLineId = ${action.payload.powerLineId}`;
+
+        const res = yield call(async () => {
+            return await DBAdapter.getRows(query);
+        });
+
+        const data = [];
+
+        res.rows._array.forEach((el) => {
+            const pole = {
+                ...el,
+                title: unescape(el.title),
+                description: unescape(el.description),
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                num_slup: unescape(el.num_slup),
+                points: JSON.parse(unescape(el.points))
+            };
+            data.push(pole);
+        });
+        yield put( {
+            type: FETCH_LOCATION_POLES_SUCCESS,
+            payload: data
+        });
+    } catch (error) {
+        yield put({
+            type: FETCH_LOCATION_POLES_ERROR,
+            error: error.message,
+        });
+    }
 };
 
 export const fetchLocationPolesSaga = function* (action: any) {
@@ -103,6 +144,7 @@ export const fetchLocationPolesSaga = function* (action: any) {
         });
     }
 };
+
 export const addPoleSaga = function* (action: any) {
     try {
         yield put({
@@ -124,6 +166,7 @@ export const addPoleSaga = function* (action: any) {
         });
     }
 };
+
 export const editItemSaga = function* (action: any) {
     try {
         yield put({
@@ -145,6 +188,51 @@ export const editItemSaga = function* (action: any) {
         });
     }
 };
+
+export const editPoleOfflineSaga = function* ({payload}: any) {
+    try {
+        yield put({
+            type: EDIT_POLE_OFFLINE_REQUEST
+        });
+
+        const update = `UPDATE poles SET
+            title = "${escape(payload.title)}",
+            num_slup = "${escape(payload.num_slup)}",
+            powerLineId = "${payload.powerLineId}",
+            comment = "${escape(payload.comment)}",
+            updatedAt = ${Date.now()}
+            WHERE id = ${payload.id}`;
+
+        const select = `SELECT * FROM poles WHERE id = ${payload.id}`;
+
+        const res = yield call(async () => {
+            return await DBAdapter.setRows(update, select);
+        });
+
+        let data = {};
+
+        res.rows._array.forEach((el) => {
+            data = {
+                ...el,
+                title: unescape(el.title),
+                num_slup: unescape(el.num_slup),
+                powerLineId: el.powerLineId,
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                points: JSON.parse(unescape(el.points))
+            };
+        });
+        yield put({
+            type: EDIT_POLE_SUCCESS,
+            payload: data
+        });
+    } catch (error) {
+        yield put({
+            type: EDIT_POLE_ERROR,
+            error: error.message
+        })
+    }
+};
+
 export const deleteParcelSaga = function* (action: any) {
     try {
         yield put({

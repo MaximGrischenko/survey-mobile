@@ -32,8 +32,6 @@ function cacheFonts(fonts) {
 export default class App extends Component {
     state = {
         isReady: false,
-       // mapCenter: null,
-
     };
 
     async _loadDataAsync() {

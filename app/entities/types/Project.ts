@@ -4,7 +4,6 @@ export class Project extends Main {
 
     constructor(data: any = {}) {
         super(data);
-
     }
 
     editKeys() {

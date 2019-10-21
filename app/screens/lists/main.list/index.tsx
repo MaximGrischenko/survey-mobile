@@ -83,7 +83,7 @@ export default class MainList extends Component<IMapProps> {
                         <EditSegmentDialog selectedItem={entity}/>
                     ),
                     header: (
-                        <Text>Edit Pole ({entity.id})</Text>
+                        <Text>Edit Segment ({entity.id})</Text>
                     )
                 }
             )

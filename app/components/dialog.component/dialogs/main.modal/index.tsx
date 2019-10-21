@@ -25,6 +25,7 @@ interface IMapProps {
     position: any,
     selectedItem: any,
     location: any,
+    connection: boolean,
     categories: Array<Category>,
     projects: Array<Project>,
     powerlines: Array<Powerline>,
@@ -32,6 +33,7 @@ interface IMapProps {
     onFinishEditItem: Function,
     changeControls: Function,
     editItem: Function,
+    editItemOffline: Function,
     onDeleteItem: Function,
     onAddItem: Function,
     setDialogSaveButton: Function,
@@ -196,7 +198,13 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             if (this.type === TYPES.SEGMENT) {
                 if (editItem.operation_type) editItem.operation_type = editItem.operation_type ? editItem.operation_type.join(",") : '';
             }
-            await this.props.editItem(editItem);
+
+            if(this.props.connection) {
+               // await this.props.editItemOffline(editItem);
+                await this.props.editItem(editItem);
+            } else {
+                await this.props.editItemOffline(editItem);
+            }
             if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
         } catch (e) {
             // toast.show(e.response ? e.response.data.error || e.response.data.message : e.meesage || e, {

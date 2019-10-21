@@ -6,6 +6,9 @@ import {
     LIMIT_TO_LOAD,
     moduleName,
 } from './config';
+import {FETCH_POWERLINES_OFFLINE_REQUEST} from "./powerlines";
+import {DBAdapter} from "../../../utils/database";
+import {EDIT_POLE_SUCCESS} from "./poles";
 
 export const ADD_POI = `${appName}/${moduleName}/ADD_POI`;
 export const ADD_POI_REQUEST = `${appName}/${moduleName}/ADD_POI_REQUEST`;
@@ -13,9 +16,10 @@ export const ADD_POI_ERROR = `${appName}/${moduleName}/ADD_POI_ERROR`;
 export const ADD_POI_SUCCESS = `${appName}/${moduleName}/ADD_POI_SUCCESS`;
 
 
-export const FETCH_LOCATION_POIS_MORE = `${appName}/${moduleName}/FETCH_LOCATION_POIS_MORE`;
+export const FETCH_POIS_OFFLINE = `${appName}/${moduleName}/FETCH_POIS_OFFLINE`;
 export const FETCH_LOCATION_POIS = `${appName}/${moduleName}/FETCH_LOCATION_POIS`;
 export const FETCH_LOCATION_POIS_REQUEST = `${appName}/${moduleName}/FETCH_LOCATION_POIS_REQUEST`;
+export const FETCH_POIS_OFFLINE_REQUEST = `${appName}/${moduleName}/FETCH_POIS_OFFLINE_REQUEST`;
 export const FETCH_LOCATION_POIS_ERROR = `${appName}/${moduleName}/FETCH_LOCATION_POIS_ERROR`;
 export const FETCH_LOCATION_POIS_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATION_POIS_SUCCESS`;
 
@@ -25,16 +29,17 @@ export const DELETE_POI_ERROR = `${appName}/${moduleName}/DELETE_POI_ERROR`;
 export const POI_DELETE_SUCCESS = `${appName}/${moduleName}/POI_DELETE_SUCCESS`;
 export const POI_DELETE = `${appName}/${moduleName}/POI_DELETE`;
 
-
 export const EDIT_POI_REQUEST = `${appName}/${moduleName}/EDIT_POI_REQUEST`;
+export const EDIT_POI_OFFLINE_REQUEST = `${appName}/${moduleName}/EDIT_POI_OFFLINE_REQUEST`;
 export const POI_EDIT = `${appName}/${moduleName}/POI_EDIT`;
+export const EDIT_POI_OFFLINE = `${appName}/${moduleName}/EDIT_POI_OFFLINE`;
 export const POI_EDIT_SUCCESS = `${appName}/${moduleName}/POI_EDIT_SUCCESS`;
 export const EDIT_POI_ERROR = `${appName}/${moduleName}/EDIT_POI_ERROR`;
 
-export function fetchLocationMorePoi(data: any) {
+export function fetchPoiOffline(location: any) {
     return {
-        type: FETCH_LOCATION_POIS_MORE,
-        payload: data
+        type: FETCH_POIS_OFFLINE,
+        payload: location
     };
 }
 
@@ -66,15 +71,48 @@ export function editPoi(data: any) {
     };
 }
 
-
-export const fetchLocationPoiMoresaga = function* ({payload}: any) {
-    yield put({
-        type: FETCH_LOCATION_POIS_SUCCESS,
-        payload: payload.rows
-    });
-
+export function editPoiOffline(data: any) {
+    return {
+        type: EDIT_POI_OFFLINE,
+        payload: data
+    }
 }
-export const fetchLocationPoisaga = function* (action: any) {
+
+export const fetchPoiOfflineSaga = function* (action: any) {
+    try {
+        yield put({
+            type: FETCH_POIS_OFFLINE_REQUEST
+        });
+        const query = `SELECT * FROM pois WHERE ProjectId = ${action.payload.id}`;
+
+        const res = yield call(async () => {
+            return await DBAdapter.getRows(query);
+        });
+
+        const data = [];
+        res.rows._array.forEach((el) => {
+            const poi = {
+                ...el,
+                title: unescape(el.title),
+                description: unescape(el.description),
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                points: JSON.parse(unescape(el.points))
+            };
+            data.push(poi);
+        });
+        yield put({
+            type: FETCH_LOCATION_POIS_SUCCESS,
+            payload: data
+        });
+    } catch (error) {
+        yield put({
+            type: FETCH_LOCATION_POIS_ERROR,
+            error: error.message,
+        });
+    }
+};
+
+export const fetchLocationPoiSaga = function* (action: any) {
     try {
         yield put({
             type: FETCH_LOCATION_POIS_REQUEST,
@@ -94,7 +132,8 @@ export const fetchLocationPoisaga = function* (action: any) {
         });
     }
 };
-export const addPoisaga = function* (action: any) {
+
+export const addPoiSaga = function* (action: any) {
     try {
         yield put({
             type: ADD_POI_REQUEST,
@@ -115,7 +154,8 @@ export const addPoisaga = function* (action: any) {
         });
     }
 };
-export const removePoisaga = function* (action: any) {
+
+export const removePoiSaga = function* (action: any) {
     try {
         yield put({
             type: DELETE_POI_REQUEST,
@@ -136,17 +176,16 @@ export const removePoisaga = function* (action: any) {
         });
     }
 };
-export const editPoisaga = function* (action: any) {
+
+export const editPoiSaga = function* (action: any) {
     try {
         yield put({
             type: EDIT_POI_REQUEST,
         });
         const res = yield call(() => {
-            console.log('payload', action.payload);
                 return axios.put(`${API}api/projects/${action.payload.projectId}/poi/${action.payload.id}`, action.payload);
             },
         );
-        console.log('res', res);
         yield put({
             type: POI_EDIT_SUCCESS,
             payload: res.data.data
@@ -157,5 +196,52 @@ export const editPoisaga = function* (action: any) {
             type: EDIT_POI_ERROR,
             error: error.response.data.message,
         });
+    }
+};
+
+export const editPoiOfflineSaga = function* ({payload}: any) {
+    try {
+        yield put({
+            type: EDIT_POI_OFFLINE_REQUEST
+        });
+
+        const update = `UPDATE pois SET
+            title = "${escape(payload.title)}",
+            description = "${escape(payload.description)}",
+            projectId = "${payload.projectId}",
+            categoryId = "${payload.categoryId}",
+            comment = "${escape(payload.comment)}",
+            updatedAt = ${Date.now()}
+            WHERE id = ${payload.id}`;
+
+        const select = `SELECT * FROM pois WHERE id = ${payload.id}`;
+
+        const res = yield call(async () => {
+            return await DBAdapter.setRows(update, select);
+        });
+
+        let data = {};
+
+        res.rows._array.forEach((el) => {
+            data = {
+                ...el,
+                title: unescape(el.title),
+                description: unescape(el.description),
+                projectId: el.projectId,
+                categoryId: el.categoryId,
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                points: JSON.parse(unescape(el.points))
+            };
+        });
+        yield put({
+            type: POI_EDIT_SUCCESS,
+            payload: data
+        });
+
+    } catch (error) {
+        yield put({
+            type: EDIT_POI_ERROR,
+            error: error.message
+        })
     }
 };

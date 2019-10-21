@@ -5,8 +5,9 @@ import {bindActionCreators} from 'redux';
 import MainModalDialog, {TYPES} from "../main.modal";
 import {errorSelector, locationSelector, moduleName} from "../../../../redux/modules/map";
 import {isSuperAdminSelector} from "../../../../redux/modules/auth";
-import {editStation} from "../../../../redux/modules/map/stations";
+import {editStation, editStationOffline} from "../../../../redux/modules/map/stations";
 import {setDialogDeleteButton, setDialogSaveButton, showDialogContent} from "../../../../redux/modules/dialogs";
+import {connectionSelector} from "../../../../redux/modules/connect";
 
 class EditStationDialog extends MainModalDialog {
     constructor(p: any) {
@@ -23,10 +24,11 @@ class EditStationDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
-   itemsList: state[moduleName].stationList,
-   error: errorSelector(state),
-   location: locationSelector(state),
-   isAdmin: isSuperAdminSelector(state),
+    itemsList: state[moduleName].stationList,
+    error: errorSelector(state),
+    location: locationSelector(state),
+    isAdmin: isSuperAdminSelector(state),
+    connection: connectionSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -35,6 +37,7 @@ const mapDispatchToProps = (dispatch: any) => (
         setDialogDeleteButton,
         showDialogContent,
         editItem: editStation,
+        editItemOffline: editStationOffline
     }, dispatch)
 );
 

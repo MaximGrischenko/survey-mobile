@@ -37,6 +37,7 @@ import * as ENTITIES from "../../../entities";
 
 export * from './config';
 import * as Category from './categories';
+import {FETCH_CATEGORYIES_OFFLINE} from "./categories";
 
 export const ReducerRecord: any = Record({
     categories: [],
@@ -58,7 +59,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
     const {type, payload, error} = action;
 
     switch (type) {
-        case Category.FETCH_CATEGORYS_REQUEST:
+        case Category.FETCH_CATEGORIES_REQUEST:
         case Category.ADD_CATEGORY_REQUEST:
         case Category.EDIT_CATEGORY_REQUEST:
         case Category.DELETE_CATEGORY_REQUEST:
@@ -71,7 +72,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('loading', false)
                 .set('error', null);
 
-        case Category.FETCH_CATEGORYS_SUCCESS:
+        case Category.FETCH_CATEGORIES_SUCCESS:
         case Category.ADD_CATEGORY_SUCCESS: {
             const loaded = state.categories.map((el: any) => el.id);
             for (let i = 0; i < action.payload.length; i++) {
@@ -175,7 +176,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
         case Category.EDIT_CATEGORY_ERROR:
         case Category.DELETE_CATEGORY_ERROR:
         case Category.ADD_CATEGORY_ERROR:
-        case Category.FETCH_CATEGORYS_ERROR:
+        case Category.FETCH_CATEGORIES_ERROR:
         case FETCH_LOGS_ERROR:
         case EDIT_USER_ERROR:
         case DELETE_USER_ERROR:
@@ -209,8 +210,8 @@ export const saga = function* () {
         takeEvery(FETCH_LOGS_MORE, fetchLOGSSagaMore),
 
 
-        takeEvery(Category.FETCH_CATEGORYS, Category.fetchCategoriesSaga),
-        takeEvery(Category.FETCH_CATEGORYS_MORE, Category.fetchCategoriesMoreSaga),
+        takeEvery(Category.FETCH_CATEGORIES, Category.fetchCategoriesSaga),
+        takeEvery(Category.FETCH_CATEGORYIES_OFFLINE, Category.fetchCategoriesOfflineSaga),
         takeEvery(Category.EDIT_CATEGORY, Category.editCategoriesaga),
         takeEvery(Category.ADD_CATEGORY, Category.addCategoriesaga),
         takeEvery(Category.DELETE_CATEGORY, Category.deleteCategoriesaga),

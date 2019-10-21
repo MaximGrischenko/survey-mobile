@@ -2,11 +2,11 @@ import Main from './Main';
 
 export class Powerline extends Main {
 
-    project_powerline: any;
+    // project_powerline: any;
 
     constructor(data: any = {}) {
         super(data);
-        this.project_powerline = data.project_powerline;
+        // this.project_powerline = data.project_powerline;
     }
 
     editKeys() {
