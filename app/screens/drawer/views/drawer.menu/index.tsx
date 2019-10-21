@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import { DrawerActions } from 'react-navigation-drawer';
 import {View, Text, StyleSheet, TouchableOpacity, Dimensions, AsyncStorage} from "react-native";
 import * as Progress from 'react-native-progress';
@@ -6,9 +8,11 @@ import SvgUri from 'react-native-svg-uri';
 import {Observer, Emitter} from "../../../../utils/database/interfaces";
 import {DBAdapter} from "../../../../utils/database";
 import {COLORS} from "../../../../styles/colors";
+import {changeControls} from "../../../../redux/modules/map";
 
 interface IMapProps {
-    navigation: any
+    navigation: any,
+    changeControls: Function,
 }
 
 interface IMapState {
@@ -50,6 +54,22 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         }
     }
 
+    componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
+        if(nextProps.navigation.state.isDrawerOpen !== this.props.navigation.state.isDrawerOpen) {
+            if(nextProps.navigation.state.isDrawerOpen) {
+                this.props.changeControls({
+                    name: 'isDrawerOpen',
+                    value: true
+                })
+            } else {
+                this.props.changeControls({
+                    name: 'isDrawerOpen',
+                    value: false
+                })
+            }
+        }
+    }
+
     componentWillUnmount(): void {
         this.state.database.detach(this);
     }
@@ -62,15 +82,15 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
     private syncDB = async () => {
         const {status} = this.state;
 
-        switch (status) {
-            case '': {
-
-            } break;
-
-            default: {
-
-            }
-        }
+        // switch (status) {
+        //     case '': {
+        //
+        //     } break;
+        //
+        //     default: {
+        //
+        //     }
+        // }
     };
 
     render() {
@@ -156,4 +176,10 @@ const localStyles = StyleSheet.create({
     }
 });
 
-export default DrawerMenu;
+const mapDispatchToProps = (dispatch: any) => (
+    bindActionCreators({
+        changeControls
+    }, dispatch)
+);
+
+export default connect(null, mapDispatchToProps)(DrawerMenu);

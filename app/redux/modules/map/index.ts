@@ -134,6 +134,7 @@ const MapRecord = {
     showParcels: false,
     showPoles: false,
     loading: false,
+    isDrawerOpen: false,
     isChecked: false,
     error: null,
 };
@@ -506,6 +507,7 @@ export const locationSegmentsSelector = createSelector(stateSelector, state => {
     })
 });
 export const errorSelector = createSelector(stateSelector, state => state.error);
+export const drawerStateSelector = createSelector(stateSelector, state => state.isDrawerOpen);
 export const currentModeSelector = createSelector(stateSelector, state => state.drawMode);
 export const modesSelector = createSelector(stateSelector, state => state.drawModeList);
 export const lastGeoPostionsSelector = createSelector(stateSelector, state => state.tempPosition);

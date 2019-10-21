@@ -138,7 +138,7 @@ export class DBAdapter implements IAdapter {
     static setRows (update, select) {
         return new Promise( async (resolve, reject) => {
             await DBAdapter.database.then((connect: any) => {
-                connect.transaction(function (txn) {
+                connect.transaction( function (txn) {
                     txn.executeSql(
                         update,
                         [],
@@ -146,7 +146,9 @@ export class DBAdapter implements IAdapter {
                             txn.executeSql(
                                 select,
                                 [],
-                                (tx, resp) => {
+                                async (tx, resp) => {
+                                    await AsyncStorage.setItem('db_status', 'update');
+                                    this.updateState({...this.state, pending: false, logger: `Local DB updated`});
                                     resolve(resp);
                                 }
                             )
@@ -210,7 +212,7 @@ export class DBAdapter implements IAdapter {
             });
 
             syncPiper.finally( async (resolveResult) => {
-                await AsyncStorage.setItem('db_status', 'updated');
+                await AsyncStorage.setItem('db_status', 'sync');
                 this.updateState({...this.state, pending: false, logger: `Local DB synchronized`});
                 console.log('Sync Success', resolveResult);
             }, async (rejectReason) => {

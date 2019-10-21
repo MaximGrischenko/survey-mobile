@@ -163,7 +163,6 @@ export const isSuperADMINAdminSelector = createSelector(stateSelector, state => 
 
 
 export function changeSettings(data: any) {
-    console.log('changeSettings', data);
     return {
         type: CHANGE_SETTINGS,
         payload: data

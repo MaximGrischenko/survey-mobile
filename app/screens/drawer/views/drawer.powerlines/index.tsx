@@ -9,7 +9,6 @@ import {showDialogContent} from "../../../../redux/modules/dialogs";
 import {fetchLocationSegments, fetchSegmentsOffline} from "../../../../redux/modules/map/segments";
 import {Powerline, Project} from "../../../../entities";
 import {COLORS} from "../../../../styles/colors";
-import CheckBox from "../../../../components/checkbox";
 import {connectionSelector} from "../../../../redux/modules/connect";
 
 interface IMapProps {

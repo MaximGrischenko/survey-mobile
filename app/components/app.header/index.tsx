@@ -22,7 +22,6 @@ interface IMapProps {
 }
 
 class AppHeader extends Component<IMapProps> {
-
     private onChangeText = (value) => {
         console.log('search text', value);
         // setTimeout(()=>{
@@ -137,7 +136,8 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
-        changeSettings, showAlert
+        changeSettings,
+        showAlert
     }, dispatch)
 );
 
