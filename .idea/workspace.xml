@@ -3,15 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app.navigator/drawer.navigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.navigator/drawer.navigator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/app.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/app.header/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/home/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/database/index.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -57,7 +51,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js.last.introduce.type" value="CONST" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/utils/database" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -114,7 +108,9 @@
       <workItem from="1569914308771" duration="25000" />
       <workItem from="1569914385428" duration="94750000" />
       <workItem from="1570444804712" duration="7215000" />
-      <workItem from="1570460928696" duration="261886000" />
+      <workItem from="1570460928696" duration="264932000" />
+      <workItem from="1571738472324" duration="941000" />
+      <workItem from="1571751086419" duration="45024000" />
     </task>
     <servers />
   </component>
@@ -148,7 +144,6 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/app/sync/sync.data.ts</url>
           <line>48</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="31" />
         </line-breakpoint>
       </breakpoints>

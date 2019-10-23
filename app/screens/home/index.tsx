@@ -25,6 +25,8 @@ import EditPoiDialog from "../../components/dialog.component/dialogs/edit.poi";
 import {parcel_statuses, segment_statuses} from "../../redux/utils";
 import * as Permissions from "expo-permissions";
 import * as Location from "expo-location";
+import {fetchCategories, fetchCategoriesOffline} from "../../redux/modules/admin/categories";
+import {connectionSelector} from "../../redux/modules/connect";
 
 // export const HomeScreen = (navigation) => {
 //     console.log('NAV', navigation);
@@ -34,6 +36,7 @@ import * as Location from "expo-location";
 // };
 
 interface IMapProps {
+    connection: boolean;
     isDrawerOpen: boolean;
     mapCenter: GPSCoordinate;
     selected_powerlines: Array<number>,
@@ -65,12 +68,24 @@ interface IMapProps {
     showDialogContent: Function;
     showAlert: Function;
     changeControls: Function;
+    fetchCategories: Function;
+    fetchCategoriesOffline: Function;
 }
 
 interface IMapState {
     region: any,
     location: any,
+    options: any,
     showUserLocation: boolean,
+    moveToLocation: boolean,
+    expandCluster: boolean,
+    // forceUpdate: boolean,
+    isMount: boolean,
+
+
+    shouldUpdate: boolean,
+
+    status: string,
 }
 
 class HomeScreen extends React.Component<IMapProps, IMapState> {
@@ -92,13 +107,37 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         region: null,
         location: null,
         showUserLocation: false,
+        moveToLocation: false,
+        expandCluster: false,
+        // forceUpdate: false,
+        isMount: true,
+
+        shouldUpdate: true,
+
+        status: '',
+
+        options: {
+            radius: 40,
+            nodeSize: 25,
+            maxZoom: 10,
+            minZoom: 1
+        },
     };
 
     async componentDidMount() {
+        if(this.props.connection) {
+           await this.props.fetchCategories();
+        } else {
+           await this.props.fetchCategoriesOffline();
+        }
 
         const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
 
         let location = await AsyncStorage.getItem('location');
+
+        console.log('LOCATION', location);
+
+
         if(location) {
             const GEOPosition = JSON.parse(location);
             region.latitude = GEOPosition.coords.latitude;
@@ -108,7 +147,6 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
                 location: {...GEOPosition.coords},
                 showUserLocation: true
             });
-
             await applyGeoposition(location);
         }
 
@@ -117,7 +155,37 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         });
     }
 
+    shouldComponentUpdate(nextProps: Readonly<IMapProps>, nextState: Readonly<IMapState>, nextContext: any): boolean {
+        return nextState.shouldUpdate;
+    }
+
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
+        if(nextProps.isDrawerOpen !== this.props.isDrawerOpen && nextProps.isDrawerOpen) {
+            this.cluster = [];
+            this.setState({
+                // forceUpdate: false,
+
+
+                shouldUpdate: false,
+            });
+        }
+
+        this.setState({
+            shouldUpdate: true,
+        });
+
+        // else if(nextProps.isDrawerOpen !== this.props.isDrawerOpen && !nextProps.isDrawerOpen) {
+        //     this.renderStations(nextProps.stations, nextProps.showStations, nextProps.search);
+        //     this.renderPoles(nextProps.poles, nextProps.showPoles, nextProps.search);
+        //     this.renderPois(nextProps.pois, nextProps.showPois, nextProps.search);
+        //     this.renderSegments(nextProps.segments, nextProps.showSegments, nextProps.search);
+        //     this.renderParcels(nextProps.parcels, nextProps.showParcels, nextProps.search);
+        // }
+        // if(nextProps.connection !== this.props.connection && nextProps.connection) {
+        //     this.props.fetchCategories();
+        // } else if(nextProps.connection !== this.props.connection && !nextProps.connection) {
+        //     this.props.fetchCategoriesOffline();
+        // }
         if(nextProps.stationList !== this.stationList || nextProps.showStations !== this.props.showStations) {
             this.renderStations(nextProps.stations, nextProps.showStations, nextProps.search);
             this.stationList = nextProps.stationList;
@@ -142,13 +210,18 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         if (
             nextProps.dateFilter !== this.props.dateFilter ||
             nextProps.search !== this.props.search ||
-            nextProps.selected_powerlines.length !== this.props.selected_powerlines.length
+            nextProps.selected_powerlines.length !== this.props.selected_powerlines.length ||
+            (nextProps.allowAddPoi !== this.props.allowAddPoi) ||
+            (nextProps.isDrawerOpen !== this.props.isDrawerOpen && !nextProps.isDrawerOpen)
         ) {
             this.renderStations(nextProps.stations, nextProps.showStations, nextProps.search);
             this.renderPoles(nextProps.poles, nextProps.showPoles, nextProps.search);
             this.renderPois(nextProps.pois, nextProps.showPois, nextProps.search);
             this.renderSegments(nextProps.segments, nextProps.showSegments, nextProps.search);
             this.renderParcels(nextProps.parcels, nextProps.showParcels, nextProps.search);
+            // this.setState({
+            //     forceUpdate: true
+            // });
         }
 
         if(!_.isEqual(nextProps.stations, this.props.stations) && nextProps.stations.length) {
@@ -159,6 +232,11 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
                 region
             })
         }
+    }
+
+    componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<IMapState>, snapshot?: any): void {
+        console.log('This state', this.state.shouldUpdate);
+        console.log('This prev state', prevState.shouldUpdate);
     }
 
     private showDialog = (marker) => {
@@ -228,7 +306,7 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
 
         const markers: Array<any> = [];
 
-        for(let i = 0, list: Array<any> = MapScreen.entityFilter(stations, search); i < list.length; i++) {
+        for(let i = 0, list: Array<any> = this.entityFilter(stations, search); i < list.length; i++) {
             markers.push(list[i]);
         }
 
@@ -265,7 +343,7 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
 
         const markers: Array<any> = [];
 
-        for(let i = 0, list: Array<any> = MapScreen.entityFilter(poles, search); i < list.length; i++) {
+        for(let i = 0, list: Array<any> = this.entityFilter(poles, search); i < list.length; i++) {
             markers.push(list[i]);
         }
 
@@ -296,13 +374,20 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         })
     };
     private renderPois = (pois: Array<Poi>, show: boolean, search: string) => {
+        //
+        // this.setState({
+        //     forceUpdate: true
+        // });
+
+        // this.forceRender = true;
+
         this.cluster = this.cluster.filter((entity) => entity.type !== this.MARKER_TYPE.POI);
 
         if(!show || !pois.length) return;
 
         const markers: Array<any> = [];
 
-        for(let i = 0, list: Array<any> = MapScreen.entityFilter(pois, search); i < list.length; i++) {
+        for(let i = 0, list: Array<any> = this.entityFilter(pois, search); i < list.length; i++) {
             markers.push(list[i]);
         }
 
@@ -330,7 +415,9 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         this.cluster.push({
             type: this.MARKER_TYPE.POI,
             markers: entities
-        })
+        });
+
+        // this.forceRender = false;
     };
     private renderSegments = (segments: Array<Segment>, show: boolean, search: string) => {
         this.cluster = this.cluster.filter((entity) => entity.type !== this.MARKER_TYPE.SEGMENT);
@@ -339,7 +426,7 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
 
         const markers: Array<any> = [];
 
-        for(let i = 0, list: Array<any> = MapScreen.entityFilter(segments, search); i < list.length; i++) {
+        for(let i = 0, list: Array<any> = this.entityFilter(segments, search); i < list.length; i++) {
             markers.push(list[i]);
         }
 
@@ -405,7 +492,7 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
 
         const markers: Array<any> = [];
 
-        for(let i = 0, list: Array<any> = MapScreen.entityFilter(parcels, search); i < list.length; i++) {
+        for(let i = 0, list: Array<any> = this.entityFilter(parcels, search); i < list.length; i++) {
             markers.push(list[i]);
         }
 
@@ -458,41 +545,32 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
             'POI Location',
             '',
             [
-                { text: 'Use GPS', onPress: async () => {
-                        let hasLocationPermissions = false;
-                        let locationResult = null;
-                        let {status} = await Permissions.askAsync(Permissions.LOCATION);
-                        if(status !== 'granted') {
-                            locationResult = 'Permission to access location was denied';
-                            return showAlert(locationResult);
-                        } else {
-                            let location = await Location.getCurrentPositionAsync({
-                                enableHighAccuracy: true, timeout: 20000,
-                            });
+                { text: 'Use GPS',
+                    onPress: async () => {
+                        await this.handleGetLocation();
 
-                            const coordinate = [
-                                location.coords.longitude,
-                                location.coords.latitude
-                            ];
+                        const coordinates = [
+                            this.state.location.longitude,
+                            this.state.location.latitude
+                        ];
 
-                            showDialogContent(
-                                {
-                                    content: (
-                                        <EditPoiDialog
-                                            selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
-                                            position={new Geometry(Geometry.TYPE.POINT, coordinate)}
-                                        />
-                                    ),
-                                    header: (
-                                        <Text>Add poi</Text>
-                                    )
-                                }
-                            )
-                        }
+                        showDialogContent(
+                            {
+                                content: (
+                                    <EditPoiDialog
+                                        selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
+                                        position={new Geometry(Geometry.TYPE.POINT, coordinates)}
+                                    />
+                                ),
+                                header: (
+                                    <Text>Add poi</Text>
+                                )
+                            }
+                        );
                     }
                 },
-                { text: 'Choose on map', onPress: () => {
-
+                { text: 'Choose on map',
+                    onPress: () => {
                         this.props.changeControls({
                             name: 'allowAddPoi',
                             value: true
@@ -505,7 +583,12 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
                 },
                 {
                     text: 'Cancel',
-                    onPress: () => console.log('Cancel Pressed'),
+                    onPress: () => {
+                        this.props.changeControls({
+                            name: 'allowAddPoi',
+                            value: false
+                        });
+                    },
                     style: 'cancel',
                 },
             ],
@@ -536,12 +619,129 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         }
     };
 
+    private handleClusterClick = (cluster: any) => {
+        this.setState((state) => ({
+            expandCluster: true,
+            // forceUpdate: true,
+            // isMount: false,
+            region: {
+                latitude: cluster.coordinate.latitude,
+                longitude: cluster.coordinate.longitude,
+                latitudeDelta: 0.09,
+                longitudeDelta: 0.09
+            },
+            options: {
+                ...state.options,
+                radius: 0
+            }
+        }));
+    };
+
+    private handleZoomChange = (zoom: any) => {
+        console.log('ZOOM', zoom);
+        if(zoom >= 10) {
+            // this.setState({
+            //    // forceUpdate: true,
+            //     options: {...this.state.options, radius: 0.005}
+            // })
+        } else {
+            // this.setState({
+            //    // forceUpdate: true,
+            //     options: {...this.state.options, radius: 40}
+            // })
+        }
+    };
+
+    private handleGetLocation = async () => {
+
+        let locationResult = null;
+
+        let {status} = await Permissions.askAsync(Permissions.LOCATION);
+
+        if(status !== 'granted') {
+            locationResult = 'Permission to access location was denied';
+            return this.props.showAlert(locationResult);
+        }
+
+        let location = await Location.getCurrentPositionAsync({
+            enableHighAccuracy: true, timeout: 20000,
+        });
+
+        console.log('LLL ===', location);
+
+        this.setState({
+            location: {...location.coords},
+            shouldUpdate: true,
+            showUserLocation: true,
+            moveToLocation: true,
+        });
+
+        console.log(
+            'IN GET LOC', this.state.location
+        );
+
+        await applyGeoposition(location);
+    };
+
+    private resetMapRender = () => {
+        this.setState({
+            moveToLocation: false,
+            expandCluster: false,
+            // forceUpdate: false,
+            isMount: true
+        })
+    };
+
+    private disableUpdating = (response: any) => {
+        console.log('RES=====', response);
+        this.setState({
+            shouldUpdate: false,
+            expandCluster: false,
+            moveToLocation: false,
+            status: response.status
+        })
+    };
+
+    private entityFilter = (list: Array<any>, search: string) => {
+        if(!search) return list;
+        let _list = [];
+        const keys = list.length ? list[0].keys() : [];
+        for (let i = 0; i < list.length; i++) {
+            const el: any = list[i];
+            if(search) {
+                let isInSearch = false;
+                // console.log('------------', el);
+                for(let j = 0; j < keys.length; j++) {
+                    const val = el[keys[j]];
+                    // console.log('search -- ', val && val.toString().toLowerCase(), search.toLowerCase());
+                    if(val && val.toString().toLowerCase().match(search.toLowerCase())) {
+                        // console.log('FOUND', val.toString().toLowerCase(), search.toLowerCase());
+                        isInSearch = true;
+                        break;
+                    }
+                }
+                if (!isInSearch) continue;
+            }
+            _list.push(el);
+        }
+        return _list;
+    };
+
     render() {
         return (
             <View style={{flex: 1}}>
                 {
                     !this.props.isDrawerOpen && this.state.region ? (
-                        <MapScreen {...this.state} cluster={this.cluster} onAllowAddPoi={this.handleAllowToAddPoi} onMapClick={this.handleMapClick}/>
+                        <MapScreen {...this.state}
+                                   cluster={this.cluster}
+                                   allowAddPoi={this.props.allowAddPoi}
+                                   onAllowAddPoi={this.handleAllowToAddPoi}
+                                   onMapClick={this.handleMapClick}
+                                   onClusterClick={this.handleClusterClick}
+                                   onZoomChange={this.handleZoomChange}
+                                   onGetLocation={this.handleGetLocation}
+                                   callback={this.disableUpdating}
+                        />
                     ) : null
                 }
             </View>
@@ -551,6 +751,7 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
 
 
 const mapStateToProps = (state: any) => ({
+    connection: connectionSelector(state),
     isDrawerOpen: drawerStateSelector(state),
     mapCenter: state[moduleName].mapCenter,
     selected_powerlines: powerlineSelector(state),
@@ -579,7 +780,6 @@ const mapStateToProps = (state: any) => ({
     poiList: state[moduleName].poiList,
 
     search: searchSelector(state),
-
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -587,6 +787,8 @@ const mapDispatchToProps = (dispatch: any) => (
         showDialogContent,
         showAlert,
         changeControls,
+        fetchCategories,
+        fetchCategoriesOffline,
     }, dispatch)
 );
 

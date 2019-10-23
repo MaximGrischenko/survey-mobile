@@ -1,167 +1,148 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import * as Location from "expo-location";
-import * as Permissions from 'expo-permissions';
 import {ClusterMap} from 'react-native-cluster-map';
 import {Marker} from "react-native-maps";
-import {applyGeoposition, moduleName} from "../../redux/modules/map";
-import {showAlert} from "../../redux/modules/dialogs";
 import {View, StyleSheet, Dimensions, TouchableOpacity, Platform, Text} from "react-native";
-import {fetchCategories, fetchCategoriesOffline} from "../../redux/modules/admin/categories";
 import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";
 import Icon from "react-native-vector-icons/Ionicons";
-import {connectionSelector} from "../../redux/modules/connect";
 
 interface IMapProps {
-    connection: boolean,
     allowAddPoi: boolean,
     showUserLocation: boolean,
+    moveToLocation: boolean,
+    // forceUpdate: boolean,
+    expandCluster: boolean,
+    isMount: boolean,
+    // forceRender: boolean,
+    options: any,
     region: any,
     location: any,
     cluster: any,
-    fetchCategories: Function,
-    fetchCategoriesOffline: Function,
-    showAlert: Function,
+    // fetchCategories: Function,
+    // fetchCategoriesOffline: Function,
+    // showAlert: Function,
     onAllowAddPoi: Function,
     onMapClick: Function,
+    onClusterClick: Function,
+    onZoomChange: Function,
+    onGetLocation: Function,
+    callback: Function,
+
+
+    shouldUpdate: boolean,
 }
 
 interface IMapState {
-    region: any,
-    showUserLocation: boolean,
-    location: any,
-    options: any,
+    // region: any,
+    // showUserLocation: boolean,
+    // location: any,
+    // options: any,
+   // cluster: any,
+    isMounted: boolean;
 }
 
 class MapScreen extends Component<IMapProps, IMapState> {
     private map: any;
-
+    private timeout: any;
     state = {
-        location: this.props.location,
-        options: {
-            radius: 40,
-            nodeSize: 25,
-            maxZoom: 10,
-            minZoom: 1
-        },
-        showUserLocation: this.props.showUserLocation,
-        region: this.props.region,
+       // cluster: this.props.cluster,
+       //  options: this.props.options,
+        isMounted: true,
+        // region: this.props.region
     };
 
-    async componentDidMount(){
-        if(this.props.connection) {
-            this.props.fetchCategories();
-        } else {
-            this.props.fetchCategoriesOffline();
-        }
+
+    // shouldComponentUpdate(nextProps: Readonly<IMapProps>, nextState: Readonly<IMapState>, nextContext: any): boolean {
+    //     // if(nextProps.allowAddPoi !== this.props.allowAddPoi) {
+    //     //     return true
+    //     // } else if(nextProps.forceUpdate) {
+    //     // console.log('FORCE UPDATE', nextProps.forceUpdate);
+    //    // return nextProps.shouldUpdate;
+    //     // } else {
+    //     //     return false;
+    //     // }
+    //     return true;
+    // }
+
+    componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<IMapState>, snapshot?: any): void {
+        this.timeout = setTimeout(() => {
+            this.props.callback({status: 'updated'})
+        }, 1500);
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
-        if(nextProps.connection !== this.props.connection && nextProps.connection) {
-            this.props.fetchCategories();
-        } else if(nextProps.connection !== this.props.connection && !nextProps.connection) {
-            this.props.fetchCategoriesOffline();
+        console.log('Next PROPS', nextProps.shouldUpdate);
+
+
+       // if(!nextProps.isMount) {
+       //     this.setState({
+       //         isMounted: false,
+       //     });
+       //
+       //     this.timeout = setTimeout(() => {this.setState({
+       //         isMounted: true
+       //     })}, 0);
+       //
+       //     this.props.callback({status: 'mounted'})
+       // }
+
+
+
+       if(nextProps.moveToLocation) {
+           console.log('IN MOVE TO LOCATION');
+
+           console.log('nextProps LOCA', nextProps.location);
+
+           this.moveToLocation(nextProps.location, 2000);
+       }
+
+       // console.log('nextProps.forceRender', nextProps.options, nextProps.forceUpdate, nextProps.expandCluster);
+
+        if(nextProps.expandCluster) {
+            console.log('THERE');
+            // this.setState({
+            //     // cluster: nextProps.cluster,
+            //     options: nextProps.options
+            // });
+            // this.reload();
+           this.moveToLocation(nextProps.region, 2000);
         }
+
+        // this.forceUpdate();
     }
 
+    // private reload = () => {
+    //     this.forceUpdate();
+    // };
 
     componentWillUnmount(): void {
-        console.log('unmounted');
+        clearTimeout(this.timeout);
     }
 
-    private getLocationAsync = async () => {
-        let hasLocationPermissions = false;
-        let locationResult = null;
-
-        let {status} = await Permissions.askAsync(Permissions.LOCATION);
-
-        if(status !== 'granted') {
-            locationResult = 'Permission to access location was denied';
-            this.props.showAlert(locationResult);
-        } else {
-            hasLocationPermissions = true;
-        }
-
-        let location = await Location.getCurrentPositionAsync({
-            enableHighAccuracy: true, timeout: 20000,
-        });
-
-        const region = {...location.coords, latitudeDelta: 0.1, longitudeDelta: 0.1};
-
+    private handleClusterClick = (cluster) => {
         this.setState({
-            location: {...location.coords},
-            showUserLocation: true
+            isMounted: false,
         });
 
-        await applyGeoposition(location);
+        this.timeout = setTimeout(() => {this.setState({
+            isMounted: true
+        })}, 0);
 
-        this.moveToLocation(region, 2000);
+        this.props.onClusterClick(cluster);
     };
 
-    private static entityFilter(list: Array<any>, search: string) {
-        if(!search) return list;
-        let _list = [];
-        const keys = list.length ? list[0].keys() : [];
-        for (let i = 0; i < list.length; i++) {
-            const el: any = list[i];
-            if(search) {
-                let isInSearch = false;
-                // console.log('------------', el);
-                for(let j = 0; j < keys.length; j++) {
-                    const val = el[keys[j]];
-                    // console.log('search -- ', val && val.toString().toLowerCase(), search.toLowerCase());
-                    if(val && val.toString().toLowerCase().match(search.toLowerCase())) {
-                        // console.log('FOUND', val.toString().toLowerCase(), search.toLowerCase());
-                        isInSearch = true;
-                        break;
-                    }
-                }
-                if (!isInSearch) continue;
-            }
-            _list.push(el);
-        }
-        return _list;
-    }
-
-    // private onClusterPress = (cluster) => {
-    //     const coordinates = cluster.geometry.coordinates;
-    //
-    //     const region = {
-    //         latitude: coordinates[1],
-    //         longitude: coordinates[0],
-    //         latitudeDelta: this.state.region.latitudeDelta * 0.01,
-    //         longitudeDelta: this.state.region.latitudeDelta * 0.01,
-    //     };
-    //
-    //     this.setState({
-    //        // region,
-    //         radius: 0.01,
-    //     });
-    //
-    //     this.map.root.animateToRegion(region, 1500);
-    // };
-
-    // private onZoomChange = (zoom) => {
-    //     console.log('zoom changed', zoom);
-    //     switch (zoom) {
-    //         case 6: {
-    //             this.setState({
-    //                 radius: 40
-    //             })
-    //         } break;
-    //         case 10: {
-    //             this.setState({
-    //                 radius: 0.1
-    //             })
-    //         }
-    //     }
-    // };
-
     private moveToLocation = (region, duration) => {
-        this.map.mapRef.animateToRegion(region, duration);
-        this.setState({ region })
+        console.log('REGION', region);
+
+
+
+        try {
+            this.map.mapRef.animateToRegion(region, duration);
+        } catch (e) {
+            console.log('EEEEEE', e);
+        }
     };
 
     private renderCluster = () => {
@@ -169,41 +150,31 @@ class MapScreen extends Component<IMapProps, IMapState> {
     };
 
     render() {
-        const {showUserLocation, options, region} = this.state;
+        const {showUserLocation, region, location, options} = this.props;
+        // const {region} = this.state;
+        // console.log('OPTIONS', this.state.options);
+        // console.log('OOOOOO', this.props.options);
         return (
             <View style={{flex: 1}}>
                 {
-                    this.state.region ? (
+                    this.props.region && this.state.isMounted ? (
                         <View style={{flex: 1}}>
                             <ClusterMap
                                 region={{...region}}
                                 ref={ref => this.map = ref}
                                 onPress={(event) => this.props.onMapClick(event)}
-                                //superClusterOptions={{...options}}
+                                superClusterOptions={{...options}}
                                 priorityMarker={
                                     showUserLocation ? (
                                         <Marker
                                             key={Date.now()}
-                                            coordinate={{...this.state.location}}
+                                            coordinate={{...location}}
                                             image={Platform.OS === 'ios' ? require('../../../assets/images/location.png') : require('../../../assets/images/location-x4.png')}
                                         />
                                     ) : null
                                 }
-                                onZoomChange={(zoom) => {
-                                    console.log('ZOOM', zoom);
-                                    // if(zoom >= 10) {
-                                    //     this.setState({
-                                    //         options: {...this.state.options, radius: 0.005}
-                                    //     })
-                                    // } else {
-                                    //     this.setState({
-                                    //         options: {...this.state.options, radius: 40}
-                                    //     })
-                                    // }
-                                }}
-                                onClusterClick={() => {
-                                    console.log('CLICKED');
-                                }}
+                                onZoomChange={(zoom) => this.props.onZoomChange(zoom)}
+                                onClusterClick={(cluster) => this.handleClusterClick(cluster)}
                             >
                                 {
                                     this.props.cluster.length ? (
@@ -215,7 +186,7 @@ class MapScreen extends Component<IMapProps, IMapState> {
                     ) : null
                 }
                 <React.Fragment>
-                    <TouchableOpacity style={localStyles.location} onPress={this.getLocationAsync}>
+                    <TouchableOpacity style={localStyles.location} onPress={() => this.props.onGetLocation()}>
                        <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={24} color={COLORS.SECONDARY} style={localStyles.icon}/>
                     </TouchableOpacity>
                     <FabButton
@@ -277,15 +248,15 @@ const localStyles = StyleSheet.create({
 });
 
 const mapStateToProps = (state: any) => ({
-    allowAddPoi: state[moduleName].allowAddPoi,
-    connection: connectionSelector(state),
+    // allowAddPoi: state[moduleName].allowAddPoi,
+    // connection: connectionSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
-        showAlert,
-        fetchCategories,
-        fetchCategoriesOffline,
+        // showAlert,
+        // fetchCategories,
+        // fetchCategoriesOffline,
     }, dispatch)
 );
 
