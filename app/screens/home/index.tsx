@@ -77,11 +77,14 @@ interface IMapState {
     location: any,
     options: any,
     showUserLocation: boolean,
-    moveToLocation: boolean,
+    relocate: boolean,
     expandCluster: boolean,
     // forceUpdate: boolean,
-    isMount: boolean,
+    expanded: boolean,
 
+    merged: boolean,
+
+    initialized: boolean,
 
     shouldUpdate: boolean,
 
@@ -107,12 +110,14 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         region: null,
         location: null,
         showUserLocation: false,
-        moveToLocation: false,
+        relocate: false,
         expandCluster: false,
         // forceUpdate: false,
-        isMount: true,
-
+        expanded: false,
+        merged: true,
         shouldUpdate: true,
+
+        initialized: false,
 
         status: '',
 
@@ -124,19 +129,16 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         },
     };
 
-    async componentDidMount() {
-        if(this.props.connection) {
-           await this.props.fetchCategories();
-        } else {
-           await this.props.fetchCategoriesOffline();
-        }
+    async componentWillMount() {
+        // if(this.props.connection) {
+        //     await this.props.fetchCategories();
+        // } else {
+        //     await this.props.fetchCategoriesOffline();
+        // }
 
         const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
 
         let location = await AsyncStorage.getItem('location');
-
-        console.log('LOCATION', location);
-
 
         if(location) {
             const GEOPosition = JSON.parse(location);
@@ -150,22 +152,47 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
             await applyGeoposition(location);
         }
 
-        this.setState({
-            region,
-        });
+        this.setState({region});
+
+    }
+
+    async componentDidMount() {
+        if(this.props.connection) {
+           await this.props.fetchCategories();
+        } else {
+           await this.props.fetchCategoriesOffline();
+        }
+
+        // const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
+        //
+        // let location = await AsyncStorage.getItem('location');
+        //
+        // if(location) {
+        //     const GEOPosition = JSON.parse(location);
+        //     region.latitude = GEOPosition.coords.latitude;
+        //     region.longitude = GEOPosition.coords.longitude;
+        //
+        //     this.setState({
+        //         location: {...GEOPosition.coords},
+        //         showUserLocation: true
+        //     });
+        //     await applyGeoposition(location);
+        // }
+        //
+        // await this.setState({
+        //     region,
+        // });
     }
 
     shouldComponentUpdate(nextProps: Readonly<IMapProps>, nextState: Readonly<IMapState>, nextContext: any): boolean {
         return nextState.shouldUpdate;
+        // return true;
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
         if(nextProps.isDrawerOpen !== this.props.isDrawerOpen && nextProps.isDrawerOpen) {
             this.cluster = [];
             this.setState({
-                // forceUpdate: false,
-
-
                 shouldUpdate: false,
             });
         }
@@ -235,8 +262,8 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
     }
 
     componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<IMapState>, snapshot?: any): void {
-        console.log('This state', this.state.shouldUpdate);
-        console.log('This prev state', prevState.shouldUpdate);
+        // console.log('This state', this.state.shouldUpdate);
+        // console.log('This prev state', prevState.shouldUpdate);
     }
 
     private showDialog = (marker) => {
@@ -621,9 +648,11 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
 
     private handleClusterClick = (cluster: any) => {
         this.setState((state) => ({
-            expandCluster: true,
+            // relocate: true,
+            shouldUpdate: true,
             // forceUpdate: true,
             // isMount: false,
+            expandCluster: true,
             region: {
                 latitude: cluster.coordinate.latitude,
                 longitude: cluster.coordinate.longitude,
@@ -653,9 +682,7 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
     };
 
     private handleGetLocation = async () => {
-
         let locationResult = null;
-
         let {status} = await Permissions.askAsync(Permissions.LOCATION);
 
         if(status !== 'granted') {
@@ -667,28 +694,23 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
             enableHighAccuracy: true, timeout: 20000,
         });
 
-        console.log('LLL ===', location);
-
         this.setState({
             location: {...location.coords},
+            region: {...location.coords, latitudeDelta: 0.1, longitudeDelta: 0.1},
             shouldUpdate: true,
             showUserLocation: true,
-            moveToLocation: true,
+            relocate: true,
         });
-
-        console.log(
-            'IN GET LOC', this.state.location
-        );
 
         await applyGeoposition(location);
     };
 
     private resetMapRender = () => {
         this.setState({
-            moveToLocation: false,
+            relocate: false,
             expandCluster: false,
             // forceUpdate: false,
-            isMount: true
+            expanded: true
         })
     };
 
@@ -697,9 +719,77 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
         this.setState({
             shouldUpdate: false,
             expandCluster: false,
-            moveToLocation: false,
+            relocate: false,
             status: response.status
         })
+    };
+
+    private callback = (response: any) => {
+        console.log('IN CALLBACK', response);
+        if(response.cluster) {
+            this.setState({
+                // relocate: true,
+                shouldUpdate: true,
+                // forceUpdate: true,
+                // isMount: false,
+                expandCluster: true,
+                region: {
+                    latitude: response.cluster.coordinate.latitude,
+                    longitude: response.cluster.coordinate.longitude,
+                    latitudeDelta: 0.2,
+                    longitudeDelta: 0.2
+                }
+            });
+        }
+        // else if(response.status === 'initialize') {
+        //     this.setState({
+        //         shouldUpdate: true,
+        //         initialized: true,
+        //         // merged: false,
+        //         // expanded: false,
+        //         // region: {
+        //         //     ...this.state.region,
+        //         //     latitudeDelta: 0.1,
+        //         //     longitudeDelta: 0.1
+        //         // }
+        //     })
+        // }
+        else if(response.status === 'expand') {
+            console.log('IN CALLBACK EXPANDED');
+            this.setState({
+                shouldUpdate: true,
+                expanded: true,
+                merged: false,
+                region: {
+                    ...this.state.region,
+                    latitudeDelta: 0.2,
+                    longitudeDelta: 0.2
+                }
+            })
+        }
+        else if(response.status === 'merge') {
+            console.log('IN CALLBACK MERGED');
+            this.setState({
+                shouldUpdate: true,
+                merged: true,
+                expanded: false,
+                region: {
+                    ...this.state.region,
+                    latitudeDelta: 0.5,
+                    longitudeDelta: 0.5
+                }
+            })
+        }
+        else if(response.status === 'updated') {
+            this.setState({
+                shouldUpdate: false,
+                expandCluster: false,
+                relocate: false,
+                initialized: true,
+                // isMount: true,
+                // status: response.status
+            })
+        }
     };
 
     private entityFilter = (list: Array<any>, search: string) => {
@@ -740,7 +830,7 @@ class HomeScreen extends React.Component<IMapProps, IMapState> {
                                    onClusterClick={this.handleClusterClick}
                                    onZoomChange={this.handleZoomChange}
                                    onGetLocation={this.handleGetLocation}
-                                   callback={this.disableUpdating}
+                                   callback={this.callback}
                         />
                     ) : null
                 }
