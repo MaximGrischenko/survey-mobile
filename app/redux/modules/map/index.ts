@@ -567,6 +567,7 @@ export const saga = function* () {
         takeEvery(POI.FETCH_LOCATION_POIS, POI.fetchLocationPoiSaga),
         takeEvery(POI.FETCH_POIS_OFFLINE, POI.fetchPoiOfflineSaga),
         takeEvery(POI.ADD_POI, POI.addPoiSaga),
+        takeEvery(POI.ADD_POI_OFFLINE, POI.addPoiOfflineSaga),
         takeEvery(POI.POI_DELETE, POI.removePoiSaga),
         takeEvery(POI.POI_EDIT, POI.editPoiSaga),
         takeEvery(POI.EDIT_POI_OFFLINE, POI.editPoiOfflineSaga),

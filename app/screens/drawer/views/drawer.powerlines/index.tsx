@@ -36,7 +36,7 @@ class DrawerPowerlines extends Component<IMapProps> {
         let list: Array<number> = this.props.selected_powerlines.filter((el: any) => el.id === item.id);
 
         // if (!item) {
-        //     list = this.state.isAll ? [] : [...this.props.powerlines.map(el => el.id)];
+        //     list = this.state.isAll ? [] : [...this.props.powerlines.map.viewer(el => el.id)];
         //     this.props.changeControls({
         //         name: 'selected_powerlines',
         //         value: [...list]

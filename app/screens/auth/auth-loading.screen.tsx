@@ -16,7 +16,7 @@ import {
 // import { Asset } from 'expo-asset';
 //
 // function cacheImages(images) {
-//     return images.map(image => {
+//     return images.map.viewer(image => {
 //        if(typeof image === 'string') {
 //            return Image.prefetch(image);
 //        } else {
@@ -26,7 +26,7 @@ import {
 // }
 //
 // function cacheFonts(fonts) {
-//     return fonts.map(font => Font.loadAsync(font));
+//     return fonts.map.viewer(font => Font.loadAsync(font));
 // }
 
 interface IMapProps {

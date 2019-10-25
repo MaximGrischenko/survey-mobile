@@ -147,6 +147,7 @@ export class DBAdapter implements IAdapter {
                                 select,
                                 [],
                                 async (tx, resp) => {
+                                    console.log('INSERTED');
                                     await AsyncStorage.setItem('db_status', 'update');
                                     this.updateState({...this.state, pending: false, logger: `Local DB updated`});
                                     resolve(resp);
@@ -269,6 +270,8 @@ export class DBAdapter implements IAdapter {
         })
     };
 
+    private count = 0;
+
     private executeSQL = async (sql) => {
         return new Promise((resolve, reject) => {
             return DBAdapter.database.then((connect: any) => {
@@ -277,7 +280,9 @@ export class DBAdapter implements IAdapter {
 
                     tx.executeSql(sql, [],
                         (tx, res) => {
-                            resolve(res)
+                            console.log('QUERY', sql);
+
+                            setTimeout(() => {resolve(res)}, 100);
                         },
                         (tx, error) => {
                             reject(error)
@@ -380,7 +385,7 @@ export class DBAdapter implements IAdapter {
             let query = '';
             axios.get(api).then( (response: any) => {
                 let queryValues = '';
-                const limit = 5000;
+                const limit = 100000;
 
                 if(response.data) {
                     switch (table.name) {
@@ -393,6 +398,7 @@ export class DBAdapter implements IAdapter {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
                                         chunk.forEach((item, key) => {
                                             queryValues += `(
                                         ${item.id}, 
@@ -405,10 +411,9 @@ export class DBAdapter implements IAdapter {
                                         )`;
                                             queryValues += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        query += queryValues;
-                                        this.fillRows(query, table.name).then((resolveFillResult) => {
-                                            setTimeout(() => {resolveChunkWorker(resolveFillResult);}, 100);
-
+                                        _query += queryValues;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
+                                            resolveChunkWorker(resolveFillResult)
                                         }, (rejectFillReason) => {
                                             rejectChunkWorker(rejectFillReason);
                                         });
@@ -434,6 +439,7 @@ export class DBAdapter implements IAdapter {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
                                         chunk.forEach((item, key) => {
                                             queryValues += `(
                                         ${item.id}, 
@@ -446,8 +452,12 @@ export class DBAdapter implements IAdapter {
                                         )`;
                                             queryValues += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        query += queryValues;
-                                        this.fillRows(query, table.name).then((resolveFillResult) => {
+                                        _query += queryValues;
+
+                                        console.log('PROJECTS QUERY', _query);
+
+
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
                                             rejectChunkWorker(rejectFillReason);
@@ -474,6 +484,7 @@ export class DBAdapter implements IAdapter {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
                                         chunk.forEach((item, key) => {
                                             queryValues += `(
                                         ${item.id}, 
@@ -488,8 +499,8 @@ export class DBAdapter implements IAdapter {
                                         )`;
                                             queryValues += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        query += queryValues;
-                                        this.fillRows(query, table.name).then((resolveFillResult) => {
+                                        _query += queryValues;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
                                             rejectChunkWorker(rejectFillReason);
@@ -515,6 +526,7 @@ export class DBAdapter implements IAdapter {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
                                         chunk.forEach((item, key) => {
                                             queryValues += `(
                                         ${item.id}, 
@@ -534,8 +546,8 @@ export class DBAdapter implements IAdapter {
                                         )`;
                                             queryValues += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        query += queryValues;
-                                        this.fillRows(query, table.name).then((resolveFillResult) => {
+                                        _query += queryValues;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
                                             rejectChunkWorker(rejectFillReason);
@@ -561,6 +573,7 @@ export class DBAdapter implements IAdapter {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
                                         chunk.forEach((item, key) => {
                                             queryValues += `(
                                         ${item.id}, 
@@ -578,8 +591,8 @@ export class DBAdapter implements IAdapter {
                                         )`;
                                             queryValues += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        query += queryValues;
-                                        this.fillRows(query, table.name).then((resolveFillResult) => {
+                                        _query += queryValues;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
                                             rejectChunkWorker(rejectFillReason);
@@ -606,7 +619,10 @@ export class DBAdapter implements IAdapter {
                                 while (list.length) {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
+                                    console.log('Parcels CHUNK',chunk.length);
+                                    console.log( 'nextChunck', chunk.length );
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
                                         chunk.forEach((item, key) => {
                                             queryValues += `(
                                         ${item.id},
@@ -627,9 +643,9 @@ export class DBAdapter implements IAdapter {
                                         )`;
                                             queryValues += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        query += queryValues;
-                                        this.fillRows(query, table.name).then((resolveFillResult) => {
-                                            resolveChunkWorker(resolveFillResult);
+                                        _query += queryValues;
+                                        this.fillRows( _query, table.name).then((resolveFillResult) => {
+                                           resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
                                             rejectChunkWorker(rejectFillReason);
                                         });
@@ -655,6 +671,7 @@ export class DBAdapter implements IAdapter {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
                                         chunk.forEach((item, key) => {
                                             queryValues += `(
                                         ${item.id},
@@ -674,8 +691,8 @@ export class DBAdapter implements IAdapter {
                                         )`;
                                             queryValues += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        query += queryValues;
-                                        this.fillRows(query, table.name).then((resolveFillResult) => {
+                                        _query += queryValues;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
                                             rejectChunkWorker(rejectFillReason);
@@ -701,6 +718,7 @@ export class DBAdapter implements IAdapter {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
                                         chunk.forEach((item, key) => {
                                             queryValues += `(
                                         ${item.id},
@@ -730,8 +748,8 @@ export class DBAdapter implements IAdapter {
                                         )`;
                                             queryValues += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        query += queryValues;
-                                        this.fillRows(query, table.name).then((resolveFillResult) => {
+                                        _query += queryValues;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
                                             rejectChunkWorker(rejectFillReason);

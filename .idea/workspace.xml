@@ -2,9 +2,25 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/home/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.navigator/drawer.navigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.navigator/drawer.navigator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/entities/types/Geometry.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Geometry.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/auth/auth-loading.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/auth-loading.screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/lists/parcel.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/parcel.list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/lists/poi.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/poi.list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/lists/pole.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/pole.list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/lists/segment.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/segment.list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/lists/station.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/station.list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/cluster/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/map.viewer/cluster/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/cluster/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/map.viewer/cluster/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/database/index.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -60,17 +76,17 @@
     <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/app/utils/database" />
-      <recent name="$PROJECT_DIR$/custom-node-modules" />
-      <recent name="$PROJECT_DIR$/app/components/tables.header" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/screens/home" />
       <recent name="$PROJECT_DIR$/app/sync" />
       <recent name="$PROJECT_DIR$/app/utils/sync/sql" />
       <recent name="$PROJECT_DIR$/app/components/dialog.component/dialogs" />
       <recent name="$PROJECT_DIR$/app/components/dialog.component" />
-      <recent name="$PROJECT_DIR$/app/screens/home" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/utils/database" />
+      <recent name="$PROJECT_DIR$/custom-node-modules" />
+      <recent name="$PROJECT_DIR$/app/components/tables.header" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -109,7 +125,7 @@
       <workItem from="1570444804712" duration="7215000" />
       <workItem from="1570460928696" duration="264932000" />
       <workItem from="1571738472324" duration="941000" />
-      <workItem from="1571751086419" duration="93994000" />
+      <workItem from="1571751086419" duration="118195000" />
     </task>
     <servers />
   </component>

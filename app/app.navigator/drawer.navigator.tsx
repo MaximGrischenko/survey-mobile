@@ -2,14 +2,14 @@ import React from 'react';
 import {createDrawerNavigator} from 'react-navigation-drawer';
 import {createAppContainer} from "react-navigation";
 import {Dimensions} from "react-native";
-import HomeScreen from '../screens/home';
+import MapScreen from '../screens/map';
 
 import DrawerScreen from '../screens/drawer';
 
 const DrawerNavigator = createDrawerNavigator(
     {
         Home: {
-            screen: HomeScreen,
+            screen: MapScreen,
         }
     },
     {

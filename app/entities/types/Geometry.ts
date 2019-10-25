@@ -51,7 +51,7 @@ export class Geometry {
             }
             case Geometry_TYPE.MultiLineString: {
                 return coordinate.map((els: Array<Array<number>>) => {
-                    // return el.map((els: Array<Array<number>>) => {
+                    // return el.map.viewer((els: Array<Array<number>>) => {
                     return els.map((point: any) => new GPSCoordinate(point));
                     // })
                 });

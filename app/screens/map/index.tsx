@@ -1,460 +1,720 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-import {ClusterMap} from 'react-native-cluster-map';
-import MapView, {PROVIDER_GOOGLE, Marker} from "react-native-maps";
-import {View, StyleSheet, Dimensions, TouchableOpacity, Platform, Text, Image} from "react-native";
+import MapViewer from './map.viewer';
+import {
+    Alert,
+    AsyncStorage,
+    Platform,
+    Text,
+    TouchableOpacity,
+    View,
+    StyleSheet,
+    Dimensions
+} from "react-native";
+import {
+    applyGeoposition,
+    changeControls,
+    drawerStateSelector,
+    locationParcelsSelector,
+    locationPoisSelector,
+    locationPolesSelector,
+    locationSegmentsSelector,
+    locationSelector,
+    locationStationsSelector,
+    moduleName,
+    powerlineSelector
+} from "../../redux/modules/map";
+import {
+    Geometry,
+    GPSCoordinate,
+    Parcel,
+    Poi,
+    Pole,
+    Project,
+    Segment,
+    Station
+} from "../../entities";
+import _ from "lodash";
+import {searchSelector} from "../../redux/modules/auth";
+import {Callout, Marker, Polygon, Polyline} from "react-native-maps";
+import {bindActionCreators} from "redux";
+import {showAlert, showDialogContent} from "../../redux/modules/dialogs";
+import EditStationDialog from "../../components/dialog.component/dialogs/edit.station";
+import EditParcelDialog from "../../components/dialog.component/dialogs/edit.parcel";
+import EditPoleDialog from "../../components/dialog.component/dialogs/edit.pole";
+import EditSegmentDialog from "../../components/dialog.component/dialogs/edit.segment";
+import EditPoiDialog from "../../components/dialog.component/dialogs/edit.poi";
+import {parcel_statuses, segment_statuses} from "../../redux/utils";
+import * as Permissions from "expo-permissions";
+import * as Location from "expo-location";
+import {fetchCategories, fetchCategoriesOffline} from "../../redux/modules/admin/categories";
+import {connectionSelector} from "../../redux/modules/connect";
+import Icon from "react-native-vector-icons/Ionicons";
 import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";
-import Icon from "react-native-vector-icons/Ionicons";
-import {merge} from "immutable";
 
 interface IMapProps {
+    connection: boolean;
+    isDrawerOpen: boolean;
+    mapCenter: GPSCoordinate;
+    selected_powerlines: Array<number>,
+    dateFilter: any,
+    search: string;
+    project: Project,
     allowAddPoi: boolean,
-    showUserLocation: boolean,
-    relocate: boolean,
-    // forceUpdate: boolean,
-    expandCluster: boolean,
-    expanded: boolean,
 
-    merged: boolean,
-    // forceRender: boolean,
-    options: any,
-    region: any,
-    location: any,
-    cluster: any,
-    // fetchCategories: Function,
-    // fetchCategoriesOffline: Function,
-    // showAlert: Function,
-    onAllowAddPoi: Function,
-    onMapClick: Function,
-    onClusterClick: Function,
-    onZoomChange: Function,
-    onGetLocation: Function,
-    callback: Function,
+    stations: Array<Station>;
+    showStations: boolean;
+    stationList: any;
 
+    poles: Array<Pole>,
+    showPoles: boolean,
+    polesList: any,
 
-    initialized: boolean,
+    parcels: Array<Parcel>,
+    showParcels: boolean,
+    parcelList: any,
 
-    shouldUpdate: boolean,
+    segments: Array<Segment>,
+    showSegments: boolean,
+    segmentList: any,
+
+    pois: Array<Poi>,
+    showPois: boolean,
+    poiList: any,
+
+    showDialogContent: Function;
+    showAlert: Function;
+    changeControls: Function;
+    fetchCategories: Function;
+    fetchCategoriesOffline: Function;
 }
 
 interface IMapState {
-    // region: any,
-    // showUserLocation: boolean,
-    // location: any,
+    region: any,
+    location: any,
     options: any,
-   // cluster: any,
-    isMounted: boolean;
-    layers: any;
-    mapSnapshot: any;
+    showUserLocation: boolean,
+    relocate: boolean,
+    expandCluster: boolean,
+    expanded: boolean,
+    merged: boolean,
+    initialized: boolean,
+    shouldUpdate: boolean,
 }
 
-// interface ILayerProps {
-//     cb: Function,
-//     onMapClick: Function,
-//     region: any,
-//     location: any,
-//     cluster: any,
-//     showUserLocation: boolean,
-// }
-//
-// interface ILayerState {
-//     options: any,
-// }
-//
-// class Layer extends Component<ILayerProps, ILayerState> {
-//     private map;
-//     private isReady;
-//
-//     state = {
-//         options: {
-//             radius: 0,
-//             nodeSize: 25,
-//             maxZoom: 10,
-//             minZoom: 1
-//         }
-//     };
-//
-//     render() {
-//         const {region, location, showUserLocation} = this.props;
-//         return (
-//             <View style={{flex: 1}} ref={(node) => this.props.cb(node)}>
-//                 <ClusterMap
-//                     // onRegionChangeComplete={(region) => console.log('REGION WHEN COMPLETE', region)}
-//                     provider={PROVIDER_GOOGLE}
-//                     region={{...region}}
-//                     ref={ref => this.map = ref}
-//                     onMapReady={() => {console.log('ready')}}
-//                     onPress={(event) => this.props.onMapClick(event)}
-//                     superClusterOptions={{...this.state.options}}
-//                     priorityMarker={
-//                         showUserLocation ? (
-//                             <Marker
-//                                 key={Date.now()}
-//                                 coordinate={{...location}}
-//                                 image={Platform.OS === 'ios' ? require('../../../assets/images/location.png') : require('../../../assets/images/location-x4.png')}
-//                             />
-//                         ) : null
-//                     }
-//                     onZoomChange={(zoom) => this.mergeCluster(zoom)}
-//                     // onClusterClick={(cluster) => this.expandCluster(cluster)}
-//                 >
-//                     {
-//                         this.props.cluster.length ? (
-//                             this.renderCluster()
-//                         ) : null
-//                     }
-//                 </ClusterMap>;
-//             </View>
-//         )
-//     }
-// }
+class MapScreen extends React.Component<IMapProps, IMapState> {
+    private cluster: Array<any> = [];
+    private stationList: any;
+    private segmentList: any;
+    private poiList: any;
+    private polesList: any;
+    private parcelList: any;
+    private MARKER_TYPE: any = {
+        STATION: 1,
+        PARCEL: 2,
+        SEGMENT: 3,
+        POLE: 4,
+        POI: 5
+    };
 
-class MapScreen extends Component<IMapProps, IMapState> {
-    constructor(props: any) {
-        super(props);
+    state = {
+        region: null,
+        location: null,
+        showUserLocation: false,
+        relocate: false,
+        expandCluster: false,
+        expanded: false,
+        merged: true,
+        shouldUpdate: true,
+        initialized: false,
+        options: {
+            radius: 40,
+            nodeSize: 25,
+            maxZoom: 10,
+            minZoom: 1
+        },
+    };
 
-        // this.setState({
-        //     // isMounted: true,
-        //     region: props.region
-        // });
-
-        this.state = {
-            isMounted: true,
-            layers: {
-                expanded: {
-                    isReady: false,
-                },
-                merged: {
-                    isReady: false,
-                }
-            },
-            options: {
-                radius: 0,
-                nodeSize: 25,
-                maxZoom: 10,
-                minZoom: 1
-            },
-            mapSnapshot: null,
+    async componentDidMount() {
+        if(this.props.connection) {
+           await this.props.fetchCategories();
+        } else {
+           await this.props.fetchCategoriesOffline();
         }
 
-        // this.isReady = true;
+        const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
+
+        let location = await AsyncStorage.getItem('location');
+
+        if(location) {
+            const GEOPosition = JSON.parse(location);
+            region.latitude = GEOPosition.coords.latitude;
+            region.longitude = GEOPosition.coords.longitude;
+
+            this.setState({
+                location: {...GEOPosition.coords},
+                showUserLocation: true
+            });
+            await applyGeoposition(location);
+        }
+
+        await this.setState({
+            region,
+        });
     }
 
-    private map: any;
-    private timeout: any;
-    private isReady: boolean;
-
-    // state = {
-    //    // cluster: this.props.cluster,
-    //    //  options: this.props.options,
-    //     isMounted: true,
-    //     // region: this.props.region
-    // };
-
-
-    // shouldComponentUpdate(nextProps: Readonly<IMapProps>, nextState: Readonly<IMapState>, nextContext: any): boolean {
-    //     // if(nextProps.allowAddPoi !== this.props.allowAddPoi) {
-    //     //     return true
-    //     // } else if(nextProps.forceUpdate) {
-    //     // console.log('FORCE UPDATE', nextProps.forceUpdate);
-    //    return nextProps.shouldUpdate;
-    //     // } else {
-    //     //     return false;
-    //     // }
-    //     // return true;
-    // }
-
-    componentDidMount(): void {
-
-    }
-
-    componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<IMapState>, snapshot?: any): void {
-        // console.log('before callback');
-        //
-        this.timeout = setTimeout(() => {
-            this.props.callback({status: 'updated'})
-        }, 2000);
+    shouldComponentUpdate(nextProps: Readonly<IMapProps>, nextState: Readonly<IMapState>, nextContext: any): boolean {
+        return nextState.shouldUpdate;
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
-        if(nextProps.relocate) {
-           this.relocation(nextProps.region, 2000);
+        if(nextProps.isDrawerOpen !== this.props.isDrawerOpen && nextProps.isDrawerOpen) {
+            this.cluster = [];
+            this.setState({
+                shouldUpdate: false,
+            });
         }
-        if(nextProps.expandCluster) {
-            console.log(this.map.mapRef);
-            // const snapshot = this.map.mapRef.takeSnapshot({
-            //     width: Dimensions.get('window').width,
-            //     height: Dimensions.get('window').height,
-            //     region: {...this.props.region},
-            //     format: 'png',
-            //     quality: 0.8,
-            //     result: 'file'
-            // });
-            // snapshot.then((uri) => {
-            //     this.setState({
-            //         mapSnapshot: uri
-            //     })
-            // });
 
-            this.relocation(nextProps.region, 500);
+        this.setState({
+            shouldUpdate: true,
+        });
 
-            setTimeout(() => {this.props.callback({status: 'expand'})}, 1000);
+        // if(nextProps.connection !== this.props.connection && nextProps.connection) {
+        //     this.props.fetchCategories();
+        // } else if(nextProps.connection !== this.props.connection && !nextProps.connection) {
+        //     this.props.fetchCategoriesOffline();
+        // }
+        if(nextProps.stationList !== this.stationList || nextProps.showStations !== this.props.showStations) {
+            this.renderStations(nextProps.stations, nextProps.showStations, nextProps.search);
+            this.stationList = nextProps.stationList;
+        }
+        if(nextProps.polesList !== this.polesList || nextProps.showPoles !== this.props.showPoles) {
+            this.renderPoles(nextProps.poles, nextProps.showPoles, nextProps.search);
+            this.polesList = nextProps.polesList;
+        }
+        if(nextProps.poiList !== this.poiList || nextProps.showPois !== this.props.showPois) {
+            this.renderPois(nextProps.pois, nextProps.showPois, nextProps.search);
+            this.poiList = nextProps.poiList;
+        }
+        if(nextProps.segmentList !== this.segmentList || nextProps.showSegments !== this.props.showSegments) {
+            this.renderSegments(nextProps.segments, nextProps.showSegments, nextProps.search);
+            this.segmentList = nextProps.segmentList;
+        }
+        if(nextProps.parcelList !== this.parcelList || nextProps.showParcels !== this.props.showParcels) {
+            this.renderParcels(nextProps.parcels, nextProps.showParcels, nextProps.search);
+            this.parcelList = nextProps.parcelList;
+        }
+
+        if (
+            nextProps.dateFilter !== this.props.dateFilter ||
+            nextProps.search !== this.props.search ||
+            nextProps.selected_powerlines.length !== this.props.selected_powerlines.length ||
+            (nextProps.allowAddPoi !== this.props.allowAddPoi) ||
+            (nextProps.isDrawerOpen !== this.props.isDrawerOpen && !nextProps.isDrawerOpen)
+        ) {
+            this.renderStations(nextProps.stations, nextProps.showStations, nextProps.search);
+            this.renderPoles(nextProps.poles, nextProps.showPoles, nextProps.search);
+            this.renderPois(nextProps.pois, nextProps.showPois, nextProps.search);
+            this.renderSegments(nextProps.segments, nextProps.showSegments, nextProps.search);
+            this.renderParcels(nextProps.parcels, nextProps.showParcels, nextProps.search);
+        }
+
+        if(!_.isEqual(nextProps.stations, this.props.stations) && nextProps.stations.length) {
+            const location = nextProps.stations[Math.round(nextProps.stations.length / 2)].points.toGPS();
+            const region = {...location, latitudeDelta: 1, longitudeDelta: 1};
+            this.setState({
+                region
+            })
         }
     }
 
-    componentWillUnmount(): void {
-        clearTimeout(this.timeout);
-    }
-
-    private expandCluster = (cluster) => {
-        this.props.callback({cluster});
+    private showDialog = (marker) => {
+        const {showDialogContent} = this.props;
+        if (marker instanceof Station) {
+            showDialogContent(
+                {
+                    content: (
+                        <EditStationDialog selectedItem={marker} />
+                    ),
+                    header: (
+                        <Text>Edit Stations ({marker.id})</Text>
+                    )
+                }
+            );
+        } else if (marker instanceof Parcel) {
+            showDialogContent(
+                {
+                    content: (
+                        <EditParcelDialog selectedItem={marker}/>
+                    ),
+                    header: (
+                        <Text>Edit Parcel ({marker.id})</Text>
+                    )
+                }
+            );
+        } else if (marker instanceof Pole) {
+            showDialogContent(
+                {
+                    content: (
+                        <EditPoleDialog selectedItem={marker} />
+                    ),
+                    header: (
+                        <Text>Edit Pole ({marker.id})</Text>
+                    )
+                }
+            );
+        } else if (marker instanceof Segment) {
+            showDialogContent(
+                {
+                    content: (
+                        <EditSegmentDialog selectedItem={marker} />
+                    ),
+                    header: (
+                        <Text>Edit Segment ({marker.id})</Text>
+                    )
+                }
+            );
+        } else if (marker instanceof Poi) {
+            showDialogContent(
+                {
+                    content: (
+                        <EditPoiDialog selectedItem={marker} />
+                    ),
+                    header: (
+                        <Text>Edit Poi ({marker.id})</Text>
+                    )
+                }
+            );
+        }
     };
 
-    private mergeCluster = (zoom) => {
-        console.log('Expanded', this.props.expanded);
-        console.log('ExpandCluster', this.props.expandCluster);
-        console.log('Relocate', this.props.relocate);
-        console.log('Merged', this.props.merged);
-        console.log('CurrentZoom', zoom);
+    private renderStations = (stations: Array<Station>, show: boolean, search: string) => {
+        this.cluster = this.cluster.filter((entity) => entity.type !== this.MARKER_TYPE.STATION);
 
+        if(!show || !stations.length) return;
 
+        const markers: Array<any> = [];
 
-        if(!this.props.relocate && this.props.initialized) {
-            if(zoom >= 8 && this.props.merged) {
-                this.props.callback({status: 'expand'});
-            }
-
-            if(zoom <= 7 && this.props.expanded) {
-                this.props.callback({status: 'merge'});
-            }
+        for(let i = 0, list: Array<any> = this.entityFilter(stations, search); i < list.length; i++) {
+            markers.push(list[i]);
         }
 
-        // switch (zoom) {
-        //     case 6: {
-        //         console.log('case: 6');
-        //     }
-        //     case 7: {
-        //         console.log('case: 7');
-        //
-        //         if(this.props.expanded) {
-        //             this.props.callback({status: 'merge'});
-        //         }
-        //
-        //         // if(this.props.merged) {
-        //         //     this.props.callback({status: 'expand'});
-        //         // }
-        //     } break;
-        //     case 8: {
-        //         console.log('case: 8');
-        //
-        //         if(this.props.merged) {
-        //             this.props.callback({status: 'expand'});
-        //         }
-        //     } break;
-        // }
+        const entities: Array<any> = [];
+
+        markers.forEach((marker) => {
+            entities.push(
+                <Marker
+                    key={marker.id}
+                    coordinate={marker.points.toGPS()}
+                    image={Platform.OS === 'ios' ? require('../../../assets/images/station.png') : require('../../../assets/images/station-x4.png')}
+                    onCalloutPress={() => this.showDialog(marker)}
+                >
+                    <Callout
+                        tooltip={false}
+                    >
+                        <View style={{maxWidth: 170, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff'}}>
+                            <Text style={{color: '#000', fontSize: 12, fontWeight: 'bold'}}>{marker['nazw_stac']}</Text>
+                        </View>
+                    </Callout>
+                </Marker>
+            )
+        });
+
+        this.cluster.push({
+            type: this.MARKER_TYPE.STATION,
+            markers: entities
+        })
+    };
+    private renderPoles = (poles: Array<Pole>, show: boolean, search: string) => {
+        this.cluster = this.cluster.filter((entity) => entity.type !== this.MARKER_TYPE.POLE);
+
+        if(!show || !poles.length) return;
+
+        const markers: Array<any> = [];
+
+        for(let i = 0, list: Array<any> = this.entityFilter(poles, search); i < list.length; i++) {
+            markers.push(list[i]);
+        }
+
+        const entities: Array<any> = [];
+
+        markers.forEach((marker) => {
+            entities.push(
+                <Marker
+                    key={marker.id}
+                    coordinate={marker.points.toGPS()}
+                    image={Platform.OS === 'ios' ? require('../../../assets/images/pole.png') : require('../../../assets/images/pole-x4.png')}
+                    onCalloutPress={() => this.showDialog(marker)}
+                >
+                    <Callout
+                        tooltip={false}
+                    >
+                        <View style={{maxWidth: 170, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff'}}>
+                            <Text style={{color: '#000', fontSize: 12, fontWeight: 'bold'}}>{marker['num_slup']}</Text>
+                        </View>
+                    </Callout>
+                </Marker>
+            )
+        });
+
+        this.cluster.push({
+            type: this.MARKER_TYPE.POLE,
+            markers: entities
+        })
+    };
+    private renderPois = (pois: Array<Poi>, show: boolean, search: string) => {
+
+        this.cluster = this.cluster.filter((entity) => entity.type !== this.MARKER_TYPE.POI);
+
+        if(!show || !pois.length) return;
+
+        const markers: Array<any> = [];
+
+        for(let i = 0, list: Array<any> = this.entityFilter(pois, search); i < list.length; i++) {
+            markers.push(list[i]);
+        }
+
+        const entities: Array<any> = [];
+
+        markers.forEach((marker) => {
+            entities.push(
+                <Marker
+                    key={marker.id}
+                    coordinate={marker.points.toGPS()}
+                    image={Platform.OS === 'ios' ? require('../../../assets/images/poi.png') : require('../../../assets/images/poi-x4.png')}
+                    onCalloutPress={() => this.showDialog(marker)}
+                >
+                    <Callout
+                        tooltip={false}
+                    >
+                        <View style={{maxWidth: 170, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff'}}>
+                            <Text style={{color: '#000', fontSize: 12, fontWeight: 'bold'}}>{marker['title']}</Text>
+                        </View>
+                    </Callout>
+                </Marker>
+            )
+        });
+
+        this.cluster.push({
+            type: this.MARKER_TYPE.POI,
+            markers: entities
+        });
+    };
+    private renderSegments = (segments: Array<Segment>, show: boolean, search: string) => {
+        this.cluster = this.cluster.filter((entity) => entity.type !== this.MARKER_TYPE.SEGMENT);
+
+        if(!show || !segments.length) return;
+
+        const markers: Array<any> = [];
+
+        for(let i = 0, list: Array<any> = this.entityFilter(segments, search); i < list.length; i++) {
+            markers.push(list[i]);
+        }
+
+        const entities: Array<any> = [];
+
+        markers.map((marker) => {
+            let color: string = '';
+            switch (marker.status) {
+                case segment_statuses[0].value: {
+                    color = 'blue';
+                    break;
+                }
+                case segment_statuses[1].value: {
+                    color = 'yellow';
+                    break;
+                }
+                case segment_statuses[2].value: {
+                    color = 'orange';
+                    break;
+                }
+                case segment_statuses[3].value: {
+                    color = 'red';
+                    break;
+                }
+                case segment_statuses[4].value: {
+                    color = 'green';
+                    break;
+                }
+                case segment_statuses[5].value: {
+                    color = 'grey';
+                    break;
+                }
+                case segment_statuses[6].value: {
+                    color = 'magenta';
+                    break;
+                }
+            }
+
+            entities.push(
+                <Polyline
+                    key={marker.id}
+                    coordinates={marker.pathList}
+                    strokeWidth={4}
+                    strokeColor={color}
+                    tappable={true}
+                    //  cluster={false}
+                    //  onCalloutPress={() => this.showDialog(marker)}
+                    onPress={() => this.showDialog(marker)}
+                />
+            );
+        });
+
+        this.cluster.push({
+            type: this.MARKER_TYPE.SEGMENT,
+            markers: entities
+        })
+    };
+    private renderParcels = (parcels: Array<Parcel>, show: boolean, search: string) => {
+        this.cluster = this.cluster.filter((entity) => entity.type !== this.MARKER_TYPE.PARCEL);
+
+        if(!show || !parcels.length) return;
 
 
+        const markers: Array<any> = [];
 
-        // if(zoom < 8 && this.props.expanded) {
-        //     console.log('IN IF');
-        //     this.props.callback({status: 'merge'});
-        // } else {
-        //     console.log('IN ELSE IF');
-        //     this.props.callback({status: 'expand'});
-        // }
+        for(let i = 0, list: Array<any> = this.entityFilter(parcels, search); i < list.length; i++) {
+            markers.push(list[i]);
+        }
 
-        // else if(zoom > 6 && this.props.merged) {
-        //     this.props.callback({status: 'expand'});
-        // }
+        const entities: Array<any> = [];
+
+        markers.forEach((marker) => {
+            let color: string = '';
+            switch (marker.status) {
+                case parcel_statuses[0].value: {
+                    color = 'blue';
+                    break;
+                }
+                case parcel_statuses[1].value: {
+                    color = 'green';
+                    break;
+                }
+                case parcel_statuses[2].value: {
+                    color = 'red';
+                    break;
+                }
+            }
+
+            entities.push(
+                <Polygon
+                    key={marker.id}
+                    coordinates={marker.pathList}
+                    strokeWidth={4}
+                    strokeColor={color}
+                    tappable={true}
+                    // onCalloutPress={() => this.showDialog(marker)}
+                    onPress={() => this.showDialog(marker)}
+                />
+            );
+        });
+
+        this.cluster.push({
+            type: this.MARKER_TYPE.PARCEL,
+            markers: entities
+        })
     };
 
-    private relocation = (region, duration) => {
-        this.map.mapRef.animateToRegion(region, duration);
+    private handleAllowToAddPoi = () => {
+        const {project, showDialogContent, showAlert} = this.props;
+
+        if (!project) {
+            return showAlert('Please select Project first');
+        }
+
+        Alert.alert(
+            'POI Location',
+            '',
+            [
+                { text: 'Use GPS',
+                    onPress: async () => {
+                        await this.handleGetLocation();
+
+                        const coordinates = [
+                            this.state.location.longitude,
+                            this.state.location.latitude
+                        ];
+
+                        showDialogContent(
+                            {
+                                content: (
+                                    <EditPoiDialog
+                                        selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
+                                        position={new Geometry(Geometry.TYPE.POINT, coordinates)}
+                                    />
+                                ),
+                                header: (
+                                    <Text>Add poi</Text>
+                                )
+                            }
+                        );
+                    }
+                },
+                { text: 'Choose on map.viewer',
+                    onPress: () => {
+                        this.props.changeControls({
+                            name: 'allowAddPoi',
+                            value: true
+                        });
+                        this.props.changeControls({
+                            name: 'showPois',
+                            value: true
+                        });
+                    }
+                },
+                {
+                    text: 'Cancel',
+                    onPress: () => {
+                        this.props.changeControls({
+                            name: 'allowAddPoi',
+                            value: false
+                        });
+                    },
+                    style: 'cancel',
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
-    private renderCluster = () => {
-        return this.props.cluster.reduce((acc, entity) => [...acc, ...entity.markers], []);
+    private handleMapClick = (e: any) => {
+        const {showDialogContent, allowAddPoi} = this.props;
+
+        if (allowAddPoi) {
+            const coordinate = [
+                e.nativeEvent.coordinate.longitude,
+                e.nativeEvent.coordinate.latitude
+            ];
+            showDialogContent(
+                {
+                    content: (
+                        <EditPoiDialog
+                            selectedItem={new Poi({projectId: this.props.project ? this.props.project.id : -1})}
+                            position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
+                    ),
+                    header: (
+                        <Text>Add poi</Text>
+                    )
+                }
+            )
+        }
+    };
+
+    private handleGetLocation = async () => {
+        let locationResult = null;
+        let {status} = await Permissions.askAsync(Permissions.LOCATION);
+
+        if(status !== 'granted') {
+            locationResult = 'Permission to access location was denied';
+            return this.props.showAlert(locationResult);
+        }
+
+        let location = await Location.getCurrentPositionAsync({
+            enableHighAccuracy: true, timeout: 20000,
+        });
+
+        this.setState({
+            location: {...location.coords},
+            region: {...location.coords, latitudeDelta: 0.1, longitudeDelta: 0.1},
+            shouldUpdate: true,
+            showUserLocation: true,
+            relocate: true,
+        });
+
+        await applyGeoposition(location);
+    };
+
+    private callback = (response: any) => {
+        if(response.cluster) {
+            this.setState({
+                shouldUpdate: true,
+                expandCluster: true,
+                region: {
+                    latitude: response.cluster.coordinate.latitude,
+                    longitude: response.cluster.coordinate.longitude,
+                    latitudeDelta: 0.2,
+                    longitudeDelta: 0.2
+                }
+            });
+        } else if(response.status === 'expand') {
+            this.setState({
+                shouldUpdate: true,
+                expanded: true,
+                merged: false,
+                region: {
+                    ...this.state.region,
+                    latitudeDelta: 0.2,
+                    longitudeDelta: 0.2
+                }
+            })
+        } else if(response.status === 'merge') {
+            this.setState({
+                shouldUpdate: true,
+                merged: true,
+                expanded: false,
+                region: {
+                    ...this.state.region,
+                    latitudeDelta: 0.5,
+                    longitudeDelta: 0.5
+                }
+            })
+        } else if(response.status === 'updated') {
+            this.setState({
+                shouldUpdate: false,
+                expandCluster: false,
+                relocate: false,
+                initialized: true,
+            })
+        }
+    };
+
+    private entityFilter = (list: Array<any>, search: string) => {
+        if(!search) return list;
+        let _list = [];
+        const keys = list.length ? list[0].keys() : [];
+        for (let i = 0; i < list.length; i++) {
+            const el: any = list[i];
+            if(search) {
+                let isInSearch = false;
+                for(let j = 0; j < keys.length; j++) {
+                    const val = el[keys[j]];
+                    if(val && val.toString().toLowerCase().match(search.toLowerCase())) {
+                        isInSearch = true;
+                        break;
+                    }
+                }
+                if (!isInSearch) continue;
+            }
+            _list.push(el);
+        }
+        return _list;
     };
 
     render() {
-        const {showUserLocation, region, location} = this.props;
         return (
-            <View style={{flex: 1, position: 'relative'}}>
-                <View style={[localStyles.layer, this.state.layers.expanded.isReady ? localStyles.visible : localStyles.hidden]}>
-                    {
-                        this.props.expanded ? (
-                            <ClusterMap
-                                provider={PROVIDER_GOOGLE}
-                                region={{...region}}
-                                ref={ref => this.map = ref}
-                                onMapReady={() => {
-                                    setTimeout(() => {
-                                        this.setState({
-                                            layers: {
-                                                expanded: {
-                                                    isReady: true
-                                                },
-                                                merged: {
-                                                    isReady: false
-                                                }
-                                            },
-                                        })
-                                    }, 10)
-                                }}
-
-                                onPress={(event) => this.props.onMapClick(event)}
-                                superClusterOptions={{...this.state.options}}
-                                priorityMarker={
-                                    showUserLocation ? (
-                                        <Marker
-                                            key={Date.now()}
-                                            coordinate={{...location}}
-                                            image={Platform.OS === 'ios' ? require('../../../assets/images/location.png') : require('../../../assets/images/location-x4.png')}
-                                        />
-                                    ) : null
-                                }
-                                onZoomChange={(zoom) => this.mergeCluster(zoom)}
-                                // onClusterClick={(cluster) => this.expandCluster(cluster)}
-                            >
-                                {
-                                    this.props.cluster.length ? (
-                                        this.renderCluster()
-                                    ) : null
-                                }
-                            </ClusterMap>
-                        ) : null
-                    }
-                </View>
+            <View style={{flex: 1}}>
                 {
-                    this.state.mapSnapshot ? (
-                        <Image style={[localStyles.layer,localStyles.underlay]} source={{ uri: this.state.mapSnapshot.uri }} />
+                    !this.props.isDrawerOpen && this.state.region ? (
+                        <View style={{flex: 1}}>
+                            <MapViewer {...this.state}
+                                       cluster={this.cluster}
+                                       onMapClick={this.handleMapClick}
+                                       callback={this.callback}
+                            />
+                            <TouchableOpacity style={localStyles.location} onPress={() => this.handleGetLocation}>
+                                <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={24} color={COLORS.SECONDARY} style={localStyles.icon}/>
+                            </TouchableOpacity>
+                            <FabButton
+                                style={localStyles.button}
+                                onPress={this.handleAllowToAddPoi}
+                            />
+                            <View style={[localStyles.tooltip, this.props.allowAddPoi ? localStyles.visible : localStyles.hidden]}>
+                                <Text style={localStyles.message}>Click on the map to set the location</Text>
+                            </View>
+                        </View>
                     ) : null
                 }
-                <View style={[localStyles.layer, this.state.layers.merged.isReady ? localStyles.visible : localStyles.hidden]}>
-                    {
-                        this.props.merged ? (
-                            <ClusterMap
-                                provider={PROVIDER_GOOGLE}
-                                region={{...region}}
-                                ref={ref => this.map = ref}
-                                onPress={(event) => this.props.onMapClick(event)}
-                                superClusterOptions={{...this.props.options}}
-                                onMapReady={() => {
-                                    setTimeout(() => {
-                                        this.setState({
-                                            layers: {
-                                                expanded: {
-                                                    isReady: false
-                                                },
-                                                merged: {
-                                                    isReady: true
-                                                }
-                                            },
-                                        })
-                                    }, 10)
-                                }}
-                                priorityMarker={
-                                    showUserLocation ? (
-                                        <Marker
-                                            key={Date.now()}
-                                            coordinate={{...location}}
-                                            image={Platform.OS === 'ios' ? require('../../../assets/images/location.png') : require('../../../assets/images/location-x4.png')}
-                                        />
-                                    ) : null
-                                }
-                                onZoomChange={(zoom) => this.mergeCluster(zoom)}
-                                onClusterClick={(cluster) => this.expandCluster(cluster)}
-                            >
-                                {
-                                    this.props.cluster.length ? (
-                                        this.renderCluster()
-                                    ) : null
-                                }
-                            </ClusterMap>
-                        ) : null
-                    }
-                </View>
-
-
-                {/*{*/}
-                {/*    this.props.expanded ? (*/}
-                {/*        <View style={{flex: 1}}>*/}
-                {/*            <ClusterMap*/}
-                {/*                // onRegionChangeComplete={(region) => console.log('REGION WHEN COMPLETE', region)}*/}
-                {/*                provider={PROVIDER_GOOGLE}*/}
-                {/*                region={{...region}}*/}
-                {/*                ref={ref => this.map = ref}*/}
-                {/*                onMapReady={() => console.log('EXPANDED READY')}*/}
-                {/*                onPress={(event) => this.props.onMapClick(event)}*/}
-                {/*                superClusterOptions={{...this.state.options}}*/}
-                {/*                priorityMarker={*/}
-                {/*                    showUserLocation ? (*/}
-                {/*                        <Marker*/}
-                {/*                            key={Date.now()}*/}
-                {/*                            coordinate={{...location}}*/}
-                {/*                            image={Platform.OS === 'ios' ? require('../../../assets/images/location.png') : require('../../../assets/images/location-x4.png')}*/}
-                {/*                        />*/}
-                {/*                    ) : null*/}
-                {/*                }*/}
-                {/*                onZoomChange={(zoom) => this.mergeCluster(zoom)}*/}
-                {/*                // onClusterClick={(cluster) => this.expandCluster(cluster)}*/}
-                {/*            >*/}
-                {/*                {*/}
-                {/*                    this.props.cluster.length ? (*/}
-                {/*                        this.renderCluster()*/}
-                {/*                    ) : null*/}
-                {/*                }*/}
-                {/*            </ClusterMap>*/}
-                {/*        </View>*/}
-                {/*    ) : (*/}
-                {/*        <React.Fragment>*/}
-                {/*            <ClusterMap*/}
-                {/*                // onRegionChangeComplete={(region) => console.log('REGION WHEN COMPLETE', region)}*/}
-                {/*                provider={PROVIDER_GOOGLE}*/}
-                {/*                region={{...region}}*/}
-                {/*                ref={ref => this.map = ref}*/}
-                {/*                onPress={(event) => this.props.onMapClick(event)}*/}
-                {/*                superClusterOptions={{...this.props.options}}*/}
-                {/*                onMapReady={() => console.log('MERGED READY')}*/}
-                {/*                priorityMarker={*/}
-                {/*                    showUserLocation ? (*/}
-                {/*                        <Marker*/}
-                {/*                            key={Date.now()}*/}
-                {/*                            coordinate={{...location}}*/}
-                {/*                            image={Platform.OS === 'ios' ? require('../../../assets/images/location.png') : require('../../../assets/images/location-x4.png')}*/}
-                {/*                        />*/}
-                {/*                    ) : null*/}
-                {/*                }*/}
-                {/*                onZoomChange={(zoom) => this.mergeCluster(zoom)}*/}
-                {/*                onClusterClick={(cluster) => this.expandCluster(cluster)}*/}
-                {/*            >*/}
-                {/*                {*/}
-                {/*                    this.props.cluster.length ? (*/}
-                {/*                        this.renderCluster()*/}
-                {/*                    ) : null*/}
-                {/*                }*/}
-                {/*            </ClusterMap>*/}
-                {/*        </React.Fragment>*/}
-                {/*    )*/}
-                {/*}*/}
-                <React.Fragment>
-                    <TouchableOpacity style={localStyles.location} onPress={() => this.props.onGetLocation()}>
-                        <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={24} color={COLORS.SECONDARY} style={localStyles.icon}/>
-                    </TouchableOpacity>
-                    <FabButton
-                        style={localStyles.button}
-                        onPress={this.props.onAllowAddPoi}
-                    />
-                    {
-                        this.props.allowAddPoi ? (
-                            <View style={localStyles.allowAddPoi}>
-                                <Text style={localStyles.allowAddPoiText}>Click on the map to set the location</Text>
-                            </View>
-                        ) : null
-                    }
-                </React.Fragment>
             </View>
         )
     }
@@ -478,25 +738,6 @@ const localStyles = StyleSheet.create({
         shadowOffset: {height: 10, width: 0},
         shadowRadius: 20
     },
-    layer: {
-        width: '100%',
-        height: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-    },
-    hidden: {
-        zIndex: -1,
-        opacity: 0
-    },
-    visible: {
-        zIndex: 5,
-        opacity: 1
-    },
-    underlay: {
-        zIndex: 2,
-        opacity: 1,
-    },
     button: {
         position: 'absolute',
         bottom: 20,
@@ -507,7 +748,7 @@ const localStyles = StyleSheet.create({
         color: COLORS.SECONDARY,
         height: 24,
     },
-    allowAddPoi: {
+    tooltip: {
         width: Dimensions.get('window').width-20,
         position: 'absolute',
         top: 140,
@@ -517,21 +758,59 @@ const localStyles = StyleSheet.create({
         backgroundColor: 'white',
         textAlign: 'center',
     },
-    allowAddPoiText: {
+    hidden: {
+        zIndex: -1,
+        opacity: 0
+    },
+    visible: {
+        zIndex: 20,
+        opacity: 1
+    },
+    message: {
         color: COLORS.PRIMARY,
     },
 });
 
+
 const mapStateToProps = (state: any) => ({
-    // allowAddPoi: state[moduleName].allowAddPoi,
-    // connection: connectionSelector(state),
+    connection: connectionSelector(state),
+    isDrawerOpen: drawerStateSelector(state),
+    mapCenter: state[moduleName].mapCenter,
+    selected_powerlines: powerlineSelector(state),
+    dateFilter: state[moduleName].dateFilter,
+    project: locationSelector(state),
+    allowAddPoi: state[moduleName].allowAddPoi,
+
+    stations: locationStationsSelector(state),
+    showStations: state[moduleName].showStations,
+    stationList: state[moduleName].stationList,
+
+    poles: locationPolesSelector(state),
+    showPoles: state[moduleName].showPoles,
+    polesList: state[moduleName].polesList,
+
+    parcels: locationParcelsSelector(state),
+    showParcels: state[moduleName].showParcels,
+    parcelList: state[moduleName].parcelList,
+
+    segments: locationSegmentsSelector(state),
+    showSegments: state[moduleName].showSegments,
+    segmentList: state[moduleName].segmentList,
+
+    pois: locationPoisSelector(state),
+    showPois: state[moduleName].showPois,
+    poiList: state[moduleName].poiList,
+
+    search: searchSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
-        // showAlert,
-        // fetchCategories,
-        // fetchCategoriesOffline,
+        showDialogContent,
+        showAlert,
+        changeControls,
+        fetchCategories,
+        fetchCategoriesOffline,
     }, dispatch)
 );
 

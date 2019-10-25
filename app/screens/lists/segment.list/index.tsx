@@ -52,10 +52,10 @@ export default list;
 // import Icon from "react-native-vector-icons/Ionicons";
 // import {CirclesLoader} from 'react-native-indicator';
 // import {COLORS} from "../../../styles/colors";
-// import {locationSegmentsSelector, moduleName} from "../../../redux/modules/map";
+// import {locationSegmentsSelector, moduleName} from "../../../redux/modules/map.viewer";
 // import {searchSelector} from "../../../redux/modules/auth";
 // import {showDialogContent} from "../../../redux/modules/dialogs";
-// import EditSegmentDialog from '../../map/dialogs/edit.segment';
+// import EditSegmentDialog from '../../map.viewer/dialogs/edit.segment';
 //
 //
 // interface IMapProps {

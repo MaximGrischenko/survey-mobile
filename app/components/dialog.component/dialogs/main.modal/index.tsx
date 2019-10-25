@@ -36,6 +36,7 @@ interface IMapProps {
     editItemOffline: Function,
     onDeleteItem: Function,
     onAddItem: Function,
+    onAddItemOffline: Function,
     setDialogSaveButton: Function,
     setDialogDeleteButton: Function,
     showAlert: Function,

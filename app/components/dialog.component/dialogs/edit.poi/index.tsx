@@ -18,7 +18,7 @@ import {
     showAlert,
     showDialogContent
 } from "../../../../redux/modules/dialogs";
-import {addPoi, editPoi, editPoiOffline, removePoi} from "../../../../redux/modules/map/poi";
+import {addPoi, addPoiOffline, editPoi, editPoiOffline, removePoi} from "../../../../redux/modules/map/poi";
 import {connectionSelector} from "../../../../redux/modules/connect";
 
 class EditPoiDialog extends MainModalDialog {
@@ -50,11 +50,20 @@ class EditPoiDialog extends MainModalDialog {
                 }
             } else {
                 let position = this.props.position;
-                this.props.onAddItem({
-                    ...this.state,
-                    points: position,
-                    projectId: this.props.location.id
-                });
+                if(this.props.connection) {
+                    this.props.onAddItemOffline({
+                        ...this.state,
+                        points: position,
+                        projectId: this.props.location.id
+                    });
+
+                }
+                //TODO ONLINE MODE
+                // this.props.onAddItem({
+                //     ...this.state,
+                //     points: position,
+                //     projectId: this.props.location.id
+                // });
                 this.props.changeControls({
                     name: 'allowAddPoi',
                     value: false
@@ -102,6 +111,7 @@ const mapDispatchToProps = (dispatch: any) => (
         editItemOffline: editPoiOffline,
         onDeleteItem: removePoi,
         onAddItem: addPoi,
+        onAddItemOffline: addPoiOffline
     }, dispatch)
 );
 

@@ -10,8 +10,10 @@ import {FETCH_POWERLINES_OFFLINE_REQUEST} from "./powerlines";
 import {DBAdapter} from "../../../utils/database";
 import {EDIT_POLE_SUCCESS} from "./poles";
 
+export const ADD_POI_OFFLINE = `${appName}/${moduleName}/ADD_POI_OFFLINE`;
 export const ADD_POI = `${appName}/${moduleName}/ADD_POI`;
 export const ADD_POI_REQUEST = `${appName}/${moduleName}/ADD_POI_REQUEST`;
+export const ADD_POI_OFFLINE_REQUEST = `${appName}/${moduleName}/ADD_POI_OFFLINE_REQUEST`;
 export const ADD_POI_ERROR = `${appName}/${moduleName}/ADD_POI_ERROR`;
 export const ADD_POI_SUCCESS = `${appName}/${moduleName}/ADD_POI_SUCCESS`;
 
@@ -23,11 +25,13 @@ export const FETCH_POIS_OFFLINE_REQUEST = `${appName}/${moduleName}/FETCH_POIS_O
 export const FETCH_LOCATION_POIS_ERROR = `${appName}/${moduleName}/FETCH_LOCATION_POIS_ERROR`;
 export const FETCH_LOCATION_POIS_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATION_POIS_SUCCESS`;
 
-
+export const DELETE_POI_OFFLINE = `${appName}/${moduleName}/DELETE_POI_OFFLINE`;
+export const POI_DELETE = `${appName}/${moduleName}/POI_DELETE`;
 export const DELETE_POI_REQUEST = `${appName}/${moduleName}/DELETE_POI_REQUEST`;
+export const DELETE_POI_OFFLINE_REQUEST = `${appName}/${moduleName}/DELETE_POI_OFFLINE_REQUEST`;
 export const DELETE_POI_ERROR = `${appName}/${moduleName}/DELETE_POI_ERROR`;
 export const POI_DELETE_SUCCESS = `${appName}/${moduleName}/POI_DELETE_SUCCESS`;
-export const POI_DELETE = `${appName}/${moduleName}/POI_DELETE`;
+
 
 export const EDIT_POI_REQUEST = `${appName}/${moduleName}/EDIT_POI_REQUEST`;
 export const EDIT_POI_OFFLINE_REQUEST = `${appName}/${moduleName}/EDIT_POI_OFFLINE_REQUEST`;
@@ -57,11 +61,25 @@ export function addPoi(data: any) {
     };
 }
 
+export function addPoiOffline(data: any) {
+    return {
+        type: ADD_POI_OFFLINE,
+        payload: data
+    }
+}
+
 export function removePoi(data: any) {
     return {
         type: POI_DELETE,
         payload: data
     };
+}
+
+export function removePoiOffline(data: any) {
+    return {
+        type: DELETE_POI_OFFLINE,
+        payload: data
+    }
 }
 
 export function editPoi(data: any) {
@@ -133,6 +151,76 @@ export const fetchLocationPoiSaga = function* (action: any) {
     }
 };
 
+export const addPoiOfflineSaga = function* ({payload}: any) {
+    console.log('PAYLOAD', payload);
+    try {
+        yield put({
+            type: ADD_POI_OFFLINE_REQUEST
+        });
+
+        const insert = `INSERT INTO pois (
+            title,
+            description,
+            points,
+            comment, 
+            status,
+            userId,
+            projectId,
+            categoryId,
+            createdAt,
+            updatedAt,
+            deletedAt) VALUES (
+            "${escape(payload.title)}", 
+            "${escape(payload.description)}", 
+            "${escape(JSON.stringify(payload.points))}",
+            "${escape(payload.comment)}",
+            ${payload.status}, 
+            ${payload.userId}, 
+            ${payload.projectId}, 
+            ${payload.categoryId},
+            ${Date.now()}, 
+            ${Date.now()}, 
+            ${null}
+        )`;
+
+
+        console.log('INSERT QUERY', insert);
+
+        const select = `SELECT * FROM pois WHERE id = (SELECT last_insert_rowid())`;
+
+        const res = yield call(async () => {
+            return await DBAdapter.setRows(insert, select);
+        });
+
+        console.log('RESPONSE', res);
+
+        let data = {};
+
+        res.rows._array.forEach((el) => {
+            data = {
+                ...el,
+                title: unescape(el.title),
+                description: unescape(el.description),
+                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                points: JSON.parse(unescape(el.points))
+            };
+        });
+
+        console.log('DATA', data);
+
+        yield put({
+            type: ADD_POI_SUCCESS,
+            payload: data
+        })
+    } catch (error) {
+        console.log('ERRR', error);
+        yield put({
+            type: ADD_POI_ERROR,
+            error: error.message,
+        })
+    }
+};
+
 export const addPoiSaga = function* (action: any) {
     try {
         yield put({
@@ -152,6 +240,24 @@ export const addPoiSaga = function* (action: any) {
             type: ADD_POI_ERROR,
             error: error.response.data.message,
         });
+    }
+};
+
+export const removePoiOfflineSaga = function* (action: any) {
+    try {
+        yield put({
+            type: DELETE_POI_OFFLINE,
+        });
+
+        yield put({
+            type: POI_DELETE_SUCCESS,
+            payload: action.payload
+        })
+    } catch (error) {
+        yield put({
+            type: DELETE_POI_ERROR,
+            error: error.message,
+        })
     }
 };
 
