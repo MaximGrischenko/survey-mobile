@@ -4,8 +4,8 @@ import {SQLite} from "expo-sqlite";
 import {WebSQLDatabase} from "expo-sqlite/build/SQLite";
 import {API} from "../../config";
 import {Powerline, Project} from "../../entities";
-import PromisePiper from '../promise.piper';
-import {Observer, Emitter} from "./interfaces";
+import PromisePiper from '../../utils/promise.piper/index';
+import {Observer, Emitter} from "../../utils/interfaces";
 
 export interface IAdapter {
     initDB(): void;
@@ -685,10 +685,10 @@ export class DBAdapter implements IAdapter {
     private sync = (table) => {
         return new Promise((resolve, reject) => {
             const offsets = [];
-            for(let i = 0; i < this.LIMIT_TO_LOAD; i+=1000) {
+            for(let i = 0; i < 500; i+=100) {
                 offsets.push(i);
             }
-
+            console.log(offsets);
             const axiosPiper = new PromisePiper();
             offsets.map((offset) => {
                 axiosPiper.pipe((resolveAxiosWorker, rejectAxiosWorker) => {

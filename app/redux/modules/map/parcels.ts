@@ -7,8 +7,8 @@ import {
     moduleName,
     LIMIT_TO_LOAD
 } from './config';
-import {FETCH_LOCATIONS_OFFLINE_REQUEST} from "./locations";
-import {DBAdapter} from "../../../utils/database";
+import {DBAdapter} from "../../../sync/database";
+import {AsyncStorage} from "react-native";
 
 export const ADD_PARCElS = `${appName}/${moduleName}/ADD_PARCElS`;
 export const ADD_PARCElS_REQUEST = `${appName}/${moduleName}/ADD_PARCElS_REQUEST`;
@@ -22,14 +22,12 @@ export const EDIT_PARCEL_OFFLINE_REQUEST = `${appName}/${moduleName}/EDIT_PARCEL
 export const EDIT_PARCElS_ERROR = `${appName}/${moduleName}/EDIT_PARCElS_ERROR`;
 export const EDIT_PARCElS_SUCCESS = `${appName}/${moduleName}/EDIT_PARCElS_SUCCESS`;
 
-
 export const FETCH_PARCELS_OFFLINE = `${appName}/${moduleName}/FETCH_PARCELS_OFFLINE`;
 export const FETCH_LOCATION_PARCElS = `${appName}/${moduleName}/FETCH_LOCATION_PARCElS`;
 export const FETCH_LOCATION_PARCElS_REQUEST = `${appName}/${moduleName}/FETCH_LOCATION_PARCElS_REQUEST`;
 export const FETCH_PARCELS_OFFLINE_REQUEST = `${appName}/${moduleName}/FETCH_PARCELS_OFFLINE_REQUEST`;
 export const FETCH_LOCATION_PARCElS_ERROR = `${appName}/${moduleName}/FETCH_LOCATION_PARCElS_ERROR`;
 export const FETCH_LOCATION_PARCElS_SUCCESS = `${appName}/${moduleName}/FETCH_LOCATION_PARCElS_SUCCESS`;
-
 
 export const DELETE_PARCElS = `${appName}/${moduleName}/DELETE_PARCElS`;
 export const DELETE_LOCATION_PARCElS = `${appName}/${moduleName}/DELETE_LOCATION_PARCElS`;
@@ -87,9 +85,9 @@ export const fetchParcelsOfflineSaga = function* (action: any) {
         });
 
         const query = `SELECT * FROM parcels WHERE powerLineId = ${action.payload.powerLineId}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.getRows(query);
+            return await dbAdapter.select(query);
         });
 
         const data = [];
@@ -197,7 +195,7 @@ export const editParcelOfflineSaga = function* ({payload}: any) {
         yield put({
             type: EDIT_PARCEL_OFFLINE_REQUEST
         });
-        const update = `UPDATE parcels SET
+        const insert = `UPDATE parcels SET
             title = "${escape(payload.title)}",
             wojewodztw = "${escape(payload.wojewodztw)}",
             numer = "${escape(payload.numer)}",
@@ -207,13 +205,12 @@ export const editParcelOfflineSaga = function* ({payload}: any) {
             WHERE id = ${payload.id}`;
 
         const select = `SELECT * FROM parcels WHERE id = ${payload.id}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.setRows(update, select);
+            return await dbAdapter.insert(insert, select);
         });
 
         let data = {};
-
         res.rows._array.forEach((el) => {
             data = {
                 ...el,
@@ -226,7 +223,29 @@ export const editParcelOfflineSaga = function* ({payload}: any) {
             };
         });
 
-        console.log('DATA', data);
+        const update = {
+            type: 'parcel',
+            action: 'edit',
+            data: {
+                ...data
+            }
+        };
+        const stored = yield call(async () => {
+            return await AsyncStorage.getItem('updates');
+        });
+        if(!stored) {
+            const updates = [];
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        } else {
+            const updates = JSON.parse(stored);
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        }
 
         yield put({
             type: EDIT_PARCElS_SUCCESS,

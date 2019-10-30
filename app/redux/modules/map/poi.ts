@@ -1,14 +1,9 @@
 import axios from "react-native-axios";
 import {API, appName} from "../../../config";
-
 import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
-import {
-    LIMIT_TO_LOAD,
-    moduleName,
-} from './config';
-import {FETCH_POWERLINES_OFFLINE_REQUEST} from "./powerlines";
-import {DBAdapter} from "../../../utils/database";
-import {EDIT_POLE_SUCCESS} from "./poles";
+import {LIMIT_TO_LOAD, moduleName} from './config';
+import {DBAdapter} from "../../../sync/database";
+import {AsyncStorage} from "react-native";
 
 export const ADD_POI_OFFLINE = `${appName}/${moduleName}/ADD_POI_OFFLINE`;
 export const ADD_POI = `${appName}/${moduleName}/ADD_POI`;
@@ -16,7 +11,6 @@ export const ADD_POI_REQUEST = `${appName}/${moduleName}/ADD_POI_REQUEST`;
 export const ADD_POI_OFFLINE_REQUEST = `${appName}/${moduleName}/ADD_POI_OFFLINE_REQUEST`;
 export const ADD_POI_ERROR = `${appName}/${moduleName}/ADD_POI_ERROR`;
 export const ADD_POI_SUCCESS = `${appName}/${moduleName}/ADD_POI_SUCCESS`;
-
 
 export const FETCH_POIS_OFFLINE = `${appName}/${moduleName}/FETCH_POIS_OFFLINE`;
 export const FETCH_LOCATION_POIS = `${appName}/${moduleName}/FETCH_LOCATION_POIS`;
@@ -102,9 +96,9 @@ export const fetchPoiOfflineSaga = function* (action: any) {
             type: FETCH_POIS_OFFLINE_REQUEST
         });
         const query = `SELECT * FROM pois WHERE ProjectId = ${action.payload.id}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.getRows(query);
+            return await dbAdapter.select(query);
         });
 
         const data = [];
@@ -132,6 +126,7 @@ export const fetchPoiOfflineSaga = function* (action: any) {
 
 export const fetchLocationPoiSaga = function* (action: any) {
     try {
+        console.log('===IN FETCH LOCATION POI SAGA===');
         yield put({
             type: FETCH_LOCATION_POIS_REQUEST,
         });
@@ -139,6 +134,7 @@ export const fetchLocationPoiSaga = function* (action: any) {
                 return axios.get(`${API}api/projects/${action.payload.id}/poi?limit=${LIMIT_TO_LOAD}`);
             },
         );
+        console.log('res data rows length', res.data.rows.length);
         yield put({
             type: FETCH_LOCATION_POIS_SUCCESS,
             payload: res.data.rows
@@ -152,29 +148,29 @@ export const fetchLocationPoiSaga = function* (action: any) {
 };
 
 export const addPoiOfflineSaga = function* ({payload}: any) {
-    console.log('PAYLOAD', payload);
     try {
         yield put({
             type: ADD_POI_OFFLINE_REQUEST
         });
 
+        let id = new Date().getTime();
+        id = id & 0xffffffff;
+
         const insert = `INSERT INTO pois (
+            id,
             title,
-            description,
             points,
-            comment, 
-            status,
+            comment,
             userId,
             projectId,
             categoryId,
             createdAt,
             updatedAt,
             deletedAt) VALUES (
+            ${id},
             "${escape(payload.title)}", 
-            "${escape(payload.description)}", 
             "${escape(JSON.stringify(payload.points))}",
-            "${escape(payload.comment)}",
-            ${payload.status}, 
+            "${escape(payload.comment)}", 
             ${payload.userId}, 
             ${payload.projectId}, 
             ${payload.categoryId},
@@ -183,37 +179,52 @@ export const addPoiOfflineSaga = function* ({payload}: any) {
             ${null}
         )`;
 
-
-        console.log('INSERT QUERY', insert);
-
-        const select = `SELECT * FROM pois WHERE id = (SELECT last_insert_rowid())`;
-
+        const select = `SELECT * FROM pois WHERE id = ${id}`;
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.setRows(insert, select);
+            return await dbAdapter.insert(insert, select);
         });
 
-        console.log('RESPONSE', res);
-
         let data = {};
-
         res.rows._array.forEach((el) => {
             data = {
                 ...el,
                 title: unescape(el.title),
                 description: unescape(el.description),
-                comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                comment: unescape(el.comment) === 'undefined' ? '' : unescape(el.comment),
                 points: JSON.parse(unescape(el.points))
             };
         });
 
-        console.log('DATA', data);
+        const update = {
+            type: 'poi',
+            action: 'add',
+            data: {
+                ...data
+            }
+        };
+        const stored = yield call(async () => {
+            return await AsyncStorage.getItem('updates');
+        });
+        if(!stored) {
+            const updates = [];
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        } else {
+            const updates = JSON.parse(stored);
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        }
 
         yield put({
             type: ADD_POI_SUCCESS,
             payload: data
         })
     } catch (error) {
-        console.log('ERRR', error);
         yield put({
             type: ADD_POI_ERROR,
             error: error.message,
@@ -246,9 +257,38 @@ export const addPoiSaga = function* (action: any) {
 export const removePoiOfflineSaga = function* (action: any) {
     try {
         yield put({
-            type: DELETE_POI_OFFLINE,
+            type: DELETE_POI_OFFLINE_REQUEST,
         });
 
+        const clear = `DELETE FROM pois WHERE id = ${action.payload.id}`;
+        const dbAdapter = DBAdapter.getInstance();
+        const res = yield call(async () => {
+            return await dbAdapter.clear(clear);
+        });
+
+        const update = {
+            type: 'poi',
+            action: 'remove',
+            data: {
+                ...action.payload
+            }
+        };
+        const stored = yield call(async () => {
+            return await AsyncStorage.getItem('updates');
+        });
+        if(!stored) {
+            const updates = [];
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        } else {
+            const updates = JSON.parse(stored);
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        }
         yield put({
             type: POI_DELETE_SUCCESS,
             payload: action.payload
@@ -285,6 +325,7 @@ export const removePoiSaga = function* (action: any) {
 
 export const editPoiSaga = function* (action: any) {
     try {
+        console.log('EDIT PAYLOAD', action.payload);
         yield put({
             type: EDIT_POI_REQUEST,
         });
@@ -311,7 +352,7 @@ export const editPoiOfflineSaga = function* ({payload}: any) {
             type: EDIT_POI_OFFLINE_REQUEST
         });
 
-        const update = `UPDATE pois SET
+        const insert = `UPDATE pois SET
             title = "${escape(payload.title)}",
             description = "${escape(payload.description)}",
             projectId = "${payload.projectId}",
@@ -321,13 +362,12 @@ export const editPoiOfflineSaga = function* ({payload}: any) {
             WHERE id = ${payload.id}`;
 
         const select = `SELECT * FROM pois WHERE id = ${payload.id}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.setRows(update, select);
+            return await dbAdapter.insert(insert, select);
         });
 
         let data = {};
-
         res.rows._array.forEach((el) => {
             data = {
                 ...el,
@@ -339,6 +379,31 @@ export const editPoiOfflineSaga = function* ({payload}: any) {
                 points: JSON.parse(unescape(el.points))
             };
         });
+
+        const update = {
+            type: 'poi',
+            action: 'edit',
+            data: {
+                ...data
+            }
+        };
+        const stored = yield call(async () => {
+            return await AsyncStorage.getItem('updates');
+        });
+        if(!stored) {
+            const updates = [];
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        } else {
+            const updates = JSON.parse(stored);
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        }
+
         yield put({
             type: POI_EDIT_SUCCESS,
             payload: data

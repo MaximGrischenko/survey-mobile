@@ -4,8 +4,8 @@ import {SQLite} from "expo-sqlite";
 import {WebSQLDatabase} from "expo-sqlite/build/SQLite";
 import {API} from "../../config";
 import {Powerline, Project} from "../../entities";
-import PromisePiper from '../promise.piper';
-import {Observer, Emitter} from "./interfaces";
+import PromisePiper from '../../utils/promise.piper/index';
+import {Observer, Emitter} from "../../utils/interfaces";
 
 export interface IAdapter {
     initDB(): void;

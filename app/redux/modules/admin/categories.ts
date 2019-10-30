@@ -5,7 +5,7 @@ import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
 import {
     moduleName,
 } from './config';
-import {DBAdapter} from "../../../utils/database";
+import {DBAdapter} from "../../../sync/database";
 
 export const ADD_CATEGORY = `${appName}/${moduleName}/ADD_CATEGORY`;
 export const ADD_CATEGORY_REQUEST = `${appName}/${moduleName}/ADD_CATEGORY_REQUEST`;
@@ -72,9 +72,9 @@ export const fetchCategoriesOfflineSaga = function* ({payload}: any) {
             type: FETCH_CATEGORYIES_OFFLINE_REQUEST,
         });
         const query = `SELECT * FROM categories`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.getRows(query);
+            return await dbAdapter.select(query);
         });
         const data = [];
         res.rows._array.forEach((el) => {

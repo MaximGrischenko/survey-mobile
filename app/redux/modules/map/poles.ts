@@ -7,16 +7,8 @@ import {
     moduleName,
 } from './config';
 
-import {
-    DELETE_SEGMENTS_ERROR,
-    DELETE_SEGMENTS_REQUEST,
-    DELETE_SEGMENTS_SUCCESS,
-    EDIT_SEGMENTS_ERROR,
-    EDIT_SEGMENTS_REQUEST,
-    EDIT_SEGMENTS_SUCCESS
-} from "./segments";
-import {FETCH_LOCATION_PARCElS_ERROR, FETCH_LOCATION_PARCElS_SUCCESS, FETCH_PARCELS_OFFLINE_REQUEST} from "./parcels";
-import {DBAdapter} from "../../../utils/database";
+import {DBAdapter} from "../../../sync/database";
+import {AsyncStorage} from "react-native";
 
 export const ADD_POLE = `${appName}/${moduleName}/ADD_POLE`;
 export const ADD_POLE_REQUEST = `${appName}/${moduleName}/ADD_POLE_REQUEST`;
@@ -93,9 +85,9 @@ export const fetchPolesOfflineSaga = function* (action: any) {
             type: FETCH_POLES_OFFLINE_REQUEST,
         });
         const query = `SELECT * FROM poles WHERE powerLineId = ${action.payload.powerLineId}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.getRows(query);
+            return await dbAdapter.select(query);
         });
 
         const data = [];
@@ -195,7 +187,7 @@ export const editPoleOfflineSaga = function* ({payload}: any) {
             type: EDIT_POLE_OFFLINE_REQUEST
         });
 
-        const update = `UPDATE poles SET
+        const insert = `UPDATE poles SET
             title = "${escape(payload.title)}",
             num_slup = "${escape(payload.num_slup)}",
             powerLineId = "${payload.powerLineId}",
@@ -204,13 +196,12 @@ export const editPoleOfflineSaga = function* ({payload}: any) {
             WHERE id = ${payload.id}`;
 
         const select = `SELECT * FROM poles WHERE id = ${payload.id}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.setRows(update, select);
+            return await dbAdapter.insert(insert, select);
         });
 
         let data = {};
-
         res.rows._array.forEach((el) => {
             data = {
                 ...el,
@@ -221,6 +212,31 @@ export const editPoleOfflineSaga = function* ({payload}: any) {
                 points: JSON.parse(unescape(el.points))
             };
         });
+
+        const update = {
+            type: 'pole',
+            action: 'edit',
+            data: {
+                ...data
+            }
+        };
+        const stored = yield call(async () => {
+            return await AsyncStorage.getItem('updates');
+        });
+        if(!stored) {
+            const updates = [];
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        } else {
+            const updates = JSON.parse(stored);
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        }
+
         yield put({
             type: EDIT_POLE_SUCCESS,
             payload: data

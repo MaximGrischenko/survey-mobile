@@ -5,8 +5,7 @@ import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
 import {
     moduleName,
 } from './config';
-import {DBAdapter} from "../../../utils/database";
-
+import {DBAdapter} from "../../../sync/database";
 
 export const FETCH_LOCATIONS = `${appName}/${moduleName}/FETCH_LOCATIONS`;
 export const FETCH_LOCATIONS_REQUEST = `${appName}/${moduleName}/FETCH_LOCATIONS_REQUEST`;
@@ -22,7 +21,6 @@ export const ADD_LOCATIONS_ERROR = `${appName}/${moduleName}/ADD_LOCATIONS_ERROR
 export const ADD_LOCATIONS_SUCCESS = `${appName}/${moduleName}/ADD_LOCATIONS_SUCCESS`;
 export const SELECT_LOCATION = `${appName}/${moduleName}/SELECT_LOCATION`;
 export const SELECT_LOCATION_SUCCESS = `${appName}/${moduleName}/SELECT_LOCATION_SUCCESS`;
-
 
 export function fetchLocations() {
     return {
@@ -78,9 +76,9 @@ export const fetchLocationsOfflineSaga = function* (action: any) {
         });
 
         const query = 'SELECT * FROM projects';
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.getRows(query);
+            return await dbAdapter.select(query);
         });
         const data = [];
         res.rows._array.forEach((el) => {

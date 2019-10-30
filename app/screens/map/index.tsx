@@ -12,7 +12,7 @@ import {
     Dimensions
 } from "react-native";
 import {
-    applyGeoposition,
+    applyGEOPosition,
     changeControls,
     drawerStateSelector,
     locationParcelsSelector,
@@ -156,7 +156,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                 location: {...GEOPosition.coords},
                 showUserLocation: true
             });
-            await applyGeoposition(location);
+            await applyGEOPosition(location);
         }
 
         await this.setState({
@@ -529,12 +529,25 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
             [
                 { text: 'Use GPS',
                     onPress: async () => {
-                        await this.handleGetLocation();
 
-                        const coordinates = [
-                            this.state.location.longitude,
-                            this.state.location.latitude
-                        ];
+                        let coordinates = [];
+
+                        if(this.props.connection) {
+                            await this.handleGetLocation();
+                            coordinates = [
+                                this.state.location.longitude,
+                                this.state.location.latitude
+                            ];
+                        } else {
+                            let location = await AsyncStorage.getItem('location');
+                            if(location) {
+                                const GEOPosition = JSON.parse(location);
+                                coordinates = [
+                                    GEOPosition.coords.longitude,
+                                    GEOPosition.coords.latitude
+                                ];
+                            }
+                        }
 
                         showDialogContent(
                             {
@@ -551,7 +564,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                         );
                     }
                 },
-                { text: 'Choose on map.viewer',
+                { text: 'Choose on map',
                     onPress: () => {
                         this.props.changeControls({
                             name: 'allowAddPoi',
@@ -614,6 +627,8 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
             enableHighAccuracy: true, timeout: 20000,
         });
 
+        console.log('in get location');
+
         this.setState({
             location: {...location.coords},
             region: {...location.coords, latitudeDelta: 0.1, longitudeDelta: 0.1},
@@ -622,7 +637,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
             relocate: true,
         });
 
-        await applyGeoposition(location);
+        await applyGEOPosition(location);
     };
 
     private callback = (response: any) => {
@@ -702,12 +717,12 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                                        onMapClick={this.handleMapClick}
                                        callback={this.callback}
                             />
-                            <TouchableOpacity style={localStyles.location} onPress={() => this.handleGetLocation}>
+                            <TouchableOpacity style={localStyles.location} onPress={() => this.handleGetLocation()}>
                                 <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={24} color={COLORS.SECONDARY} style={localStyles.icon}/>
                             </TouchableOpacity>
                             <FabButton
                                 style={localStyles.button}
-                                onPress={this.handleAllowToAddPoi}
+                                onPress={() => this.handleAllowToAddPoi()}
                             />
                             <View style={[localStyles.tooltip, this.props.allowAddPoi ? localStyles.visible : localStyles.hidden]}>
                                 <Text style={localStyles.message}>Click on the map to set the location</Text>

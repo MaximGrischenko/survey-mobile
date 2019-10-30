@@ -6,7 +6,8 @@ import {
     LIMIT_TO_LOAD,
     moduleName,
 } from './config';
-import {DBAdapter} from "../../../utils/database";
+import {DBAdapter} from "../../../sync/database";
+import {AsyncStorage} from "react-native";
 
 export const ADD_SEGMENTS = `${appName}/${moduleName}/ADD_SEGMENTS`;
 export const ADD_SEGMENTS_REQUEST = `${appName}/${moduleName}/ADD_SEGMENTS_REQUEST`;
@@ -83,9 +84,9 @@ export const fetchSegmentsOfflineSaga = function* (action: any) {
         });
 
         const query = `SELECT * FROM segments WHERE powerLineId = ${action.payload.powerLineId}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.getRows(query);
+            return await dbAdapter.select(query);
         });
 
         const data = [];
@@ -98,8 +99,8 @@ export const fetchSegmentsOfflineSaga = function* (action: any) {
                 nazwa_ciagu_id: unescape(el.nazwa_ciagu_id),
                 przeslo: unescape(el.przeslo),
                 status: unescape(el.status),
-                operation_type: unescape(el.operation_type),
-                time_for_next_entry: unescape(el.time_for_next_entry),
+                operation_type: unescape(el.operation_type) === 'null' ? '' : unescape(el.operation_type),
+                time_for_next_entry: unescape(el.time_for_next_entry) === 'null' ? '' : unescape(el.time_for_next_entry),
                 parcel_number_for_permit: unescape(el.parcel_number_for_permit),
                 notes: unescape(el.notes),
                 points: JSON.parse(unescape(el.points))
@@ -167,19 +168,15 @@ export const editItemSaga = function* (action: any) {
             type: EDIT_SEGMENTS_REQUEST,
         });
         const res = yield call(() => {
-            console.log('API', `${API}api/projects/${action.payload.projectId}/segments/${action.payload.id}`);
-            console.log('PAYLOAD', action.payload);
                 return axios.put(`${API}api/projects/${action.payload.projectId}/segments/${action.payload.id}`, action.payload);
             },
         );
-        console.log('response', res);
         yield put({
             type: EDIT_SEGMENTS_SUCCESS,
             payload: res.data.data
         });
 
     } catch (error) {
-        console.log('error', error);
         yield put({
             type: EDIT_SEGMENTS_ERROR,
             error: error.response.data.message,
@@ -192,7 +189,7 @@ export const editSegmentOfflineSaga = function* ({payload}: any) {
         yield put({
             type: EDIT_SEGMENT_OFFLINE_REQUEST
         });
-        const update = `UPDATE segments SET
+        const insert = `UPDATE segments SET
             title = "${escape(payload.title)}",
             comment = "${escape(payload.comment)}",
             nazwa_ciagu_id = "${escape(payload.nazwa_ciagu_id)}",
@@ -203,17 +200,17 @@ export const editSegmentOfflineSaga = function* ({payload}: any) {
             distance_bottom = "${payload.distance_bottom}",
             shutdown_time = "${payload.shutdown_time}",
             operation_type = "${escape(payload.operation_type)}",
+            time_for_next_entry = "${escape(payload.time_for_next_entry)}",
             updatedAt = ${Date.now()}
             WHERE id = ${payload.id}`;
 
         const select = `SELECT * FROM segments WHERE id = ${payload.id}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.setRows(update, select);
+            return await dbAdapter.insert(insert, select);
         });
 
         let data = {};
-
         res.rows._array.forEach((el) => {
             data = {
                 ...el,
@@ -225,11 +222,37 @@ export const editSegmentOfflineSaga = function* ({payload}: any) {
                 distance_lateral: el.distance_lateral,
                 distance_bottom: el.distance_bottom,
                 shutdown_time: el.shutdown_time,
-                operation_type: unescape(el.operation_type),
+                operation_type: unescape(el.operation_type) === 'null' ? '' : unescape(el.operation_type),
+                time_for_next_entry: unescape(el.time_for_next_entry) === 'null' ? '' : unescape(el.time_for_next_entry),
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
                 points: JSON.parse(unescape(el.points))
             };
         });
+
+        const update = {
+            type: 'segment',
+            action: 'edit',
+            data: {
+                ...data
+            }
+        };
+        const stored = yield call(async () => {
+            return await AsyncStorage.getItem('updates');
+        });
+        if(!stored) {
+            const updates = [];
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        } else {
+            const updates = JSON.parse(stored);
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        }
+
         yield put({
             type: EDIT_SEGMENTS_SUCCESS,
             payload: data

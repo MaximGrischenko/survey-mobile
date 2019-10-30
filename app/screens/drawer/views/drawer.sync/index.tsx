@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {DBAdapter} from '../../../../utils/database';
+import {DBAdapter} from '../../../../sync/database';
 import SvgUri from "react-native-svg-uri";
-import {Observer, Emitter} from "../../../../utils/database/interfaces";
+import {Observer, Emitter} from "../../../../utils/interfaces";
 
 interface IMapState {
     database: DBAdapter;
@@ -33,7 +33,7 @@ class SyncAdapter extends Component<{}, IMapState> implements Observer{
         console.log('PROGRESS', this.state.emitter);
         return (
             <View>
-                <TouchableOpacity style={localStyles.item} onPress={() => this.state.database.dropDB()}>
+                <TouchableOpacity style={localStyles.item} onPress={() => this.state.database.resetDB()}>
                     <SvgUri
                         width={Dimensions.get('window').width * 0.2}
                         height={28}

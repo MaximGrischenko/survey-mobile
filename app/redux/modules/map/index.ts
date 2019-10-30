@@ -5,8 +5,8 @@ import {createSelector} from 'reselect';
 import {SIGN_OUT_SUCCESS} from '../auth';
 import _ from 'lodash';
 import {moment} from '../../utils';
-
 import {Pole, Parcel, Segment, Station, Poi, Project, GPSCoordinate, Powerline} from "../../../entities";
+
 import {
     FETCH_LOCATION_POLES_REQUEST,
     FETCH_LOCATION_POLES_SUCCESS,
@@ -135,11 +135,12 @@ const MapRecord = {
     showPoles: false,
     loading: false,
     isDrawerOpen: false,
+    isTablesOpen: false,
     isChecked: false,
     error: null,
 };
 
-export async function applyGeoposition(location: any) {
+export async function applyGEOPosition(location: any) {
     if(location) {
         await AsyncStorage.setItem('location', JSON.stringify(location));
     } else {
@@ -391,7 +392,7 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('pois', [...state.pois.map((el: Poi) => {
                     if (el.id === action.payload.id) return new Poi(action.payload);
                     console.log('EL', action.payload, el);
-                    return el
+                    return el;
                 })])
                 .set('error', null);
         }
@@ -399,8 +400,10 @@ export default function reducer(state = new ReducerRecord(), action: any) {
             return state
                 .set('loading', false)
                 .set('poiList', Date.now())
-                .set('pois', [...state.pois, new Poi(action.payload)])
+                // .set('pois', [...state.pois, new Poi(action.payload)])
+                .set('pois', [...state.pois.filter((el: any) => el.id !== action.payload.id), new Poi(action.payload)])
                 .set('error', null);
+
         }
 
         case SELECT_LOCATION_SUCCESS: {
@@ -508,6 +511,7 @@ export const locationSegmentsSelector = createSelector(stateSelector, state => {
 });
 export const errorSelector = createSelector(stateSelector, state => state.error);
 export const drawerStateSelector = createSelector(stateSelector, state => state.isDrawerOpen);
+export const tablesStateSelector = createSelector(stateSelector, state => state.isTablesOpen);
 export const currentModeSelector = createSelector(stateSelector, state => state.drawMode);
 export const modesSelector = createSelector(stateSelector, state => state.drawModeList);
 export const lastGeoPostionsSelector = createSelector(stateSelector, state => state.tempPosition);
@@ -559,7 +563,7 @@ export const saga = function* () {
         takeEvery(SEGMENTS.DELETE_SEGMENTS, SEGMENTS.deleteItemSaga),
 
         takeEvery(FETCH_LOCATION_STATIONS, fetchLocationStationSaga),
-        takeEvery(STATIONS.FETCH_STATIONS_OFFLINE, STATIONS.fetchStaionsOfflineSaga),
+        takeEvery(STATIONS.FETCH_STATIONS_OFFLINE, STATIONS.fetchStationsOfflineSaga),
         takeEvery(STATIONS.EDIT_STATIONS, STATIONS.editItemSaga),
         takeEvery(STATIONS.EDIT_STATION_OFFLINE, STATIONS.editStationOfflineSaga),
         takeEvery(STATIONS.DELETE_STATIONS, STATIONS.deleteItemSaga),
@@ -569,6 +573,7 @@ export const saga = function* () {
         takeEvery(POI.ADD_POI, POI.addPoiSaga),
         takeEvery(POI.ADD_POI_OFFLINE, POI.addPoiOfflineSaga),
         takeEvery(POI.POI_DELETE, POI.removePoiSaga),
+        takeEvery(POI.DELETE_POI_OFFLINE, POI.removePoiOfflineSaga),
         takeEvery(POI.POI_EDIT, POI.editPoiSaga),
         takeEvery(POI.EDIT_POI_OFFLINE, POI.editPoiOfflineSaga),
         takeEvery(POI.FETCH_POIS_OFFLINE, POI.fetchPoiOfflineSaga),

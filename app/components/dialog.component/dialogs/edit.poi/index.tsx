@@ -10,7 +10,7 @@ import {
     locationsSelector,
     moduleName
 } from "../../../../redux/modules/map";
-import {isSuperAdminSelector} from "../../../../redux/modules/auth";
+import {isSuperAdminSelector, userSelector} from "../../../../redux/modules/auth";
 import {categorySelector} from "../../../../redux/modules/admin";
 import {
     setDialogDeleteButton,
@@ -18,7 +18,14 @@ import {
     showAlert,
     showDialogContent
 } from "../../../../redux/modules/dialogs";
-import {addPoi, addPoiOffline, editPoi, editPoiOffline, removePoi} from "../../../../redux/modules/map/poi";
+import {
+    addPoi,
+    addPoiOffline,
+    editPoi,
+    editPoiOffline,
+    removePoi,
+    removePoiOffline
+} from "../../../../redux/modules/map/poi";
 import {connectionSelector} from "../../../../redux/modules/connect";
 
 class EditPoiDialog extends MainModalDialog {
@@ -51,19 +58,19 @@ class EditPoiDialog extends MainModalDialog {
             } else {
                 let position = this.props.position;
                 if(this.props.connection) {
-                    this.props.onAddItemOffline({
+                    this.props.onAddItem({
                         ...this.state,
                         points: position,
                         projectId: this.props.location.id
                     });
-
+                } else {
+                    this.props.onAddItemOffline({
+                        ...this.state,
+                        points: position,
+                        userId: this.props.user.info.data.id,
+                        projectId: this.props.location.id
+                    });
                 }
-                //TODO ONLINE MODE
-                // this.props.onAddItem({
-                //     ...this.state,
-                //     points: position,
-                //     projectId: this.props.location.id
-                // });
                 this.props.changeControls({
                     name: 'allowAddPoi',
                     value: false
@@ -97,6 +104,7 @@ const mapStateToProps = (state: any) => ({
     location: locationSelector(state),
     projects: locationsSelector(state),
     categories: categorySelector(state),
+    user: userSelector(state),
     connection: connectionSelector(state),
 });
 
@@ -110,6 +118,7 @@ const mapDispatchToProps = (dispatch: any) => (
         editItem: editPoi,
         editItemOffline: editPoiOffline,
         onDeleteItem: removePoi,
+        onDeleteItemOffline: removePoiOffline,
         onAddItem: addPoi,
         onAddItemOffline: addPoiOffline
     }, dispatch)

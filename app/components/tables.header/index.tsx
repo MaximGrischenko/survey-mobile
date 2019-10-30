@@ -12,11 +12,13 @@ import { DrawerActions } from 'react-navigation-drawer';
 import LogOutComponent from '../logout.component';
 import {COLORS} from "../../styles/colors";
 import {changeSettings, searchSelector} from "../../redux/modules/auth";
+import {changeControls} from "../../redux/modules/map";
 
 interface IMapProps {
     navigation: any,
     search: string,
     changeSettings: Function,
+    changeControls: Function,
 }
 
 class TablesHeader extends Component<IMapProps> {
@@ -33,7 +35,13 @@ class TablesHeader extends Component<IMapProps> {
         return (
             <View style={localStyles.container}>
                 <View style={localStyles.header}>
-                    <TouchableOpacity onPress={() => {navigation.navigate('Main')}}>
+                    <TouchableOpacity onPress={() => {
+                        navigation.navigate('Main');
+                        this.props.changeControls({
+                            name: 'isTablesOpen',
+                            value: false
+                        })
+                    }}>
                         <Icon name={Platform.OS === 'ios' ? 'ios-menu' : 'md-menu'} size={30} />
                     </TouchableOpacity>
                     <View style={localStyles.search}>
@@ -99,7 +107,8 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
-        changeSettings
+        changeSettings,
+        changeControls,
     }, dispatch)
 );
 

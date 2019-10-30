@@ -4,13 +4,13 @@ import {SQLite} from "expo-sqlite";
 import {WebSQLDatabase} from "expo-sqlite/build/SQLite";
 import {API} from "../../config";
 import {Powerline, Project} from "../../entities";
-import PromisePiper from '../promise.piper';
-import {Observer, Emitter} from "./interfaces";
+import PromisePiper from '../../utils/promise.piper/index';
+import {Observer, Emitter} from "../../utils/interfaces";
 
 export interface IAdapter {
     initDB(): void;
-    dropDB(): void;
-    syncDB(): void;
+    resetDB(): void;
+    updateDB(): void;
     attach(observer: Observer): void;
     detach(observer: Observer): void;
     notify(): void;
@@ -18,12 +18,13 @@ export interface IAdapter {
 
 export class DBAdapter implements IAdapter {
     static database: Promise<WebSQLDatabase>;
+    private static instance: DBAdapter;
     private readonly LIMIT_TO_LOAD: number;
     private projects: Array<Project>;
     private powerlines: Array<Powerline>;
 
     constructor() {
-        this.LIMIT_TO_LOAD = 100000;
+        this.LIMIT_TO_LOAD = 200000;
         DBAdapter.database = this.connect();
         this.projects = [];
         this.powerlines = [];
@@ -33,6 +34,13 @@ export class DBAdapter implements IAdapter {
         pending: false,
         logger: '',
     };
+
+    public static getInstance(): DBAdapter {
+        if(!DBAdapter.instance) {
+            DBAdapter.instance = new DBAdapter();
+        }
+        return DBAdapter.instance;
+    }
 
     private observers: Observer[] = [];
 
@@ -51,7 +59,7 @@ export class DBAdapter implements IAdapter {
         }
     };
 
-    public updateState(emitter: Emitter): void {
+    private notifier(emitter: Emitter): void {
         this.state = emitter;
         this.notify();
     }
@@ -114,54 +122,100 @@ export class DBAdapter implements IAdapter {
     //     })
     // }
 
+    // private createRows = (table) => {
+    //     return new Promise(async(resolve, reject) => {
+    //         await this.executeSQL(table.create).then((result) => {
+    //             this.notifier({...this.state, pending: true, logger: `Create table ${table.name}`});
+    //             resolve(result);
+    //         }).catch((error) => reject(error));
+    //     })
+    // };
 
-
-    static getRows (query) {
-        return new Promise( async (resolve, reject) => {
-            await DBAdapter.database.then((connect: any) => {
-                connect.transaction(function (txn) {
-                    txn.executeSql(
-                        query,
-                        [],
-                        (tx, resp) => {
-                            resolve(resp);
-                        },
-                        (txn, error) => {
-                            reject(error);
-                        }
-                    )
-                })
-            })
-        })
+    public insert = async (insert, select) => {
+        return new Promise(async (resolve, reject) => {
+            await this.executeSQL(insert)
+            .then(async (response)=> {
+                if(response) {
+                    this.select(select).then((response) => {
+                        resolve(response);
+                    }).catch(error => {
+                        reject(error)
+                    });
+                    await AsyncStorage.setItem('db_status', 'updated');
+                }
+            }).catch(async (error) => {
+                await AsyncStorage.setItem('db_status', 'error');
+                reject(error)
+            });
+        });
     };
 
-    static setRows (update, select) {
-        return new Promise( async (resolve, reject) => {
-            await DBAdapter.database.then((connect: any) => {
-                connect.transaction( function (txn) {
-                    txn.executeSql(
-                        update,
-                        [],
-                        (txn) => {
-                            txn.executeSql(
-                                select,
-                                [],
-                                async (tx, resp) => {
-                                    console.log('INSERTED');
-                                    await AsyncStorage.setItem('db_status', 'update');
-                                    this.updateState({...this.state, pending: false, logger: `Local DB updated`});
-                                    resolve(resp);
-                                }
-                            )
-                        },
-                        (txn, error) => {
-                            reject(error);
-                        }
-                    )
-                })
-            })
-        })
-    }
+    public select = async (select) => {
+        return new Promise(async (resolve, reject) => {
+            await this.executeSQL(select).then((result) => {
+                resolve(result);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    };
+
+    public clear = async (clear) => {
+        return new Promise(async (resolve, reject) => {
+            await this.executeSQL(clear).then(async (result) => {
+                resolve(result);
+                await AsyncStorage.setItem('db_status', 'updated');
+            }).catch(async (error) => {
+                reject(error);
+                await AsyncStorage.setItem('db_status', 'error');
+            });
+        });
+    };
+
+    // static getRows (query) {
+    //     return new Promise( async (resolve, reject) => {
+    //         await DBAdapter.database.then((connect: any) => {
+    //             connect.transaction(function (txn) {
+    //                 txn.executeSql(
+    //                     query,
+    //                     [],
+    //                     (tx, resp) => {
+    //                         resolve(resp);
+    //                     },
+    //                     (txn, error) => {
+    //                         reject(error);
+    //                     }
+    //                 )
+    //             })
+    //         })
+    //     })
+    // };
+    //
+    // static setRows (update, select) {
+    //     return new Promise( async (resolve, reject) => {
+    //         await DBAdapter.database.then((connect: any) => {
+    //             connect.transaction( function (txn) {
+    //                 txn.executeSql(
+    //                     update,
+    //                     [],
+    //                     (txn) => {
+    //                         txn.executeSql(
+    //                             select,
+    //                             [],
+    //                             async (tx, resp) => {
+    //                                 await AsyncStorage.setItem('db_status', 'update');
+    //                                 resolve(resp);
+    //                             }
+    //                         )
+    //                     },
+    //                     (txn, error) => {
+    //                         reject(error);
+    //                     }
+    //                 )
+    //             })
+    //         })
+    //     })
+    // }
 
     private convertToTimeStamp = date => {
         return date ? Date.parse(date) : null;
@@ -169,14 +223,14 @@ export class DBAdapter implements IAdapter {
 
     public initDB() {
         if(DBAdapter.database !== undefined) {
-            Promise.all(this.tables.map((table) => this.createTable(table)))
+            Promise.all(this.tables.map((table) => this.createRows(table)))
                 .then(async (resolve) => {
                     await AsyncStorage.setItem('db_status', 'exist');
-                    this.updateState({...this.state, pending: false, logger: `Local DB initialized`});
+                    this.notifier({...this.state, pending: false, logger: `Local DB initialized`});
                     console.log('Created Success', resolve);
                 })
                 .catch(async (reject) => {
-                    this.updateState({...this.state, pending: false, logger: `Initialization Error`});
+                    this.notifier({...this.state, pending: false, logger: `Initialization Error`});
                     await AsyncStorage.setItem('db_status', 'error');
                     console.log('Created Error', reject)
                 });
@@ -184,27 +238,27 @@ export class DBAdapter implements IAdapter {
         return this.connect();
     }
 
-    public dropDB() {
+    public resetDB() {
         if(DBAdapter.database !== undefined) {
-            Promise.all(this.tables.map((table) => this.deleteTable(table)))
-                .then(async (resolve) => {
-                    await AsyncStorage.removeItem('db_status');
-                    console.log('Deleted Success', resolve)
-                })
-                .catch(async (reject) => {
-                    await AsyncStorage.setItem('db_status', 'error');
-                    console.log('Deleted Error', reject)
-                });
+            Promise.all(this.tables.map((table) => this.deleteRows(table)))
+            .then(async (resolve) => {
+                await AsyncStorage.removeItem('db_status');
+                console.log('Deleted Success', resolve)
+            })
+            .catch(async (reject) => {
+                await AsyncStorage.setItem('db_status', 'error');
+                console.log('Deleted Error', reject)
+            });
         }
         return this.connect();
     }
 
-    public syncDB (): void {
+    public updateDB (): void {
         if(DBAdapter.database !== undefined) {
             const syncPiper = new PromisePiper();
             this.tables.map((table) => {
                 syncPiper.pipe((resolve, reject) => {
-                    this.sync(table).then((syncResult)  => {
+                    this.download(table).then((syncResult)  => {
                         resolve(syncResult);
                     }, (syncReason) => {
                         reject(syncReason);
@@ -213,80 +267,46 @@ export class DBAdapter implements IAdapter {
             });
 
             syncPiper.finally( async (resolveResult) => {
-                await AsyncStorage.setItem('db_status', 'sync');
-                this.updateState({...this.state, pending: false, logger: `Local DB synchronized`});
+                await AsyncStorage.setItem('db_status', 'synced');
+                this.notifier({...this.state, pending: false, logger: `Local DB is up-to-date`});
                 console.log('Sync Success', resolveResult);
             }, async (rejectReason) => {
                 await AsyncStorage.setItem('db_status', 'error');
-                this.updateState({...this.state, pending: false, logger: `Synchronization Error`});
+                this.notifier({...this.state, pending: false, logger: `Synchronization Error`});
                 console.log('Sync Error', rejectReason);
             });
         }
     }
 
-    private createTable = (table) => {
+    private createRows = (table) => {
         return new Promise(async(resolve, reject) => {
             await this.executeSQL(table.create).then((result) => {
-                this.updateState({...this.state, pending: true, logger: `Create table ${table.name}`});
+                this.notifier({...this.state, pending: true, logger: `Create table ${table.name}`});
                 resolve(result);
             }).catch((error) => reject(error));
-            // DBAdapter.database.then((connect: any) => {
-            //     connect.transaction((txn) => {
-            //         txn.executeSql(
-            //             table.create,
-            //             [],
-            //             (tx, res) => {
-            //                 this.updateState({...this.state, pending: true, logger: `Create table ${table.name}`});
-            //                 console.log(`Create table ${table.name} Success`, res);
-            //                 resolve({tx, res})
-            //             },
-            //             (error) => reject(error)
-            //         )
-            //     })
-            // })
         })
     };
 
-    private deleteTable = (table) => {
+    private deleteRows = (table) => {
         return new Promise(async (resolve, reject) => {
             await this.executeSQL(table.delete).then((result) => {
                 resolve(result);
             }).catch((error) => reject(error));
-
-
-            // DBAdapter.database.then((connect: any) => {
-            //     connect.transaction((txn) => {
-            //         txn.executeSql(
-            //             table.delete,
-            //             [],
-            //             (tx, res) => {
-            //                 // console.log(`Delete table ${table.name} Success`, res);
-            //                 resolve({tx, res})
-            //             },
-            //             (error) => reject(error)
-            //         )
-            //     })
-            // })
         })
     };
-
-    private count = 0;
 
     private executeSQL = async (sql) => {
         return new Promise((resolve, reject) => {
             return DBAdapter.database.then((connect: any) => {
                 connect.transaction(tx => {
-                    // tx.executeSql(sql, [], (_, {rows}) => resolve(rows._array), reject)
-
                     tx.executeSql(sql, [],
                         (tx, res) => {
-                            console.log('QUERY', sql);
-
                             setTimeout(() => {resolve(res)}, 100);
                         },
                         (tx, error) => {
-                            reject(error)
-                        })
+                            reject(error);
+                        }
+                    )
                 })
             });
         })
@@ -295,41 +315,15 @@ export class DBAdapter implements IAdapter {
 
     private fillRows =  (query, name) => {
         return new Promise(async (resolve, reject) => {
-            this.updateState({...this.state, pending: false, logger: `Save data in ${name} table`});
-                await this.executeSQL(query).then((result) => resolve(result)).catch((error) => reject(error));
-            // const useConnection = ( connect ) => {
-            //     connect.transaction(function async (txn) {
-            //          txn.executeSql(
-            //             query,
-            //             [],
-            //             (tx, res) => {
-            //                 console.log(`Save data in ${name} Success`);
-            //                 resolve({tx, res});
-            //             },
-            //             (tx, error) => {
-            //                 console.log(`Error save data in ${name}`);
-            //                 reject({tx, error} );
-            //             }
-            //         );
-            //     });
-            // };
-            //
-            // if( CONNECTION ){
-            //     useConnection( CONNECTION );
-            // } else {
-            //     DBAdapter.database.then((connect: any) => {
-            //         CONNECTION = connect;
-            //         useConnection( CONNECTION );
-            //     })
-            // }
-
+            this.notifier({...this.state, pending: false, logger: `Save data in ${name} table`});
+            await this.executeSQL(query).then((result) => resolve(result)).catch((error) => reject(error));
         })
     };
 
-    private sync = (table) => {
+    private download = (table) => {
         return new Promise( (resolve, reject) => {
             let api = '';
-            this.updateState({...this.state, pending: true, logger: `Fetching ${table.name} data`});
+            this.notifier({...this.state, pending: true, logger: `Fetching ${table.name} data`});
 
             switch (table.name) {
                 case 'categories': {
@@ -385,7 +379,7 @@ export class DBAdapter implements IAdapter {
             let query = '';
             axios.get(api).then( (response: any) => {
                 let queryValues = '';
-                const limit = 100000;
+                const limit = 2000;
 
                 if(response.data) {
                     switch (table.name) {
@@ -394,24 +388,26 @@ export class DBAdapter implements IAdapter {
                                 query = `INSERT OR IGNORE INTO categories (id, title, comment, userId, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
                                 const chunksPiper = new PromisePiper();
+
                                 while (list.length) {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
                                         let _query = query + '';
+                                        let _values = '';
                                         chunk.forEach((item, key) => {
-                                            queryValues += `(
-                                        ${item.id}, 
-                                        "${escape(item.title)}", 
-                                        "${escape(item.comment)}",
-                                        ${item.userId}, 
-                                        ${this.convertToTimeStamp(item.createdAt)}, 
-                                        ${this.convertToTimeStamp(item.updatedAt)}, 
-                                        ${this.convertToTimeStamp(item.deletedAt)}
-                                        )`;
-                                            queryValues += key === chunk.length-1 ? "; " : ", ";
+                                            _values += `(
+                                            ${item.id}, 
+                                            "${escape(item.title)}", 
+                                            "${escape(item.comment)}",
+                                            ${item.userId}, 
+                                            ${this.convertToTimeStamp(item.createdAt)}, 
+                                            ${this.convertToTimeStamp(item.updatedAt)}, 
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        _query += queryValues;
+                                        _query += _values;
                                         this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult)
                                         }, (rejectFillReason) => {
@@ -438,24 +434,23 @@ export class DBAdapter implements IAdapter {
                                 while (list.length) {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
-                                    chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+
+                                    chunksPiper.pipe( (resolveChunkWorker, rejectChunkWorker) => {
                                         let _query = query + '';
+                                        let _values = '';
                                         chunk.forEach((item, key) => {
-                                            queryValues += `(
-                                        ${item.id}, 
-                                        "${escape(item.title)}", 
-                                        "${escape(item.contractor)}",
-                                        ${item.status}, 
-                                        ${this.convertToTimeStamp(item.createdAt)}, 
-                                        ${this.convertToTimeStamp(item.updatedAt)}, 
-                                        ${this.convertToTimeStamp(item.deletedAt)}
-                                        )`;
-                                            queryValues += key === chunk.length-1 ? "; " : ", ";
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.title)}",
+                                            "${escape(item.contractor)}",
+                                            ${item.status},
+                                            ${this.convertToTimeStamp(item.createdAt)},
+                                            ${this.convertToTimeStamp(item.updatedAt)},
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        _query += queryValues;
-
-                                        console.log('PROJECTS QUERY', _query);
-
+                                        _query += _values;
 
                                         this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
@@ -485,21 +480,22 @@ export class DBAdapter implements IAdapter {
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
                                         let _query = query + '';
+                                        let _values = '';
                                         chunk.forEach((item, key) => {
-                                            queryValues += `(
-                                        ${item.id}, 
-                                        "${escape(item.title)}",
-                                        ${item.status},
-                                        "${escape(item.comment)}",
-                                        ${item.userId},
-                                        ${item.projectId},
-                                        ${this.convertToTimeStamp(item.createdAt)}, 
-                                        ${this.convertToTimeStamp(item.updatedAt)}, 
-                                        ${this.convertToTimeStamp(item.deletedAt)}
-                                        )`;
-                                            queryValues += key === chunk.length-1 ? "; " : ", ";
+                                            _values += `(
+                                            ${item.id}, 
+                                            "${escape(item.title)}",
+                                            ${item.status},
+                                            "${escape(item.comment)}",
+                                            ${item.userId},
+                                            ${item.projectId},
+                                            ${this.convertToTimeStamp(item.createdAt)}, 
+                                            ${this.convertToTimeStamp(item.updatedAt)}, 
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        _query += queryValues;
+                                        _query += _values;
                                         this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
@@ -527,26 +523,27 @@ export class DBAdapter implements IAdapter {
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
                                         let _query = query + '';
+                                        let _values = '';
                                         chunk.forEach((item, key) => {
-                                            queryValues += `(
-                                        ${item.id}, 
-                                        "${escape(item.title)}", 
-                                        "${escape(item.description)}", 
-                                        "${escape(item.nazw_stac)}", 
-                                        "${escape(item.num_eksp_s)}", 
-                                        "${escape(item.comment)}", 
-                                        ${item.type}, 
-                                        ${item.status}, 
-                                        ${item.userId}, 
-                                        ${item.projectId}, 
-                                        "${escape(JSON.stringify(item.points))}", 
-                                        ${this.convertToTimeStamp(item.createdAt)}, 
-                                        ${this.convertToTimeStamp(item.updatedAt)}, 
-                                        ${this.convertToTimeStamp(item.deletedAt)}
-                                        )`;
-                                            queryValues += key === chunk.length-1 ? "; " : ", ";
+                                            _values += `(
+                                            ${item.id}, 
+                                            "${escape(item.title)}", 
+                                            "${escape(item.description)}", 
+                                            "${escape(item.nazw_stac)}", 
+                                            "${escape(item.num_eksp_s)}", 
+                                            "${escape(item.comment)}", 
+                                            ${item.type}, 
+                                            ${item.status}, 
+                                            ${item.userId}, 
+                                            ${item.projectId}, 
+                                            "${escape(JSON.stringify(item.points))}", 
+                                            ${this.convertToTimeStamp(item.createdAt)}, 
+                                            ${this.convertToTimeStamp(item.updatedAt)}, 
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        _query += queryValues;
+                                        _query += _values;
                                         this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
@@ -574,24 +571,25 @@ export class DBAdapter implements IAdapter {
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
                                         let _query = query + '';
+                                        let _values = '';
                                         chunk.forEach((item, key) => {
-                                            queryValues += `(
-                                        ${item.id}, 
-                                        "${escape(item.title)}", 
-                                        "${escape(item.description)}", 
-                                        "${escape(JSON.stringify(item.points))}",
-                                        "${escape(item.comment)}",
-                                        ${item.status}, 
-                                        ${item.userId}, 
-                                        ${item.projectId}, 
-                                        ${item.categoryId},
-                                        ${this.convertToTimeStamp(item.createdAt)}, 
-                                        ${this.convertToTimeStamp(item.updatedAt)}, 
-                                        ${this.convertToTimeStamp(item.deletedAt)}
-                                        )`;
-                                            queryValues += key === chunk.length-1 ? "; " : ", ";
-                                        });
-                                        _query += queryValues;
+                                            _values += `(
+                                            ${item.id}, 
+                                            "${escape(item.title)}", 
+                                            "${escape(item.description)}", 
+                                            "${escape(JSON.stringify(item.points))}",
+                                            "${escape(item.comment)}",
+                                            ${item.status}, 
+                                            ${item.userId}, 
+                                            ${item.projectId}, 
+                                            ${item.categoryId},
+                                            ${this.convertToTimeStamp(item.createdAt)}, 
+                                            ${this.convertToTimeStamp(item.updatedAt)}, 
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                                _values += key === chunk.length-1 ? "; " : ", ";
+                                            });
+                                        _query += _values;
                                         this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
@@ -613,37 +611,34 @@ export class DBAdapter implements IAdapter {
                             if(response.data.rows.length) {
                                 query = `INSERT OR IGNORE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
-                                console.log('PARCELS LENGTH', list.length);
                                 const chunksPiper = new PromisePiper();
-
                                 while (list.length) {
                                     const offset = list.length > limit ? limit : list.length;
                                     const chunk = list.splice(0, offset);
-                                    console.log('Parcels CHUNK',chunk.length);
-                                    console.log( 'nextChunck', chunk.length );
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
                                         let _query = query + '';
+                                        let _values = '';
                                         chunk.forEach((item, key) => {
-                                            queryValues += `(
-                                        ${item.id},
-                                        "${escape(item.comment)}",
-                                        "${escape(item.title)}",
-                                        "${escape(JSON.stringify(item.points))}",
-                                        "${escape(item.wojewodztw)}",
-                                        "${escape(item.gmina)}",
-                                        "${escape(item.description)}",
-                                        "${escape(item.numer)}",
-                                        ${item.status},
-                                        ${item.userId},
-                                        ${item.powerLineId},
-                                        ${item.projectId},
-                                        ${this.convertToTimeStamp(item.createdAt)}, 
-                                        ${this.convertToTimeStamp(item.updatedAt)}, 
-                                        ${this.convertToTimeStamp(item.deletedAt)}
-                                        )`;
-                                            queryValues += key === chunk.length-1 ? "; " : ", ";
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.comment)}",
+                                            "${escape(item.title)}",
+                                            "${escape(JSON.stringify(item.points))}",
+                                            "${escape(item.wojewodztw)}",
+                                            "${escape(item.gmina)}",
+                                            "${escape(item.description)}",
+                                            "${escape(item.numer)}",
+                                            ${item.status},
+                                            ${item.userId},
+                                            ${item.powerLineId},
+                                            ${item.projectId},
+                                            ${this.convertToTimeStamp(item.createdAt)}, 
+                                            ${this.convertToTimeStamp(item.updatedAt)}, 
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        _query += queryValues;
+                                        _query += _values;
                                         this.fillRows( _query, table.name).then((resolveFillResult) => {
                                            resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
@@ -653,7 +648,6 @@ export class DBAdapter implements IAdapter {
                                 }
 
                                 chunksPiper.finally( (resolveResult) => {
-                                   // setTimeout(resolve(resolveResult), 10);
                                     resolve(resolveResult);
                                 }, (rejectReason) => {
                                     reject(rejectReason);
@@ -672,26 +666,27 @@ export class DBAdapter implements IAdapter {
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
                                         let _query = query + '';
+                                        let _values = '';
                                         chunk.forEach((item, key) => {
-                                            queryValues += `(
-                                        ${item.id},
-                                        "${escape(item.title)}",
-                                        "${escape(item.description)}",
-                                        "${escape(item.comment)}",
-                                        ${item.type},
-                                        "${escape(item.num_slup)}",
-                                        ${item.status},
-                                        ${item.powerLineId},
-                                        ${item.userId},
-                                        ${item.projectId},
-                                        "${escape(JSON.stringify(item.points))}",
-                                        ${this.convertToTimeStamp(item.createdAt)}, 
-                                        ${this.convertToTimeStamp(item.updatedAt)}, 
-                                        ${this.convertToTimeStamp(item.deletedAt)}
-                                        )`;
-                                            queryValues += key === chunk.length-1 ? "; " : ", ";
-                                        });
-                                        _query += queryValues;
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.title)}",
+                                            "${escape(item.description)}",
+                                            "${escape(item.comment)}",
+                                            ${item.type},
+                                            "${escape(item.num_slup)}",
+                                            ${item.status},
+                                            ${item.powerLineId},
+                                            ${item.userId},
+                                            ${item.projectId},
+                                            "${escape(JSON.stringify(item.points))}",
+                                            ${this.convertToTimeStamp(item.createdAt)}, 
+                                            ${this.convertToTimeStamp(item.updatedAt)}, 
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                                _values += key === chunk.length-1 ? "; " : ", ";
+                                            });
+                                        _query += _values;
                                         this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
@@ -719,36 +714,37 @@ export class DBAdapter implements IAdapter {
                                     const chunk = list.splice(0, offset);
                                     chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
                                         let _query = query + '';
+                                        let _values = '';
                                         chunk.forEach((item, key) => {
-                                            queryValues += `(
-                                        ${item.id},
-                                        "${escape(item.title)}",
-                                        "${escape(item.comment)}",
-                                        "${escape(item.description)}",
-                                        "${escape(item.nazwa_ciagu_id)}",
-                                        "${escape(item.przeslo)}",
-                                        "${escape(item.status)}",
-                                        ${item.vegetation_status},
-                                        ${item.distance_lateral},
-                                        ${item.distance_bottom},
-                                        ${item.shutdown_time},
-                                        ${item.track},
-                                        "${escape(item.operation_type)}",
-                                        ${item.time_of_operation},
-                                        "${escape(item.time_for_next_entry)}",
-                                        ${item.parcel_number_for_permit},
-                                        "${escape(item.notes)}",
-                                        ${item.powerLineId},
-                                        ${item.projectId},
-                                        ${item.userId},
-                                        "${escape(JSON.stringify(item.points))}",
-                                        ${this.convertToTimeStamp(item.createdAt)},
-                                        ${this.convertToTimeStamp(item.updatedAt)},
-                                        ${this.convertToTimeStamp(item.deletedAt)}
-                                        )`;
-                                            queryValues += key === chunk.length-1 ? "; " : ", ";
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.title)}",
+                                            "${escape(item.comment)}",
+                                            "${escape(item.description)}",
+                                            "${escape(item.nazwa_ciagu_id)}",
+                                            "${escape(item.przeslo)}",
+                                            "${escape(item.status)}",
+                                            ${item.vegetation_status},
+                                            ${item.distance_lateral},
+                                            ${item.distance_bottom},
+                                            ${item.shutdown_time},
+                                            ${item.track},
+                                            "${escape(item.operation_type)}",
+                                            ${item.time_of_operation},
+                                            "${escape(item.time_for_next_entry)}",
+                                            ${item.parcel_number_for_permit},
+                                            "${escape(item.notes)}",
+                                            ${item.powerLineId},
+                                            ${item.projectId},
+                                            ${item.userId},
+                                            "${escape(JSON.stringify(item.points))}",
+                                            ${this.convertToTimeStamp(item.createdAt)},
+                                            ${this.convertToTimeStamp(item.updatedAt)},
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
                                         });
-                                        _query += queryValues;
+                                        _query += _values;
                                         this.fillRows(_query, table.name).then((resolveFillResult) => {
                                             resolveChunkWorker(resolveFillResult);
                                         }, (rejectFillReason) => {
@@ -771,7 +767,7 @@ export class DBAdapter implements IAdapter {
                     resolve({finished: true});
                 }
             }).catch((error) => {
-                this.updateState({...this.state, pending: false, logger: error});
+                this.notifier({...this.state, pending: false, logger: error});
                 reject(error)
             });
         });

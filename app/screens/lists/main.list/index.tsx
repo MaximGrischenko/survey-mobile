@@ -205,6 +205,7 @@ const localStyles = StyleSheet.create({
     warning: {
         fontSize: 20,
         color: COLORS.TEXT_COLOR,
-        marginTop: 90
+        marginTop: 90,
+        marginLeft: 10
     }
 });

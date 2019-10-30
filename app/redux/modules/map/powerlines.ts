@@ -12,8 +12,7 @@ import {
     SELECT_LOCATION,
     SELECT_LOCATION_SUCCESS
 } from "./locations";
-import {DBAdapter} from "../../../utils/database";
-
+import {DBAdapter} from "../../../sync/database";
 
 export const FETCH_LOCATION_POWERLINES = `${appName}/${moduleName}/FETCH_LOCATION_POWERLINES`;
 export const FETCH_POWERLINES_OFFLINE = `${appName}/${moduleName}/FETCH_LOCATION_POWERLINES_OFFLINE`;
@@ -70,9 +69,9 @@ export const fetchPowelinesOfflineSaga = function* (action: any) {
             type: FETCH_POWERLINES_OFFLINE_REQUEST,
         });
         const query = `SELECT * FROM powerlines WHERE ProjectId = ${action.payload.id}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.getRows(query);
+            return await dbAdapter.select(query);
         });
         const data = [];
         res.rows._array.forEach((el) => {

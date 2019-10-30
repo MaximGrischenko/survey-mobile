@@ -13,7 +13,7 @@ import * as Permissions from 'expo-permissions';
 import {Asset} from 'expo-asset';
 import {AsyncStorage, Image} from "react-native";
 import {applyHeader} from "./app/redux/modules/auth";
-import {applyGeoposition} from "./app/redux/modules/map";
+import {applyGEOPosition} from "./app/redux/modules/map";
 
 function cacheImages(images) {
     return images.map(image => {
@@ -44,7 +44,15 @@ export default class App extends Component {
             require('./assets/images/station.png'),
             require('./assets/images/station-x4.png'),
             require('./assets/images/location.png'),
-            require('./assets/images/location-x4.png')
+            require('./assets/images/location-x4.png'),
+            require('./assets/images/map.svg'),
+            require('./assets/images/parcel.svg'),
+            require('./assets/images/poi.svg'),
+            require('./assets/images/pole.svg'),
+            require('./assets/images/segment.svg'),
+            require('./assets/images/station.svg'),
+            require('./assets/images/sync.svg'),
+            require('./assets/images/table.svg')
         ]);
 
         const fontAssets = cacheFonts([]);
@@ -74,7 +82,7 @@ export default class App extends Component {
 
         //TODO [...imageAssets, ...fontAssets], applyHeader(token), applyGeoposition(location)
 
-        await Promise.all([...imageAssets, ...fontAssets, applyHeader(token), applyGeoposition(location)]);
+        await Promise.all([...imageAssets, ...fontAssets, applyHeader(token), applyGEOPosition(location)]);
     }
 
     render() {

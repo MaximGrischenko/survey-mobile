@@ -6,7 +6,8 @@ import {
     moduleName,
 } from './config';
 import {FETCH_LOCATIONS_ERROR} from "./locations";
-import {DBAdapter} from "../../../utils/database";
+import {DBAdapter} from "../../../sync/database";
+import {AsyncStorage} from "react-native";
 
 export const ADD_STATIONS = `${appName}/${moduleName}/ADD_STATIONS`;
 export const ADD_STATIONS_REQUEST = `${appName}/${moduleName}/ADD_STATIONS_REQUEST`;
@@ -103,16 +104,16 @@ export const fetchLocationStationSaga = function* (action: any) {
     }
 };
 
-export const fetchStaionsOfflineSaga = function* (action: any) {
+export const fetchStationsOfflineSaga = function* (action: any) {
     try {
         yield put({
            type: FETCH_STATIONS_OFFLINE_REQUEST,
         });
 
         const query = `SELECT * FROM stations WHERE ProjectId = ${action.payload.id}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.getRows(query);
+            return await dbAdapter.select(query);
         });
 
         const data = [];
@@ -190,7 +191,7 @@ export const editStationOfflineSaga = function* ({payload}: any) {
             type: EDIT_STATIONS_OFFLINE_REQUEST
         });
 
-        const update = `UPDATE stations SET
+        const insert = `UPDATE stations SET
             title = "${escape(payload.title)}",
             nazw_stac = "${escape(payload.nazw_stac)}",
             num_eksp_s = "${escape(payload.num_eksp_s)}",
@@ -199,13 +200,12 @@ export const editStationOfflineSaga = function* ({payload}: any) {
             WHERE id = ${payload.id}`;
 
         const select = `SELECT * FROM stations WHERE id = ${payload.id}`;
-
+        const dbAdapter = DBAdapter.getInstance();
         const res = yield call(async () => {
-            return await DBAdapter.setRows(update, select);
+            return await dbAdapter.insert(insert, select);
         });
 
         let data = {};
-
         res.rows._array.forEach((el) => {
             data = {
                 ...el,
@@ -217,6 +217,31 @@ export const editStationOfflineSaga = function* ({payload}: any) {
                 points: JSON.parse(unescape(el.points))
             };
         });
+
+        const update = {
+            type: 'station',
+            action: 'edit',
+            data: {
+                ...data
+            }
+        };
+        const stored = yield call(async () => {
+            return await AsyncStorage.getItem('updates');
+        });
+        if(!stored) {
+            const updates = [];
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        } else {
+            const updates = JSON.parse(stored);
+            updates.push(update);
+            yield call(async () => {
+                await AsyncStorage.setItem('updates', JSON.stringify(updates));
+            });
+        }
+
         yield put({
             type: EDIT_STATIONS_SUCCESS,
             payload: data

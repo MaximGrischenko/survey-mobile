@@ -3,9 +3,7 @@ import {Record} from 'immutable';
 import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
 import axios from 'react-native-axios';
 import {createSelector} from 'reselect';
-import {
-    AsyncStorage
-} from 'react-native';
+import {AsyncStorage} from 'react-native';
 
 export async function applyHeader(access_token: string = '') {
     axios.defaults.headers.common['authorization'] = access_token;

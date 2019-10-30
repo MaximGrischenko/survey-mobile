@@ -21,6 +21,7 @@ import UploadComponent from "../../../upload.component";
 
 interface IMapProps {
     isAdmin: any,
+    user: any,
     itemsList: any,
     position: any,
     selectedItem: any,
@@ -35,6 +36,7 @@ interface IMapProps {
     editItem: Function,
     editItemOffline: Function,
     onDeleteItem: Function,
+    onDeleteItemOffline: Function,
     onAddItem: Function,
     onAddItemOffline: Function,
     setDialogSaveButton: Function,
@@ -201,10 +203,9 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             }
 
             if(this.props.connection) {
-               // await this.props.editItemOffline(editItem);
                 await this.props.editItem(editItem);
             } else {
-                await this.props.editItemOffline(editItem);
+                this.props.editItemOffline(editItem);
             }
             if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
         } catch (e) {
@@ -229,7 +230,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             [
                 {
                     text: 'Delete',
-                    onPress: () => this.onDelete(editItem)
+                    onPress: () => this.onDelete(editItem),
                 },
                 {
                     text: 'Cancel',
@@ -245,12 +246,16 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
 
     private onDelete = async (item) => {
         try {
-            this.props.onDeleteItem(item);
+            if(this.props.connection) {
+                await this.props.onDeleteItem(item);
+            } else {
+                await this.props.onDeleteItemOffline(item);
+            }
             if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
         } catch (e) {
             console.log(e);
         } finally {
-            this.props.setDialogDeleteButton(null);
+            // this.props.setDialogDeleteButton(null);
         }
     };
 
@@ -469,7 +474,6 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         const {title, comment}: any = this.state;
         const {selectedItem}: any = this.props;
         const fields = this.getFields();
-
         return (
             <ScrollView>
                 <Form
