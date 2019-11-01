@@ -391,7 +391,6 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('poiList', Date.now())
                 .set('pois', [...state.pois.map((el: Poi) => {
                     if (el.id === action.payload.id) return new Poi(action.payload);
-                    console.log('EL', action.payload, el);
                     return el;
                 })])
                 .set('error', null);

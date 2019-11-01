@@ -59,7 +59,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
 
     async componentDidMount() {
         this.state.database.attach(this);
-        await this.checkStatus();
+        setTimeout(async () => await this.synchronization(), 1000);
     }
 
     async componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any) {
@@ -79,8 +79,14 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         }
 
         if(nextProps.isTablesOpen !== this.props.isTablesOpen) {
-            console.log('changed screen');
            await this.checkStatus();
+        }
+
+        if(nextProps.connection !== this.props.connection) {
+            if(nextProps.connection) {
+                // await this.synchronization();
+                setTimeout(async () => await this.synchronization(), 500);
+            }
         }
     }
 
@@ -172,28 +178,26 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
     // };
 
     private upload = (update) => {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 if(update.type === 'poi') {
                     if(update.action === 'add') {
-                        console.log('IN ADD');
-                        this.props.addPoi(update.data);
+                        await this.props.addPoi(update.data);
                     } else if(update.action === 'edit') {
-                        console.log('IN EDIT');
-                        this.props.editPoi(update.data);
+                        await this.props.editPoi(update.data);
                     } else if(update.action === 'remove') {
-                        this.props.removePoi(update.data);
+                        await this.props.removePoi(update.data);
                     }
                 } else if (update.type === 'station') {
-                    this.props.editStation(update.data);
+                    await this.props.editStation(update.data);
                 } else if (update.type === 'segment') {
-                    this.props.editSegments(update.data);
+                    await this.props.editSegments(update.data);
                 } else if (update.type === 'pole') {
-                    this.props.editPole(update.data);
+                    await this.props.editPole(update.data);
                 } else if (update.type === 'parcel') {
-                    this.props.editParcel(update.data);
+                    await this.props.editParcel(update.data);
                 }
-                resolve({finished: true})
+                setTimeout(() => resolve({finished: true}), 500);
             } catch (error) {
                 reject(error);
             }
@@ -215,8 +219,26 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
             const stored =  await AsyncStorage.getItem('updates');
             if(stored) {
                 const updates = JSON.parse(stored);
-                console.log('UPDATES', updates);
-                updates.map((update) => {
+                const transactions = updates
+                    .sort((a, b) => a.data.updatedAt - b.data.updatedAt)
+                    .reduce((acc, update) => {
+                        if(update.action === 'add') {
+                            return [...acc, update]
+                        } else if(update.action === 'edit') {
+                            const result = acc.find((i) => i.data.id === update.data.id && i.action === 'add');
+                            if(result) {
+                                return acc.map(i => i.data.id === update.data.id && i.data.updatedAt < update.data.updatedAt ? {
+                                    ...i,
+                                    data: update.data
+                                } : i)
+                            } else {
+                                return [...acc, update]
+                            }
+                        }
+                        return [...acc, update]
+                    }, []);
+                console.log('TRANSACTIONS', transactions);
+                transactions.map((update) => {
                     uploadPiper.pipe((resolve, reject) => {
                         this.upload(update).then((uploadResult) => {
                             resolve(uploadResult);
@@ -237,7 +259,6 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                     console.log('Upload Error', rejectReason);
                 });
             }
-
             // await this.uploadUpdates();
             // await this.clearUpdates();
             // await AsyncStorage.setItem('db_status', 'synced');
@@ -248,8 +269,6 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
     render() {
         const {navigation} = this.props;
         const {progress, status} = this.state;
-        console.log('PROGRESS', progress);
-        console.log('STATUS', status);
         return (
             <View>
                 <View style={localStyles.container}>
@@ -291,7 +310,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                 <View style={{height: 28, flexDirection: 'row', justifyContent: 'space-between'}}>
                     <Text style={localStyles.status}>{progress.logger}</Text>
                     <TouchableOpacity style={localStyles.item} onPress={() => this.resetDB()}>
-                        <Text style={localStyles.status}>Reset</Text>
+                        <Text style={localStyles.reset}>Reset</Text>
                     </TouchableOpacity>
                 </View>
                 {
@@ -322,6 +341,12 @@ const localStyles = StyleSheet.create({
     status: {
         lineHeight: 28,
         color: COLORS.TEXT_COLOR,
+        fontSize: 14,
+        fontWeight: 'bold'
+    },
+    reset: {
+        lineHeight: 28,
+        color: '#f00',
         fontSize: 14,
         fontWeight: 'bold'
     },

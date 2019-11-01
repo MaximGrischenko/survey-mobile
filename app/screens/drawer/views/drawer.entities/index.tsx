@@ -113,9 +113,6 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
         //     });
         // }
 
-
-        console.log('Segments length', this.props.segments.length);
-
         const elements: any = [
             {
                 name: 'showPoles',

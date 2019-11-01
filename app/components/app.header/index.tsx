@@ -23,7 +23,6 @@ interface IMapProps {
 
 class AppHeader extends Component<IMapProps> {
     private onChangeText = (value) => {
-        console.log('search text', value);
         // setTimeout(()=>{
 
             this.props.changeSettings({

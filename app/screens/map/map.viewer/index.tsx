@@ -62,7 +62,6 @@ class MapViewer extends Component<IMapProps, IMapState> {
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
         if(nextProps.relocate) {
-            console.log('in relocation');
             this.relocation(nextProps.region, 2000);
         }
         if(nextProps.expandCluster) {

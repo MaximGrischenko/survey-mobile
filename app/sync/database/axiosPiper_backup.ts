@@ -281,7 +281,6 @@ export class DBAdapter implements IAdapter {
             let api = '';
             let query = '';
             this.updateState({...this.state, pending: true, logger: `Fetching ${table.name} data`});
-            console.log('PROJECTS', this.projects);
             switch (table.name) {
                 case 'categories': {
                     api = `${API}api/category`;
@@ -377,7 +376,6 @@ export class DBAdapter implements IAdapter {
                         case 'projects': {
                             query = `INSERT OR IGNORE INTO projects (id, title, contractor, status, createdAt, updatedAt, deletedAt) VALUES`;
                             const list = response.data;
-                            console.log('PROJ RESPONSE', list);
                             this.projects = [...response.data];
                             const chunksPiper = new PromisePiper();
                             while (list.length) {
@@ -414,7 +412,6 @@ export class DBAdapter implements IAdapter {
                         case 'powerlines': {
                             query = `INSERT OR IGNORE INTO powerlines (id, title, status, comment, userId, projectId, project_powerline, createdAt, updatedAt, deletedAt) VALUES`;
                             const list = response.data.rows;
-                            console.log('POWERLINES', list.length);
                             this.powerlines = [...response.data.rows];
                             const chunksPiper = new PromisePiper();
                             while (list.length) {
@@ -1119,17 +1116,14 @@ export class DBAdapter implements IAdapter {
             this.updateState({...this.state, pending: true, logger: `Fetching ${table.name} data`});
             switch (table.name) {
                 case 'categories': {
-                    console.log('INSERT CATEGORIES');
                     api = `${API}api/category`;
                     query = `INSERT OR IGNORE INTO categories (id, title, comment, userId, createdAt, updatedAt, deletedAt) VALUES`;
                 } break;
                 case 'projects': {
-                    console.log('INSERT PROJECTS');
                     api = `${API}api/projects?limit=${this.LIMIT_TO_LOAD}`;
                     query = `INSERT OR IGNORE INTO projects (id, title, contractor, status, createdAt, updatedAt, deletedAt) VALUES`;
                 } break;
                 case 'powerlines': {
-                    console.log('INSERT POWERLINES');
                     const projectIds = [];
                     this.projects.forEach((project) => {
                         projectIds.push(project.id);
@@ -1138,7 +1132,6 @@ export class DBAdapter implements IAdapter {
                     query = `INSERT OR IGNORE INTO powerlines (id, title, status, comment, userId, projectId, project_powerline, createdAt, updatedAt, deletedAt) VALUES`;
                 } break;
                 case 'stations': {
-                    console.log('INSERT STATIONS');
                     const projectIds = [];
                     this.projects.forEach((project) => {
                         projectIds.push(project.id);
@@ -1147,7 +1140,6 @@ export class DBAdapter implements IAdapter {
                     query = `INSERT OR IGNORE INTO stations (id, title, description, nazw_stac, num_eksp_s, comment, type, status, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
                 } break;
                 case 'pois': {
-                    console.log('INSERT POIS');
                     const projectIds = [];
                     this.projects.forEach((project) => {
                         projectIds.push(project.id);
@@ -1156,7 +1148,6 @@ export class DBAdapter implements IAdapter {
                     query = `INSERT OR IGNORE INTO pois (id, title, description, points, comment, status, userId, projectId, categoryId, createdAt, updatedAt, deletedAt) VALUES`;
                 } break;
                 case 'parcels': {
-                    console.log('INSERT PARCELS');
                     const powerlineIds = [];
                     this.powerlines.forEach((powerline) => {
                         powerlineIds.push(powerline.id);
@@ -1165,7 +1156,6 @@ export class DBAdapter implements IAdapter {
                     query = `INSERT OR IGNORE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
                 } break;
                 case 'poles': {
-                    console.log('INSERT POLES');
                     const powerlineIds = [];
                     this.powerlines.forEach((powerline) => {
                         powerlineIds.push(powerline.id);
@@ -1174,7 +1164,6 @@ export class DBAdapter implements IAdapter {
                     query = `INSERT OR IGNORE INTO poles (id, title, description, comment, type, num_slup, status, powerLineId, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
                 } break;
                 case 'segments': {
-                    console.log('INSERT SEGMENTS');
                     const powerlineIds = [];
                     this.powerlines.forEach((powerline) => {
                         powerlineIds.push(powerline.id);
@@ -1226,7 +1215,6 @@ export class DBAdapter implements IAdapter {
                             } break;
                             case 'powerlines': {
                                 const list = response.data.rows;
-                                console.log('LIST', response);
                                 this.powerlines = response.data.rows;
                                 list.forEach((item, key)=>{
                                     queryValues += `(

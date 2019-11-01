@@ -627,8 +627,6 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
             enableHighAccuracy: true, timeout: 20000,
         });
 
-        console.log('in get location');
-
         this.setState({
             location: {...location.coords},
             region: {...location.coords, latitudeDelta: 0.1, longitudeDelta: 0.1},

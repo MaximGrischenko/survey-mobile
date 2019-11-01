@@ -208,7 +208,6 @@ export function loadUser() {
 }
 
 const changeSettingsSaga = function* ({payload}: any) {
-    console.log('changeSettingsSaga', payload);
     yield put({
         type: CHANGE_SETTINGST_SUCCESS,
         payload

@@ -3,38 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/tables.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/tables.header/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/database/connect.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/database/helper.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/database/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/database/initialize.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/admin/categories.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/admin/categories.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/app.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/app.header/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/redux/modules/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/auth.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/redux/modules/map/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/locations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/locations.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/poles.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/poles.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/powerlines.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/powerlines.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/stations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/stations.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.sync/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.sync/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/lists/main.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/main.list/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/sync/connect.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/sync/promise.piper.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/sync/sync.data.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/sync/tables.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/database/axiosPiper_backup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/axiosPiper_backup.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/database/backup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/backup.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/database/interfaces.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/interfaces.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/sync/database/axiosPiper_backup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/axiosPiper_backup.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -145,7 +122,7 @@
       <workItem from="1570444804712" duration="7215000" />
       <workItem from="1570460928696" duration="264932000" />
       <workItem from="1571738472324" duration="941000" />
-      <workItem from="1571751086419" duration="187273000" />
+      <workItem from="1571751086419" duration="206004000" />
     </task>
     <servers />
   </component>

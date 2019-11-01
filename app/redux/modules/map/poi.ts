@@ -126,7 +126,6 @@ export const fetchPoiOfflineSaga = function* (action: any) {
 
 export const fetchLocationPoiSaga = function* (action: any) {
     try {
-        console.log('===IN FETCH LOCATION POI SAGA===');
         yield put({
             type: FETCH_LOCATION_POIS_REQUEST,
         });
@@ -134,7 +133,6 @@ export const fetchLocationPoiSaga = function* (action: any) {
                 return axios.get(`${API}api/projects/${action.payload.id}/poi?limit=${LIMIT_TO_LOAD}`);
             },
         );
-        console.log('res data rows length', res.data.rows.length);
         yield put({
             type: FETCH_LOCATION_POIS_SUCCESS,
             payload: res.data.rows
@@ -241,6 +239,7 @@ export const addPoiSaga = function* (action: any) {
                 return axios.post(`${API}api/projects/${action.payload.projectId}/poi`, action.payload);
             },
         );
+
         yield put({
             type: ADD_POI_SUCCESS,
             payload: res.data
@@ -325,7 +324,6 @@ export const removePoiSaga = function* (action: any) {
 
 export const editPoiSaga = function* (action: any) {
     try {
-        console.log('EDIT PAYLOAD', action.payload);
         yield put({
             type: EDIT_POI_REQUEST,
         });
