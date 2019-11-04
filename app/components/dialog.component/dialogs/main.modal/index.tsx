@@ -596,13 +596,17 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                         onChangeText = {this.onFieldChange('comment')}
                         customStyle = {{width: '100%'}}
                     />
-                    {
-                        <UploadComponent
-                            files={selectedItem.uploads}
-                            onUpload = {this.onUploadFile}
-                            onUpdate = {this.onUpdateFile}
-                        />
-                    }
+                    <View>
+                        {
+                            this.props.connection ? (
+                                <UploadComponent
+                                    files={selectedItem.uploads}
+                                    onUpload = {this.onUploadFile}
+                                    onUpdate = {this.onUpdateFile}
+                                />
+                            ) : null
+                        }
+                    </View>
                 </Form>
             </ScrollView>
         )

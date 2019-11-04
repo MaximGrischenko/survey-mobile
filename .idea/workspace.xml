@@ -3,15 +3,16 @@
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/components/app.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/app.header/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/entities/types/Segment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Segment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/admin/logs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/admin/logs.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/sync/database/axiosPiper_backup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/axiosPiper_backup.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/sync/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/index.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -63,7 +64,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js.last.introduce.type" value="CONST" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/assets/images" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -81,6 +82,7 @@
       <recent name="$PROJECT_DIR$/app/components/dialog.component/dialogs" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/images" />
       <recent name="$PROJECT_DIR$/app/utils/database" />
       <recent name="$PROJECT_DIR$/custom-node-modules" />
       <recent name="$PROJECT_DIR$/app/components/tables.header" />
@@ -122,7 +124,7 @@
       <workItem from="1570444804712" duration="7215000" />
       <workItem from="1570460928696" duration="264932000" />
       <workItem from="1571738472324" duration="941000" />
-      <workItem from="1571751086419" duration="206004000" />
+      <workItem from="1571751086419" duration="233549000" />
     </task>
     <servers />
   </component>

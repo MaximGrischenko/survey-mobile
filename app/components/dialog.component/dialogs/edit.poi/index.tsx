@@ -33,8 +33,13 @@ class EditPoiDialog extends MainModalDialog {
         super(p);
         this.title = 'Poi';
         this.type = TYPES.POI;
-        this.canDelete = true;
+        this.canDelete = false;
         this.editTitle = true;
+    }
+
+    componentWillMount(): void {
+        const {id} = this.state;
+        this.canDelete = !!id;
     }
 
     componentDidMount(): void {

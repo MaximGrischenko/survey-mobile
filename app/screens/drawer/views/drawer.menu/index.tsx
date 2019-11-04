@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {DrawerActions} from 'react-navigation-drawer';
 import PromisePiper from '../../../../utils/promise.piper';
-import {View, Text, StyleSheet, TouchableOpacity, Dimensions, AsyncStorage} from "react-native";
+import {View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, AsyncStorage} from "react-native";
 import * as Progress from 'react-native-progress';
 import SvgUri from 'react-native-svg-uri';
 import {Observer, Emitter} from "../../../../utils/interfaces";
@@ -16,6 +16,8 @@ import {editSegments} from "../../../../redux/modules/map/segments";
 import {editPole} from "../../../../redux/modules/map/poles";
 import {editParcel} from "../../../../redux/modules/map/parcels";
 import {connectionSelector} from "../../../../redux/modules/connect";
+import {API} from "../../../../config";
+import axios from 'react-native-axios';
 
 interface IMapProps {
     navigation: any,
@@ -41,6 +43,35 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
     static navigationOptions = {
         header: null
     };
+    private LIMIT_TO_LOAD = 200000;
+    private projects = [];
+    private powerlines = [];
+    private tables = [
+        {
+            name: 'categories',
+        },
+        {
+            name: 'projects',
+        },
+        {
+            name: 'powerlines',
+        },
+        {
+            name: 'stations',
+        },
+        {
+            name: 'pois',
+        },
+        {
+            name: 'parcels',
+        },
+        {
+            name: 'poles',
+        },
+        {
+            name: 'segments',
+        }
+    ];
 
     state = {
         database: DBAdapter.getInstance(),
@@ -59,36 +90,37 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
 
     async componentDidMount() {
         this.state.database.attach(this);
-        setTimeout(async () => await this.synchronization(), 1000);
+        // setTimeout(async () => await this.synchronization(), 1000);
     }
 
     async componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any) {
-        if(nextProps.navigation.state.isDrawerOpen !== this.props.navigation.state.isDrawerOpen) {
-            if(nextProps.navigation.state.isDrawerOpen) {
-                await this.checkStatus();
-                this.props.changeControls({
-                    name: 'isDrawerOpen',
-                    value: true
-                });
-            } else {
-                this.props.changeControls({
-                    name: 'isDrawerOpen',
-                    value: false
-                })
-            }
-        }
-
-        if(nextProps.isTablesOpen !== this.props.isTablesOpen) {
-           await this.checkStatus();
-        }
-
-        if(nextProps.connection !== this.props.connection) {
-            if(nextProps.connection) {
-                // await this.synchronization();
-                setTimeout(async () => await this.synchronization(), 500);
-            }
-        }
+        // if(nextProps.navigation.state.isDrawerOpen !== this.props.navigation.state.isDrawerOpen) {
+        //     if(nextProps.navigation.state.isDrawerOpen) {
+        //         await this.checkStatus();
+        //         this.props.changeControls({
+        //             name: 'isDrawerOpen',
+        //             value: true
+        //         });
+        //     } else {
+        //         this.props.changeControls({
+        //             name: 'isDrawerOpen',
+        //             value: false
+        //         })
+        //     }
+        // }
+        //
+        // if(nextProps.isTablesOpen !== this.props.isTablesOpen) {
+        //    await this.checkStatus();
+        // }
+        //
+        // if(nextProps.connection !== this.props.connection) {
+        //     if(nextProps.connection) {
+        //         // await this.synchronization();
+        //         setTimeout(async () => await this.synchronization(), 1000);
+        //     }
+        // }
     }
+
 
     componentWillUnmount(): void {
         this.state.database.detach(this);
@@ -98,6 +130,9 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         const status = await AsyncStorage.getItem('db_status');
         if(!status) {
             await this.state.database.initDB();
+            if(this.props.connection) {
+                setTimeout(async () => await this.synchronization(), 1000);
+            }
         } else {
             this.setState({status});
             switch (status) {
@@ -147,35 +182,15 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         await AsyncStorage.removeItem('updates');
     };
 
-    private downloadUpdates = async () => {
-        this.state.database.updateDB();
+    private downloadDB = async () => {
+        this.state.database.loadDB();
+        await AsyncStorage.setItem('timestamp', JSON.stringify(Date.now()));
     };
 
-    // private uploadUpdates = async () => {
-    //     const stored =  await AsyncStorage.getItem('updates');
-    //     if(stored) {
-    //         const updates = JSON.parse(stored);
-    //         console.log('UPDATES', updates);
-    //
-    //
-    //
-    //         // Promise.all(updates.map((update) => this.createRows(table)))
-    //         //     .then(async (resolve) => {
-    //         //         await AsyncStorage.setItem('db_status', 'exist');
-    //         //         this.notifier({...this.state, pending: false, logger: `Local DB initialized`});
-    //         //         console.log('Created Success', resolve);
-    //         //     })
-    //         //     .catch(async (reject) => {
-    //         //         this.notifier({...this.state, pending: false, logger: `Initialization Error`});
-    //         //         await AsyncStorage.setItem('db_status', 'error');
-    //         //         console.log('Created Error', reject)
-    //         //     });
-    //
-    //         updates.forEach((update) => {
-    //
-    //         });
-    //     }
-    // };
+    private updateDB = async () => {
+        const timestamp = await AsyncStorage.getItem('timestamp');
+        this.state.database.updateDB(timestamp);
+    };
 
     private upload = (update) => {
         return new Promise(async (resolve, reject) => {
@@ -211,7 +226,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         //TODO before merge check remote updates...
 
         if(status === 'exist' && this.props.connection) {
-           await this.downloadUpdates();
+           await this.downloadDB();
         }
 
         if(status === 'updated' && this.props.connection) {
@@ -237,7 +252,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                         }
                         return [...acc, update]
                     }, []);
-                console.log('TRANSACTIONS', transactions);
+
                 transactions.map((update) => {
                     uploadPiper.pipe((resolve, reject) => {
                         this.upload(update).then((uploadResult) => {
@@ -251,6 +266,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                 await uploadPiper.finally(async (uploadResult) => {
                     await this.clearUpdates();
                     await AsyncStorage.setItem('db_status', 'synced');
+                    await AsyncStorage.setItem('timestamp', JSON.stringify(Date.now()));
                     await this.checkStatus();
                     console.log('Upload Success', uploadResult);
                 }, async (rejectReason) => {
@@ -259,10 +275,6 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                     console.log('Upload Error', rejectReason);
                 });
             }
-            // await this.uploadUpdates();
-            // await this.clearUpdates();
-            // await AsyncStorage.setItem('db_status', 'synced');
-            // await this.checkStatus();
         }
     };
 
@@ -278,9 +290,9 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                             height={28}
                             source={require('../../../../../assets/images/sync.svg')}
                         />
+                        {/*<Image style={{width: 35, height: 30}} source={require('../../../../../assets/images/sync.png')}/>*/}
                         <Text style={{marginTop: 10}}>Sync</Text>
                     </TouchableOpacity>
-
                     <View style={localStyles.divider}/>
 
                     <TouchableOpacity style={localStyles.item} onPress={() => {navigation.dispatch(DrawerActions.toggleDrawer())}}>
@@ -309,6 +321,9 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                 </View>
                 <View style={{height: 28, flexDirection: 'row', justifyContent: 'space-between'}}>
                     <Text style={localStyles.status}>{progress.logger}</Text>
+                    <TouchableOpacity style={localStyles.item} onPress={() => this.updateDB()}>
+                        <Text style={localStyles.reset}>UPDATE</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity style={localStyles.item} onPress={() => this.resetDB()}>
                         <Text style={localStyles.reset}>Reset</Text>
                     </TouchableOpacity>
@@ -346,7 +361,7 @@ const localStyles = StyleSheet.create({
     },
     reset: {
         lineHeight: 28,
-        color: '#f00',
+        color: COLORS.PRIMARY,
         fontSize: 14,
         fontWeight: 'bold'
     },

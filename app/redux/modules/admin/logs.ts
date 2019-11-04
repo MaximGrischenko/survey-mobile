@@ -27,13 +27,13 @@ export function fetchLOGS(location: any) {
     };
 }
 
-
 export const fetchLOGSSagaMore = function* ({payload}: any) {
     yield put({
         type: FETCH_LOGS_SUCCESS,
         payload: payload.rows
     });
-}
+};
+
 export const fetchLOGSSaga = function* (action: any) {
     try {
         yield put({

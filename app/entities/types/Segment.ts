@@ -39,8 +39,7 @@ export class Segment extends Main {
         this.parcel_number_for_permit = data.parcel_number_for_permit || 0;
         this.time_for_next_entry = data.time_for_next_entry||"";
         this.operation_type = data.operation_type || '';
-        this.operation_type = this.operation_type.length ? this.operation_type.split(",") : [];
-      //  this.notes = data.notes || '';
+        this.operation_type = this.operation_type && (typeof this.operation_type === 'string') ? this.operation_type.split(",") : [];
         this.track = data.track || 1;
         this.shutdown_time = data.shutdown_time || 1;
         this.przeslo = data.przeslo || '';
@@ -54,7 +53,6 @@ export class Segment extends Main {
         }
         if (data instanceof Segment) return data;
     }
-
 
     editKeys() {
         return Segment.edit_keys;

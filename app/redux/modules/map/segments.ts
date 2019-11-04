@@ -124,16 +124,19 @@ export const fetchLocationSegmentSaga = function* (action: any) {
         yield put({
             type: FETCH_LOCATION_SEGMENTS_REQUEST,
         });
-        const res = yield call(() => {
+        const res = yield call (() => {
                 return axios.get(`${API}api/projects/${action.payload.id}/powerlines/${action.payload.powerLineId}/segments?limit=${LIMIT_TO_LOAD}`);
             },
         );
+        console.log('res segments', res);
+
         yield put({
             type: FETCH_LOCATION_SEGMENTS_SUCCESS,
             payload: res.data.rows
         });
 
     } catch (error) {
+        console.log('error segments', error);
         yield put({
             type: FETCH_LOCATION_SEGMENTS_ERROR,
             error: error.response.data.message,

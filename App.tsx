@@ -52,7 +52,7 @@ export default class App extends Component {
             require('./assets/images/segment.svg'),
             require('./assets/images/station.svg'),
             require('./assets/images/sync.svg'),
-            require('./assets/images/table.svg')
+            require('./assets/images/table.svg'),
         ]);
 
         const fontAssets = cacheFonts([]);

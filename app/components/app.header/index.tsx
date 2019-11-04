@@ -8,7 +8,7 @@ import {
     Platform, Dimensions, Image, TextInput,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { DrawerActions } from 'react-navigation-drawer';
+import {DrawerActions} from 'react-navigation-drawer';
 import LogOutComponent from '../logout.component';
 import {COLORS} from "../../styles/colors";
 import {changeSettings, loadUser, searchSelector} from "../../redux/modules/auth";
