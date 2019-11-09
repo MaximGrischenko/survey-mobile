@@ -83,27 +83,27 @@ export class DBAdapter implements IAdapter {
         },
         {
             name: 'stations',
-            create: 'CREATE TABLE IF NOT EXISTS stations (id INTEGER, title VARCHAR(255), description VARCHAR(255), nazw_stac VARCHAR(255), num_eksp_s VARCHAR(255), comment VARCHAR(255), type INTEGER DEFAULT 0, status INTEGER, userId INTEGER, projectId INTEGER, points TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id));',
+            create: 'CREATE TABLE IF NOT EXISTS stations (id INTEGER, title VARCHAR(255), description VARCHAR(255), nazw_stac VARCHAR(255), num_eksp_s VARCHAR(255), comment VARCHAR(255), type INTEGER DEFAULT 0, status INTEGER, userId INTEGER, projectId INTEGER, points TEXT, uploads TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id));',
             delete: 'DROP TABLE IF EXISTS stations;'
         },
         {
             name: 'pois',
-            create: 'CREATE TABLE IF NOT EXISTS pois (id INTEGER, title VARCHAR(255), description VARCHAR(255), points TEXT, comment VARCHAR(255), status INTEGER DEFAULT 1, userId INTEGER, projectId INTEGER, categoryId INTEGER, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
+            create: 'CREATE TABLE IF NOT EXISTS pois (id INTEGER, title VARCHAR(255), description VARCHAR(255), points TEXT, comment VARCHAR(255), status INTEGER DEFAULT 1, userId INTEGER, projectId INTEGER, categoryId INTEGER, uploads TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
             delete: 'DROP TABLE IF EXISTS pois;'
         },
         {
             name: 'parcels',
-            create: 'CREATE TABLE IF NOT EXISTS parcels(id INTEGER, comment VARCHAR(255), title VARCHAR(255), points TEXT, wojewodztw VARCHAR(255), gmina VARCHAR(255), description VARCHAR(255), numer VARCHAR(255), status INTEGER DEFAULT 1, userId INTEGER, powerLineId INTEGER, projectId INTEGER, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
+            create: 'CREATE TABLE IF NOT EXISTS parcels(id INTEGER, comment VARCHAR(255), title VARCHAR(255), points TEXT, wojewodztw VARCHAR(255), gmina VARCHAR(255), description VARCHAR(255), numer VARCHAR(255), status INTEGER DEFAULT 1, userId INTEGER, powerLineId INTEGER, projectId INTEGER, uploads TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
             delete: 'DROP TABLE IF EXISTS parcels'
         },
         {
             name: 'poles',
-            create: 'CREATE TABLE IF NOT EXISTS poles (id INTEGER, title VARCHAR(255), description VARCHAR(255), comment VARCHAR(255), type INTEGER, num_slup VARCHAR(255), status INTEGER DEFAULT 1, powerLineId INTEGER, userId INTEGER, projectId INTEGER, points TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
+            create: 'CREATE TABLE IF NOT EXISTS poles (id INTEGER, title VARCHAR(255), description VARCHAR(255), comment VARCHAR(255), type INTEGER, num_slup VARCHAR(255), status INTEGER DEFAULT 1, powerLineId INTEGER, userId INTEGER, projectId INTEGER, points TEXT, uploads TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
             delete: 'DROP TABLE IF EXISTS poles'
         },
         {
             name: 'segments',
-            create: 'CREATE TABLE IF NOT EXISTS segments (id INTEGER, title VARCHAR(255), comment VARCHAR(255), description VARCHAR(255), nazwa_ciagu_id VARCHAR(255), przeslo VARCHAR(255), status VARCHAR(255), vegetation_status INTEGER DEFAULT 0, distance_lateral INTEGER DEFAULT 0, distance_bottom INTEGER DEFAULT 0, shutdown_time INTEGER DEFAULT 0, track INTEGER DEFAULT 0, operation_type VARCHAR(255), time_of_operation INTEGER DEFAULT 0, time_for_next_entry VARCHAR(255), parcel_number_for_permit INTEGER DEFAULT 0, notes VARCHAR(255), powerLineId INTEGER, projectId INTEGER, userId INTEGER, points TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
+            create: 'CREATE TABLE IF NOT EXISTS segments (id INTEGER, title VARCHAR(255), comment VARCHAR(255), description VARCHAR(255), nazwa_ciagu_id VARCHAR(255), przeslo VARCHAR(255), status VARCHAR(255), vegetation_status INTEGER DEFAULT 0, distance_lateral INTEGER DEFAULT 0, distance_bottom INTEGER DEFAULT 0, shutdown_time INTEGER DEFAULT 0, track INTEGER DEFAULT 0, operation_type VARCHAR(255), time_of_operation INTEGER DEFAULT 0, time_for_next_entry VARCHAR(255), parcel_number_for_permit INTEGER DEFAULT 0, notes VARCHAR(255), powerLineId INTEGER, projectId INTEGER, userId INTEGER, points TEXT, uploads TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
             delete: 'DROP TABLE IF EXISTS segments'
         }
     ];
@@ -133,10 +133,24 @@ export class DBAdapter implements IAdapter {
                     }).catch(error => {
                         reject(error)
                     });
-                    await AsyncStorage.setItem('db_status', 'updated');
+                    const stored = await AsyncStorage.getItem('status');
+                    const status = JSON.parse(stored);
+                    await AsyncStorage.setItem('status', JSON.stringify({
+                            ...status,
+                            storage: 'updated'
+                        })
+                    );
+                    // await AsyncStorage.setItem('db_status', 'updated');
                 }
             }).catch(async (error) => {
-                await AsyncStorage.setItem('db_status', 'error');
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: 'error',
+                    }
+                ));
+                // await AsyncStorage.setItem('db_status', 'error');
                 reject(error)
             });
         });
@@ -155,11 +169,25 @@ export class DBAdapter implements IAdapter {
     public clear = async (clear) => {
         return new Promise(async (resolve, reject) => {
             await this.executeSQL(clear).then(async (result) => {
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        storage: 'updated'
+                    })
+                );
                 resolve(result);
-                await AsyncStorage.setItem('db_status', 'updated');
+               // await AsyncStorage.setItem('db_status', 'updated');
             }).catch(async (error) => {
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: 'error',
+                    }
+                ));
                 reject(error);
-                await AsyncStorage.setItem('db_status', 'error');
+                // await AsyncStorage.setItem('db_status', 'error');
             });
         });
     };
@@ -172,13 +200,26 @@ export class DBAdapter implements IAdapter {
         if(DBAdapter.database !== undefined) {
             Promise.all(this.tables.map((table) => this.createRows(table)))
                 .then(async (resolve) => {
-                    await AsyncStorage.setItem('db_status', 'exist');
+                    const stored = await AsyncStorage.getItem('status');
+                    const status = JSON.parse(stored);
+                    await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: 'exist'
+                    }));
+                   // await AsyncStorage.setItem('db_status', 'exist');
                     this.notifier({...this.state, pending: false, logger: `Local DB initialized`});
                     console.log('Created Success', resolve);
                 })
                 .catch(async (reject) => {
                     this.notifier({...this.state, pending: false, logger: `Initialization Error`});
-                    await AsyncStorage.setItem('db_status', 'error');
+                    const stored = await AsyncStorage.getItem('status');
+                    const status = JSON.parse(stored);
+                    await AsyncStorage.setItem('status', JSON.stringify({
+                            ...status,
+                            database: 'error'
+                        })
+                    );
+                    // await AsyncStorage.setItem('db_status', 'error');
                     console.log('Created Error', reject)
                 });
         }
@@ -189,11 +230,25 @@ export class DBAdapter implements IAdapter {
         if(DBAdapter.database !== undefined) {
             Promise.all(this.tables.map((table) => this.deleteRows(table)))
             .then(async (resolve) => {
-                await AsyncStorage.removeItem('db_status');
+                // await AsyncStorage.removeItem('db_status');
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: null
+                    })
+                );
                 console.log('Deleted Success', resolve)
             })
             .catch(async (reject) => {
-                await AsyncStorage.setItem('db_status', 'error');
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: 'error'
+                    })
+                );
+                // await AsyncStorage.setItem('db_status', 'error');
                 console.log('Deleted Error', reject)
             });
         }
@@ -214,11 +269,25 @@ export class DBAdapter implements IAdapter {
             });
 
             syncPiper.finally( async (resolveResult) => {
-                await AsyncStorage.setItem('db_status', 'synced');
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: 'updated'
+                    })
+                );
+                // await AsyncStorage.setItem('db_status', 'synced');
                 this.notifier({...this.state, pending: false, logger: `Local DB is up-to-date`});
                 console.log('Sync Success', resolveResult);
             }, async (rejectReason) => {
-                await AsyncStorage.setItem('db_status', 'error');
+                // await AsyncStorage.setItem('db_status', 'error');
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: 'error'
+                    })
+                );
                 this.notifier({...this.state, pending: false, logger: `Synchronization Error`});
                 console.log('Sync Error', rejectReason);
             });
@@ -239,11 +308,23 @@ export class DBAdapter implements IAdapter {
             });
 
             syncPiper.finally( async (resolveResult) => {
-                await AsyncStorage.setItem('db_status', 'synced');
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: 'updated'
+                    })
+                );
                 this.notifier({...this.state, pending: false, logger: `Local DB is up-to-date`});
                 console.log('Sync Success', resolveResult);
             }, async (rejectReason) => {
-                await AsyncStorage.setItem('db_status', 'error');
+                const stored = await AsyncStorage.getItem('status');
+                const status = JSON.parse(stored);
+                await AsyncStorage.setItem('status', JSON.stringify({
+                        ...status,
+                        database: 'error'
+                    })
+                );
                 this.notifier({...this.state, pending: false, logger: `Synchronization Error`});
                 console.log('Sync Error', rejectReason);
             });
@@ -296,14 +377,22 @@ export class DBAdapter implements IAdapter {
             let api = '';
             this.notifier({...this.state, pending: true, logger: `Check ${table.name} updates`});
 
-            const filter = [{
-                columnName: 'updatedAt',
-                value: {
-                    start: timestamp,
-                    end: Date.now()
+            const filter = [
+                {
+                    columnName: 'updatedAt',
+                    value: {
+                        start: +timestamp,
+                        end: Date.now()
+                    }
+                },
+                {
+                    columnName: 'deletedAt',
+                    value: {
+                        start: +timestamp,
+                        end: Date.now()
+                    }
                 }
-            }];
-
+            ];
             switch (table.name) {
                 case 'categories': {
                     api = `${API}api/category`;
@@ -330,7 +419,6 @@ export class DBAdapter implements IAdapter {
                     this.projects.forEach((project) => {
                         projectIds.push(project.id);
                     });
-                    console.log('PROJECTS', this.projects);
                     api = `${API}api/projects/${projectIds[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}&filter=${JSON.stringify(filter)}`;
                 } break;
                 case 'parcels': {
@@ -447,105 +535,105 @@ export class DBAdapter implements IAdapter {
                                 reject({result: 'No projects data provided'});
                             }
                         } break;
-                        // case 'powerlines': {
-                        //     if(response.data.rows.length) {
-                        //         query = `INSERT OR REPLACE INTO powerlines (id, title, status, comment, userId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
-                        //         const list = response.data.rows;
-                        //         this.powerlines = [...response.data.rows];
-                        //         const chunksPiper = new PromisePiper();
-                        //         while (list.length) {
-                        //             const offset = list.length > limit ? limit : list.length;
-                        //             const chunk = list.splice(0, offset);
-                        //             chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
-                        //                 let _query = query + '';
-                        //                 let _values = '';
-                        //                 chunk.forEach((item, key) => {
-                        //                     _values += `(
-                        //                     ${item.id},
-                        //                     "${escape(item.title)}",
-                        //                     ${item.status},
-                        //                     "${escape(item.comment)}",
-                        //                     ${item.userId},
-                        //                     ${item.projectId},
-                        //                     ${this.convertToTimeStamp(item.createdAt)},
-                        //                     ${this.convertToTimeStamp(item.updatedAt)},
-                        //                     ${this.convertToTimeStamp(item.deletedAt)}
-                        //                     )`;
-                        //                     _values += key === chunk.length-1 ? "; " : ", ";
-                        //                 });
-                        //                 _query += _values;
-                        //                 this.fillRows(_query, table.name).then((resolveFillResult) => {
-                        //                     resolveChunkWorker(resolveFillResult);
-                        //                 }, (rejectFillReason) => {
-                        //                     rejectChunkWorker(rejectFillReason);
-                        //                 });
-                        //             });
-                        //         }
-                        //
-                        //         chunksPiper.finally( (resolveResult) => {
-                        //             resolve(resolveResult);
-                        //         }, (rejectReason) => {
-                        //             reject(rejectReason);
-                        //         });
-                        //     } else {
-                        //         reject({result: 'No powerlines data provided'});
-                        //     }
-                        // } break;
-                        // case 'stations': {
-                        //     if(response.data.rows.length) {
-                        //         query = `INSERT OR REPLACE INTO stations (id, title, description, nazw_stac, num_eksp_s, comment, type, status, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
-                        //         const list = response.data.rows;
-                        //         const chunksPiper = new PromisePiper();
-                        //         while (list.length) {
-                        //             const offset = list.length > limit ? limit : list.length;
-                        //             const chunk = list.splice(0, offset);
-                        //             chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
-                        //                 let _query = query + '';
-                        //                 let _values = '';
-                        //                 chunk.forEach((item, key) => {
-                        //                     _values += `(
-                        //                     ${item.id},
-                        //                     "${escape(item.title)}",
-                        //                     "${escape(item.description)}",
-                        //                     "${escape(item.nazw_stac)}",
-                        //                     "${escape(item.num_eksp_s)}",
-                        //                     "${escape(item.comment)}",
-                        //                     ${item.type},
-                        //                     ${item.status},
-                        //                     ${item.userId},
-                        //                     ${item.projectId},
-                        //                     "${escape(JSON.stringify(item.points))}",
-                        //                     ${this.convertToTimeStamp(item.createdAt)},
-                        //                     ${this.convertToTimeStamp(item.updatedAt)},
-                        //                     ${this.convertToTimeStamp(item.deletedAt)}
-                        //                     )`;
-                        //                     _values += key === chunk.length-1 ? "; " : ", ";
-                        //                 });
-                        //                 _query += _values;
-                        //                 this.fillRows(_query, table.name).then((resolveFillResult) => {
-                        //                     resolveChunkWorker(resolveFillResult);
-                        //                 }, (rejectFillReason) => {
-                        //                     rejectChunkWorker(rejectFillReason);
-                        //                 });
-                        //             });
-                        //         }
-                        //
-                        //         chunksPiper.finally( (resolveResult) => {
-                        //             resolve(resolveResult);
-                        //         }, (rejectReason) => {
-                        //             reject(rejectReason);
-                        //         });
-                        //     } else {
-                        //         resolve({result: 'No stations data provided'});
-                        //     }
-                        // } break;
+                        case 'powerlines': {
+                            if(response.data.rows.length) {
+                                query = `INSERT OR REPLACE INTO powerlines (id, title, status, comment, userId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
+                                const list = response.data.rows;
+                                this.powerlines = [...response.data.rows];
+                                const chunksPiper = new PromisePiper();
+                                while (list.length) {
+                                    const offset = list.length > limit ? limit : list.length;
+                                    const chunk = list.splice(0, offset);
+                                    chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
+                                        let _values = '';
+                                        chunk.forEach((item, key) => {
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.title)}",
+                                            ${item.status},
+                                            "${escape(item.comment)}",
+                                            ${item.userId},
+                                            ${item.projectId},
+                                            ${this.convertToTimeStamp(item.createdAt)},
+                                            ${this.convertToTimeStamp(item.updatedAt)},
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
+                                        });
+                                        _query += _values;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
+                                            resolveChunkWorker(resolveFillResult);
+                                        }, (rejectFillReason) => {
+                                            rejectChunkWorker(rejectFillReason);
+                                        });
+                                    });
+                                }
+
+                                chunksPiper.finally( (resolveResult) => {
+                                    resolve(resolveResult);
+                                }, (rejectReason) => {
+                                    reject(rejectReason);
+                                });
+                            } else {
+                                reject({result: 'No powerlines data provided'});
+                            }
+                        } break;
+                        case 'stations': {
+                            if(response.data.rows.length) {
+                                query = `INSERT OR REPLACE INTO stations (id, title, description, nazw_stac, num_eksp_s, comment, type, status, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                const list = response.data.rows;
+                                const chunksPiper = new PromisePiper();
+                                while (list.length) {
+                                    const offset = list.length > limit ? limit : list.length;
+                                    const chunk = list.splice(0, offset);
+                                    chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
+                                        let _values = '';
+                                        chunk.forEach((item, key) => {
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.title)}",
+                                            "${escape(item.description)}",
+                                            "${escape(item.nazw_stac)}",
+                                            "${escape(item.num_eksp_s)}",
+                                            "${escape(item.comment)}",
+                                            ${item.type},
+                                            ${item.status},
+                                            ${item.userId},
+                                            ${item.projectId},
+                                            "${escape(JSON.stringify(item.points))}",
+                                            ${this.convertToTimeStamp(item.createdAt)},
+                                            ${this.convertToTimeStamp(item.updatedAt)},
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
+                                        });
+                                        _query += _values;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
+                                            resolveChunkWorker(resolveFillResult);
+                                        }, (rejectFillReason) => {
+                                            rejectChunkWorker(rejectFillReason);
+                                        });
+                                    });
+                                }
+
+                                chunksPiper.finally( (resolveResult) => {
+                                    resolve(resolveResult);
+                                }, (rejectReason) => {
+                                    reject(rejectReason);
+                                });
+                            } else {
+                                resolve({result: 'No stations data provided'});
+                            }
+                        } break;
                         case 'pois': {
                             if(response.data.rows.length) {
                                 query = `INSERT OR REPLACE INTO pois (id, title, description, points, comment, status, userId, projectId, categoryId, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
                                 const chunksPiper = new PromisePiper();
 
-                                console.log('FILTERED LIST', list);
+                                console.log('FILTERED LIST', list.length);
 
                                 while (list.length) {
                                     const offset = list.length > limit ? limit : list.length;
@@ -588,161 +676,161 @@ export class DBAdapter implements IAdapter {
                                 resolve({result: 'No pois data provided'});
                             }
                         } break;
-                        // case 'parcels': {
-                        //     if(response.data.rows.length) {
-                        //         query = `INSERT OR REPLACE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
-                        //         const list = response.data.rows;
-                        //         const chunksPiper = new PromisePiper();
-                        //         while (list.length) {
-                        //             const offset = list.length > limit ? limit : list.length;
-                        //             const chunk = list.splice(0, offset);
-                        //             chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
-                        //                 let _query = query + '';
-                        //                 let _values = '';
-                        //                 chunk.forEach((item, key) => {
-                        //                     _values += `(
-                        //                     ${item.id},
-                        //                     "${escape(item.comment)}",
-                        //                     "${escape(item.title)}",
-                        //                     "${escape(JSON.stringify(item.points))}",
-                        //                     "${escape(item.wojewodztw)}",
-                        //                     "${escape(item.gmina)}",
-                        //                     "${escape(item.description)}",
-                        //                     "${escape(item.numer)}",
-                        //                     ${item.status},
-                        //                     ${item.userId},
-                        //                     ${item.powerLineId},
-                        //                     ${item.projectId},
-                        //                     ${this.convertToTimeStamp(item.createdAt)},
-                        //                     ${this.convertToTimeStamp(item.updatedAt)},
-                        //                     ${this.convertToTimeStamp(item.deletedAt)}
-                        //                     )`;
-                        //                     _values += key === chunk.length-1 ? "; " : ", ";
-                        //                 });
-                        //                 _query += _values;
-                        //                 this.fillRows( _query, table.name).then((resolveFillResult) => {
-                        //                     resolveChunkWorker(resolveFillResult);
-                        //                 }, (rejectFillReason) => {
-                        //                     rejectChunkWorker(rejectFillReason);
-                        //                 });
-                        //             });
-                        //         }
-                        //
-                        //         chunksPiper.finally( (resolveResult) => {
-                        //             resolve(resolveResult);
-                        //         }, (rejectReason) => {
-                        //             reject(rejectReason);
-                        //         });
-                        //     } else {
-                        //         resolve({result: 'No parcels data provided'});
-                        //     }
-                        // } break;
-                        // case 'poles': {
-                        //     if(response.data.rows.length) {
-                        //         query = `INSERT OR REPLACE INTO poles (id, title, description, comment, type, num_slup, status, powerLineId, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
-                        //         const list = response.data.rows;
-                        //         const chunksPiper = new PromisePiper();
-                        //         while (list.length) {
-                        //             const offset = list.length > limit ? limit : list.length;
-                        //             const chunk = list.splice(0, offset);
-                        //             chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
-                        //                 let _query = query + '';
-                        //                 let _values = '';
-                        //                 chunk.forEach((item, key) => {
-                        //                     _values += `(
-                        //                     ${item.id},
-                        //                     "${escape(item.title)}",
-                        //                     "${escape(item.description)}",
-                        //                     "${escape(item.comment)}",
-                        //                     ${item.type},
-                        //                     "${escape(item.num_slup)}",
-                        //                     ${item.status},
-                        //                     ${item.powerLineId},
-                        //                     ${item.userId},
-                        //                     ${item.projectId},
-                        //                     "${escape(JSON.stringify(item.points))}",
-                        //                     ${this.convertToTimeStamp(item.createdAt)},
-                        //                     ${this.convertToTimeStamp(item.updatedAt)},
-                        //                     ${this.convertToTimeStamp(item.deletedAt)}
-                        //                     )`;
-                        //                     _values += key === chunk.length-1 ? "; " : ", ";
-                        //                 });
-                        //                 _query += _values;
-                        //                 this.fillRows(_query, table.name).then((resolveFillResult) => {
-                        //                     resolveChunkWorker(resolveFillResult);
-                        //                 }, (rejectFillReason) => {
-                        //                     rejectChunkWorker(rejectFillReason);
-                        //                 });
-                        //             });
-                        //         }
-                        //
-                        //         chunksPiper.finally( (resolveResult) => {
-                        //             resolve(resolveResult);
-                        //         }, (rejectReason) => {
-                        //             reject(rejectReason);
-                        //         });
-                        //     } else {
-                        //         resolve({result: 'No poles data provided'});
-                        //     }
-                        // } break;
-                        // case 'segments': {
-                        //     if(response.data.rows.length) {
-                        //         query = `INSERT OR REPLACE INTO segments (id, title, comment, description, nazwa_ciagu_id, przeslo, status, vegetation_status, distance_lateral, distance_bottom, shutdown_time, track, operation_type, time_of_operation, time_for_next_entry, parcel_number_for_permit, notes, powerLineId, projectId, userId, points, createdAt, updatedAt, deletedAt) VALUES`;
-                        //         const list = response.data.rows;
-                        //         const chunksPiper = new PromisePiper();
-                        //         while (list.length) {
-                        //             const offset = list.length > limit ? limit : list.length;
-                        //             const chunk = list.splice(0, offset);
-                        //             chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
-                        //                 let _query = query + '';
-                        //                 let _values = '';
-                        //                 chunk.forEach((item, key) => {
-                        //                     _values += `(
-                        //                     ${item.id},
-                        //                     "${escape(item.title)}",
-                        //                     "${escape(item.comment)}",
-                        //                     "${escape(item.description)}",
-                        //                     "${escape(item.nazwa_ciagu_id)}",
-                        //                     "${escape(item.przeslo)}",
-                        //                     "${escape(item.status)}",
-                        //                     ${item.vegetation_status},
-                        //                     ${item.distance_lateral},
-                        //                     ${item.distance_bottom},
-                        //                     ${item.shutdown_time},
-                        //                     ${item.track},
-                        //                     "${escape(item.operation_type)}",
-                        //                     ${item.time_of_operation},
-                        //                     "${escape(item.time_for_next_entry)}",
-                        //                     ${item.parcel_number_for_permit},
-                        //                     "${escape(item.notes)}",
-                        //                     ${item.powerLineId},
-                        //                     ${item.projectId},
-                        //                     ${item.userId},
-                        //                     "${escape(JSON.stringify(item.points))}",
-                        //                     ${this.convertToTimeStamp(item.createdAt)},
-                        //                     ${this.convertToTimeStamp(item.updatedAt)},
-                        //                     ${this.convertToTimeStamp(item.deletedAt)}
-                        //                     )`;
-                        //                     _values += key === chunk.length-1 ? "; " : ", ";
-                        //                 });
-                        //                 _query += _values;
-                        //                 this.fillRows(_query, table.name).then((resolveFillResult) => {
-                        //                     resolveChunkWorker(resolveFillResult);
-                        //                 }, (rejectFillReason) => {
-                        //                     rejectChunkWorker(rejectFillReason);
-                        //                 });
-                        //             });
-                        //         }
-                        //
-                        //         chunksPiper.finally( (resolveResult) => {
-                        //             resolve(resolveResult);
-                        //         }, (rejectReason) => {
-                        //             reject(rejectReason);
-                        //         });
-                        //     } else {
-                        //         resolve({result: 'No segments data provided'});
-                        //     }
-                        // } break;
+                        case 'parcels': {
+                            if(response.data.rows.length) {
+                                query = `INSERT OR REPLACE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
+                                const list = response.data.rows;
+                                const chunksPiper = new PromisePiper();
+                                while (list.length) {
+                                    const offset = list.length > limit ? limit : list.length;
+                                    const chunk = list.splice(0, offset);
+                                    chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
+                                        let _values = '';
+                                        chunk.forEach((item, key) => {
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.comment)}",
+                                            "${escape(item.title)}",
+                                            "${escape(JSON.stringify(item.points))}",
+                                            "${escape(item.wojewodztw)}",
+                                            "${escape(item.gmina)}",
+                                            "${escape(item.description)}",
+                                            "${escape(item.numer)}",
+                                            ${item.status},
+                                            ${item.userId},
+                                            ${item.powerLineId},
+                                            ${item.projectId},
+                                            ${this.convertToTimeStamp(item.createdAt)},
+                                            ${this.convertToTimeStamp(item.updatedAt)},
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
+                                        });
+                                        _query += _values;
+                                        this.fillRows( _query, table.name).then((resolveFillResult) => {
+                                            resolveChunkWorker(resolveFillResult);
+                                        }, (rejectFillReason) => {
+                                            rejectChunkWorker(rejectFillReason);
+                                        });
+                                    });
+                                }
+
+                                chunksPiper.finally( (resolveResult) => {
+                                    resolve(resolveResult);
+                                }, (rejectReason) => {
+                                    reject(rejectReason);
+                                });
+                            } else {
+                                resolve({result: 'No parcels data provided'});
+                            }
+                        } break;
+                        case 'poles': {
+                            if(response.data.rows.length) {
+                                query = `INSERT OR REPLACE INTO poles (id, title, description, comment, type, num_slup, status, powerLineId, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                const list = response.data.rows;
+                                const chunksPiper = new PromisePiper();
+                                while (list.length) {
+                                    const offset = list.length > limit ? limit : list.length;
+                                    const chunk = list.splice(0, offset);
+                                    chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
+                                        let _values = '';
+                                        chunk.forEach((item, key) => {
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.title)}",
+                                            "${escape(item.description)}",
+                                            "${escape(item.comment)}",
+                                            ${item.type},
+                                            "${escape(item.num_slup)}",
+                                            ${item.status},
+                                            ${item.powerLineId},
+                                            ${item.userId},
+                                            ${item.projectId},
+                                            "${escape(JSON.stringify(item.points))}",
+                                            ${this.convertToTimeStamp(item.createdAt)},
+                                            ${this.convertToTimeStamp(item.updatedAt)},
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
+                                        });
+                                        _query += _values;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
+                                            resolveChunkWorker(resolveFillResult);
+                                        }, (rejectFillReason) => {
+                                            rejectChunkWorker(rejectFillReason);
+                                        });
+                                    });
+                                }
+
+                                chunksPiper.finally( (resolveResult) => {
+                                    resolve(resolveResult);
+                                }, (rejectReason) => {
+                                    reject(rejectReason);
+                                });
+                            } else {
+                                resolve({result: 'No poles data provided'});
+                            }
+                        } break;
+                        case 'segments': {
+                            if(response.data.rows.length) {
+                                query = `INSERT OR REPLACE INTO segments (id, title, comment, description, nazwa_ciagu_id, przeslo, status, vegetation_status, distance_lateral, distance_bottom, shutdown_time, track, operation_type, time_of_operation, time_for_next_entry, parcel_number_for_permit, notes, powerLineId, projectId, userId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                const list = response.data.rows;
+                                const chunksPiper = new PromisePiper();
+                                while (list.length) {
+                                    const offset = list.length > limit ? limit : list.length;
+                                    const chunk = list.splice(0, offset);
+                                    chunksPiper.pipe( ( resolveChunkWorker, rejectChunkWorker ) => {
+                                        let _query = query + '';
+                                        let _values = '';
+                                        chunk.forEach((item, key) => {
+                                            _values += `(
+                                            ${item.id},
+                                            "${escape(item.title)}",
+                                            "${escape(item.comment)}",
+                                            "${escape(item.description)}",
+                                            "${escape(item.nazwa_ciagu_id)}",
+                                            "${escape(item.przeslo)}",
+                                            "${escape(item.status)}",
+                                            ${item.vegetation_status},
+                                            ${item.distance_lateral},
+                                            ${item.distance_bottom},
+                                            ${item.shutdown_time},
+                                            ${item.track},
+                                            "${escape(item.operation_type)}",
+                                            ${item.time_of_operation},
+                                            "${escape(item.time_for_next_entry)}",
+                                            ${item.parcel_number_for_permit},
+                                            "${escape(item.notes)}",
+                                            ${item.powerLineId},
+                                            ${item.projectId},
+                                            ${item.userId},
+                                            "${escape(JSON.stringify(item.points))}",
+                                            ${this.convertToTimeStamp(item.createdAt)},
+                                            ${this.convertToTimeStamp(item.updatedAt)},
+                                            ${this.convertToTimeStamp(item.deletedAt)}
+                                            )`;
+                                            _values += key === chunk.length-1 ? "; " : ", ";
+                                        });
+                                        _query += _values;
+                                        this.fillRows(_query, table.name).then((resolveFillResult) => {
+                                            resolveChunkWorker(resolveFillResult);
+                                        }, (rejectFillReason) => {
+                                            rejectChunkWorker(rejectFillReason);
+                                        });
+                                    });
+                                }
+
+                                chunksPiper.finally( (resolveResult) => {
+                                    resolve(resolveResult);
+                                }, (rejectReason) => {
+                                    reject(rejectReason);
+                                });
+                            } else {
+                                resolve({result: 'No segments data provided'});
+                            }
+                        } break;
                     }
                 } else {
                     resolve({finished: true});
@@ -786,7 +874,7 @@ export class DBAdapter implements IAdapter {
                     this.projects.forEach((project) => {
                         projectIds.push(project.id);
                     });
-                    api = `${API}api/projects/${projectIds[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}`;
+                    api = `${API}api/projects/${projectIds[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}&paranoid=true`;
                 } break;
                 case 'parcels': {
                     const powerlineIds = [];
@@ -948,7 +1036,7 @@ export class DBAdapter implements IAdapter {
                         } break;
                         case 'stations': {
                             if(response.data.rows.length) {
-                                query = `INSERT OR IGNORE INTO stations (id, title, description, nazw_stac, num_eksp_s, comment, type, status, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                query = `INSERT OR IGNORE INTO stations (id, title, description, nazw_stac, num_eksp_s, comment, type, status, userId, projectId, points, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
                                 const chunksPiper = new PromisePiper();
                                 while (list.length) {
@@ -969,7 +1057,8 @@ export class DBAdapter implements IAdapter {
                                             ${item.status}, 
                                             ${item.userId}, 
                                             ${item.projectId}, 
-                                            "${escape(JSON.stringify(item.points))}", 
+                                            "${escape(JSON.stringify(item.points))}",
+                                            "${escape(JSON.stringify([]))}",
                                             ${this.convertToTimeStamp(item.createdAt)}, 
                                             ${this.convertToTimeStamp(item.updatedAt)}, 
                                             ${this.convertToTimeStamp(item.deletedAt)}
@@ -996,7 +1085,7 @@ export class DBAdapter implements IAdapter {
                         } break;
                         case 'pois': {
                             if(response.data.rows.length) {
-                                query = `INSERT OR IGNORE INTO pois (id, title, description, points, comment, status, userId, projectId, categoryId, createdAt, updatedAt, deletedAt) VALUES`;
+                                query = `INSERT OR IGNORE INTO pois (id, title, description, points, comment, status, userId, projectId, categoryId, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
                                 const chunksPiper = new PromisePiper();
                                 while (list.length) {
@@ -1016,6 +1105,7 @@ export class DBAdapter implements IAdapter {
                                             ${item.userId}, 
                                             ${item.projectId}, 
                                             ${item.categoryId},
+                                            "${escape(JSON.stringify([]))}",
                                             ${this.convertToTimeStamp(item.createdAt)}, 
                                             ${this.convertToTimeStamp(item.updatedAt)}, 
                                             ${this.convertToTimeStamp(item.deletedAt)}
@@ -1042,7 +1132,7 @@ export class DBAdapter implements IAdapter {
                         } break;
                         case 'parcels': {
                             if(response.data.rows.length) {
-                                query = `INSERT OR IGNORE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
+                                query = `INSERT OR IGNORE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
                                 const chunksPiper = new PromisePiper();
                                 while (list.length) {
@@ -1065,6 +1155,7 @@ export class DBAdapter implements IAdapter {
                                             ${item.userId},
                                             ${item.powerLineId},
                                             ${item.projectId},
+                                            "${escape(JSON.stringify([]))}",
                                             ${this.convertToTimeStamp(item.createdAt)}, 
                                             ${this.convertToTimeStamp(item.updatedAt)}, 
                                             ${this.convertToTimeStamp(item.deletedAt)}
@@ -1091,7 +1182,7 @@ export class DBAdapter implements IAdapter {
                         } break;
                         case 'poles': {
                             if(response.data.rows.length) {
-                                query = `INSERT OR IGNORE INTO poles (id, title, description, comment, type, num_slup, status, powerLineId, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                query = `INSERT OR IGNORE INTO poles (id, title, description, comment, type, num_slup, status, powerLineId, userId, projectId, points, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
                                 const chunksPiper = new PromisePiper();
                                 while (list.length) {
@@ -1113,6 +1204,7 @@ export class DBAdapter implements IAdapter {
                                             ${item.userId},
                                             ${item.projectId},
                                             "${escape(JSON.stringify(item.points))}",
+                                            "${escape(JSON.stringify([]))}",
                                             ${this.convertToTimeStamp(item.createdAt)}, 
                                             ${this.convertToTimeStamp(item.updatedAt)}, 
                                             ${this.convertToTimeStamp(item.deletedAt)}
@@ -1139,7 +1231,7 @@ export class DBAdapter implements IAdapter {
                         } break;
                         case 'segments': {
                             if(response.data.rows.length) {
-                                query = `INSERT OR IGNORE INTO segments (id, title, comment, description, nazwa_ciagu_id, przeslo, status, vegetation_status, distance_lateral, distance_bottom, shutdown_time, track, operation_type, time_of_operation, time_for_next_entry, parcel_number_for_permit, notes, powerLineId, projectId, userId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                query = `INSERT OR IGNORE INTO segments (id, title, comment, description, nazwa_ciagu_id, przeslo, status, vegetation_status, distance_lateral, distance_bottom, shutdown_time, track, operation_type, time_of_operation, time_for_next_entry, parcel_number_for_permit, notes, powerLineId, projectId, userId, points, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
                                 const chunksPiper = new PromisePiper();
                                 while (list.length) {
@@ -1171,6 +1263,7 @@ export class DBAdapter implements IAdapter {
                                             ${item.projectId},
                                             ${item.userId},
                                             "${escape(JSON.stringify(item.points))}",
+                                            "${escape(JSON.stringify([]))}",
                                             ${this.convertToTimeStamp(item.createdAt)},
                                             ${this.convertToTimeStamp(item.updatedAt)},
                                             ${this.convertToTimeStamp(item.deletedAt)}

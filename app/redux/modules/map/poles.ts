@@ -1,11 +1,7 @@
 import axios from "react-native-axios";
 import {API, appName} from "../../../config";
-
-import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
-import {
-    LIMIT_TO_LOAD,
-    moduleName,
-} from './config';
+import {call, put} from 'redux-saga/effects';
+import {moduleName} from './config';
 
 import {DBAdapter} from "../../../sync/database";
 import {AsyncStorage} from "react-native";
@@ -14,7 +10,6 @@ export const ADD_POLE = `${appName}/${moduleName}/ADD_POLE`;
 export const ADD_POLE_REQUEST = `${appName}/${moduleName}/ADD_POLE_REQUEST`;
 export const ADD_POLE_ERROR = `${appName}/${moduleName}/ADD_POLE_ERROR`;
 export const ADD_POLE_SUCCESS = `${appName}/${moduleName}/ADD_POLE_SUCCESS`;
-
 
 export const EDIT_POLE = `${appName}/${moduleName}/EDIT_POLE`;
 export const EDIT_POLE_OFFLINE = `${appName}/${moduleName}/EDIT_POLE_OFFLINE`;
@@ -27,7 +22,6 @@ export const DELETE_POLE = `${appName}/${moduleName}/DELETE_POLE`;
 export const DELETE_POLE_REQUEST = `${appName}/${moduleName}/DELETE_POLE_REQUEST`;
 export const DELETE_POLE_ERROR = `${appName}/${moduleName}/DELETE_POLE_ERROR`;
 export const DELETE_POLE_SUCCESS = `${appName}/${moduleName}/DELETE_POLE_SUCCESS`;
-
 
 export const FETCH_POLES_OFFLINE = `${appName}/${moduleName}/FETCH_POLES_OFFLINE`;
 export const FETCH_LOCATION_POLES = `${appName}/${moduleName}/FETCH_LOCATION_POLES`;
@@ -99,6 +93,7 @@ export const fetchPolesOfflineSaga = function* (action: any) {
                 description: unescape(el.description),
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
                 num_slup: unescape(el.num_slup),
+                uploads: JSON.parse(unescape(el.uploads)),
                 points: JSON.parse(unescape(el.points))
             };
             data.push(pole);
@@ -192,6 +187,7 @@ export const editPoleOfflineSaga = function* ({payload}: any) {
             num_slup = "${escape(payload.num_slup)}",
             powerLineId = "${payload.powerLineId}",
             comment = "${escape(payload.comment)}",
+            uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}
             WHERE id = ${payload.id}`;
 
@@ -209,7 +205,8 @@ export const editPoleOfflineSaga = function* ({payload}: any) {
                 num_slup: unescape(el.num_slup),
                 powerLineId: el.powerLineId,
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
-                points: JSON.parse(unescape(el.points))
+                points: JSON.parse(unescape(el.points)),
+                uploads: JSON.parse(unescape(el.uploads))
             };
         });
 

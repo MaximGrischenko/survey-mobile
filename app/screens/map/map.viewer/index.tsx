@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {ClusterMap} from 'react-native-cluster-map';
 import MapView, {PROVIDER_GOOGLE, Marker} from "react-native-maps";
-import {View, StyleSheet, Platform, Image} from "react-native";
+import {View, StyleSheet, Platform, Image, AsyncStorage} from "react-native";
 import {merge} from "immutable";
 
 interface IMapProps {

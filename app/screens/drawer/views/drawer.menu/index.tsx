@@ -5,6 +5,7 @@ import {DrawerActions} from 'react-navigation-drawer';
 import PromisePiper from '../../../../utils/promise.piper';
 import {View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, AsyncStorage} from "react-native";
 import * as Progress from 'react-native-progress';
+import * as FileSystem from 'expo-file-system';
 import SvgUri from 'react-native-svg-uri';
 import {Observer, Emitter} from "../../../../utils/interfaces";
 import {DBAdapter} from "../../../../sync/database";
@@ -16,8 +17,8 @@ import {editSegments} from "../../../../redux/modules/map/segments";
 import {editPole} from "../../../../redux/modules/map/poles";
 import {editParcel} from "../../../../redux/modules/map/parcels";
 import {connectionSelector} from "../../../../redux/modules/connect";
-import {API} from "../../../../config";
-import axios from 'react-native-axios';
+import {uploadAssetsAsync} from '../../../../utils/upload.assets';
+import {Upload} from "../../../../entities";
 
 interface IMapProps {
     navigation: any,
@@ -36,42 +37,15 @@ interface IMapProps {
 interface IMapState {
     database: DBAdapter;
     progress: Emitter;
-    status: string;
+    status: any;
 }
 
 class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
     static navigationOptions = {
         header: null
     };
-    private LIMIT_TO_LOAD = 200000;
-    private projects = [];
-    private powerlines = [];
-    private tables = [
-        {
-            name: 'categories',
-        },
-        {
-            name: 'projects',
-        },
-        {
-            name: 'powerlines',
-        },
-        {
-            name: 'stations',
-        },
-        {
-            name: 'pois',
-        },
-        {
-            name: 'parcels',
-        },
-        {
-            name: 'poles',
-        },
-        {
-            name: 'segments',
-        }
-    ];
+
+    private uploads: Array<Upload> = [];
 
     state = {
         database: DBAdapter.getInstance(),
@@ -79,7 +53,10 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
             logger: '',
             pending: false
         },
-        status: '',
+        status: {
+            database: '',
+            storage: ''
+        }
     };
 
     public update(emitter: Emitter): void {
@@ -90,52 +67,49 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
 
     async componentDidMount() {
         this.state.database.attach(this);
-        // setTimeout(async () => await this.synchronization(), 1000);
+        await this.synchronization();
     }
 
     async componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any) {
-        // if(nextProps.navigation.state.isDrawerOpen !== this.props.navigation.state.isDrawerOpen) {
-        //     if(nextProps.navigation.state.isDrawerOpen) {
-        //         await this.checkStatus();
-        //         this.props.changeControls({
-        //             name: 'isDrawerOpen',
-        //             value: true
-        //         });
-        //     } else {
-        //         this.props.changeControls({
-        //             name: 'isDrawerOpen',
-        //             value: false
-        //         })
-        //     }
-        // }
-        //
-        // if(nextProps.isTablesOpen !== this.props.isTablesOpen) {
-        //    await this.checkStatus();
-        // }
-        //
-        // if(nextProps.connection !== this.props.connection) {
-        //     if(nextProps.connection) {
-        //         // await this.synchronization();
-        //         setTimeout(async () => await this.synchronization(), 1000);
-        //     }
-        // }
-    }
+        if(nextProps.navigation.state.isDrawerOpen !== this.props.navigation.state.isDrawerOpen) {
+            if(nextProps.navigation.state.isDrawerOpen) {
+                await this.checkStatus();
+                this.props.changeControls({
+                    name: 'isDrawerOpen',
+                    value: true
+                });
+            } else {
+                this.props.changeControls({
+                    name: 'isDrawerOpen',
+                    value: false
+                })
+            }
+        }
 
+        if(nextProps.isTablesOpen !== this.props.isTablesOpen) {
+           await this.checkStatus();
+        }
+
+        if(nextProps.connection !== this.props.connection) {
+            if(nextProps.connection) {
+                setTimeout(async () => await this.synchronization(), 2000);
+            }
+        }
+    }
 
     componentWillUnmount(): void {
         this.state.database.detach(this);
     }
 
     private checkStatus = async () => {
-        const status = await AsyncStorage.getItem('db_status');
-        if(!status) {
+        const result = await AsyncStorage.getItem('status');
+        if(!result) {
             await this.state.database.initDB();
-            if(this.props.connection) {
-                setTimeout(async () => await this.synchronization(), 1000);
-            }
+            setTimeout(async () => await this.synchronization(), 2000);
         } else {
+            const status = JSON.parse(result);
             this.setState({status});
-            switch (status) {
+            switch (status.database) {
                 case 'exist': {
                     this.setState({
                         progress: {
@@ -145,14 +119,6 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                     })
                 } break;
                 case 'updated': {
-                    this.setState({
-                        progress: {
-                            ...this.state.progress,
-                            logger: 'Local DB updated'
-                        }
-                    });
-                } break;
-                case 'synced': {
                     this.setState({
                         progress: {
                             ...this.state.progress,
@@ -175,11 +141,20 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
     private resetDB = async () => {
         await this.state.database.resetDB();
         await this.state.database.initDB();
-        await this.clearUpdates();
+        await AsyncStorage.removeItem('status');
     };
 
-    private clearUpdates = async () => {
+    private finalize = async () => {
         await AsyncStorage.removeItem('updates');
+        const stored = await AsyncStorage.getItem('status');
+        const status = JSON.parse(stored);
+        await AsyncStorage.setItem('status', JSON.stringify({
+                ...status,
+                storage: null
+            })
+        );
+        await AsyncStorage.setItem('timestamp', JSON.stringify(Date.now()));
+        await this.checkStatus();
     };
 
     private downloadDB = async () => {
@@ -192,25 +167,184 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         this.state.database.updateDB(timestamp);
     };
 
+    private uploadAssets = (asset) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const file = {
+                    uri: FileSystem.documentDirectory + `uploads/${asset.path}`,
+                    name: 'photo.jpg',
+                    filename :'imageName.jpg',
+                    type: 'image/jpeg'
+                };
+
+                let token = await AsyncStorage.getItem('access_token');
+
+                const response = await uploadAssetsAsync(file, token);
+                this.uploads = [...this.uploads, new Upload(response)];
+
+                resolve(response);
+            } catch (error) {
+                console.log(error);
+                reject(error);
+            }
+        });
+    };
+
+    private uploadAssetsPiper = (uploads) => {
+        const assetsPiper = new PromisePiper();
+
+        uploads.map((asset) => {
+            assetsPiper.pipe((resolve, reject) => {
+                this.uploadAssets(asset).then((uploadResult) => {
+                    resolve(uploadResult);
+                }, (uploadReason) => {
+                    reject(uploadReason);
+                });
+            });
+        });
+
+        return assetsPiper;
+    };
+
     private upload = (update) => {
         return new Promise(async (resolve, reject) => {
             try {
                 if(update.type === 'poi') {
                     if(update.action === 'add') {
-                        await this.props.addPoi(update.data);
+                        const finalize = () => {
+                            const poi = {
+                                ...update.data,
+                                uploads: [...this.uploads]
+                            };
+                            this.props.addPoi(poi);
+                        };
+
+                        if(update.data.uploads.length) {
+                            this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
+                                await finalize();
+                                this.uploads = [];
+                                console.log('Upload poi assets success', uploadResult);
+                            }, async (rejectReason) => {
+                                console.log('Upload poi assets error', rejectReason);
+                            });
+                        } else {
+                            await this.props.addPoi(update.data);
+                        }
                     } else if(update.action === 'edit') {
-                        await this.props.editPoi(update.data);
+                        const finalize = () => {
+                            const poi = {
+                                ...update.data,
+                                uploads: [...this.uploads]
+                            };
+                            this.props.editPoi(poi);
+                        };
+
+                        if(update.data.uploads.length) {
+                            this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
+                                await finalize();
+                                this.uploads = [];
+                                console.log('Upload poi assets success', uploadResult);
+                            }, async (rejectReason) => {
+                                console.log('Upload poi assets error', rejectReason);
+                            });
+                        } else {
+                            await this.props.editPoi(update.data);
+                        }
                     } else if(update.action === 'remove') {
-                        await this.props.removePoi(update.data);
+                        if(update.data.uploads.length) {
+                            update.data.uploads.map(async (upload) => {
+                                try {
+                                    await FileSystem.deleteAsync(FileSystem.documentDirectory  + `uploads/${upload.path}`);
+                                } catch(error) {
+                                    console.log(error);
+                                } finally {
+                                    await this.props.removePoi(update.data);
+                                }
+                            });
+                        } else {
+                            await this.props.removePoi(update.data);
+                        }
                     }
                 } else if (update.type === 'station') {
-                    await this.props.editStation(update.data);
+                    const finalize = () => {
+                        const station = {
+                            ...update.data,
+                            uploads: [...this.uploads]
+                        };
+                        this.props.editStation(station);
+                    };
+
+                    if(update.data.uploads.length) {
+                        this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
+                            await finalize();
+                            this.uploads = [];
+                            console.log('Upload station assets success', uploadResult);
+                        }, async (rejectReason) => {
+                            console.log('Upload station assets error', rejectReason);
+                        });
+                    } else {
+                        await this.props.editStation(update.data);
+                    }
                 } else if (update.type === 'segment') {
-                    await this.props.editSegments(update.data);
+                    const finalize = () => {
+                        const segment = {
+                            ...update.data,
+                            uploads: [...this.uploads]
+                        };
+                        this.props.editSegments(segment);
+                    };
+
+                    if(update.data.uploads.length) {
+                        this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
+                            await finalize();
+                            this.uploads = [];
+                            console.log('Upload segment assets success', uploadResult);
+                        }, async (rejectReason) => {
+                            console.log('Upload segment assets error', rejectReason);
+                        });
+                    } else {
+                        await this.props.editSegments(update.data);
+                    }
                 } else if (update.type === 'pole') {
-                    await this.props.editPole(update.data);
+                    const finalize = () => {
+                        const pole = {
+                            ...update.data,
+                            uploads: [...this.uploads]
+                        };
+                        this.props.editPole(pole);
+                    };
+
+                    if(update.data.uploads.length) {
+                        this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
+                            await finalize();
+                            this.uploads = [];
+                            console.log('Upload pole assets success', uploadResult);
+                        }, async (rejectReason) => {
+                            console.log('Upload pole assets error', rejectReason);
+                        });
+                    } else {
+                        await this.props.editPole(update.data);
+                    }
                 } else if (update.type === 'parcel') {
-                    await this.props.editParcel(update.data);
+                    const finalize = () => {
+                        const parcel = {
+                            ...update.data,
+                            uploads: [...this.uploads]
+                        };
+                        this.props.editParcel(parcel);
+                    };
+
+                    if(update.data.uploads.length) {
+                        this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
+                            await finalize();
+                            this.uploads = [];
+                            console.log('Upload parcel assets success', uploadResult);
+                        }, async (rejectReason) => {
+                            console.log('Upload parcel assets error', rejectReason);
+                        });
+                    } else {
+                        await this.props.editParcel(update.data);
+                    }
                 }
                 setTimeout(() => resolve({finished: true}), 500);
             } catch (error) {
@@ -225,13 +359,17 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
 
         //TODO before merge check remote updates...
 
-        if(status === 'exist' && this.props.connection) {
+        if(status.database === 'exist' && this.props.connection) {
            await this.downloadDB();
         }
 
-        if(status === 'updated' && this.props.connection) {
+        if(status.database === 'updated' && this.props.connection) {
+            await this.updateDB();
+        }
+
+        if(status.storage === 'updated' && this.props.connection) {
             const uploadPiper = new PromisePiper();
-            const stored =  await AsyncStorage.getItem('updates');
+            const stored = await AsyncStorage.getItem('updates');
             if(stored) {
                 const updates = JSON.parse(stored);
                 const transactions = updates
@@ -264,13 +402,10 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                 });
 
                 await uploadPiper.finally(async (uploadResult) => {
-                    await this.clearUpdates();
-                    await AsyncStorage.setItem('db_status', 'synced');
-                    await AsyncStorage.setItem('timestamp', JSON.stringify(Date.now()));
-                    await this.checkStatus();
+                    await this.finalize();
                     console.log('Upload Success', uploadResult);
                 }, async (rejectReason) => {
-                    await AsyncStorage.setItem('db_status', 'error');
+                    // await AsyncStorage.setItem('db_status', 'error');
                     await this.checkStatus();
                     console.log('Upload Error', rejectReason);
                 });

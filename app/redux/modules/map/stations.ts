@@ -125,6 +125,7 @@ export const fetchStationsOfflineSaga = function* (action: any) {
                 nazw_stac: unescape(el.nazw_stac),
                 num_eksp_s: unescape(el.num_eksp_s),
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
+                uploads: JSON.parse(unescape(el.uploads)),
                 points: JSON.parse(unescape(el.points))
             };
             data.push(station);
@@ -196,6 +197,7 @@ export const editStationOfflineSaga = function* ({payload}: any) {
             nazw_stac = "${escape(payload.nazw_stac)}",
             num_eksp_s = "${escape(payload.num_eksp_s)}",
             comment = "${escape(payload.comment)}",
+            uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}
             WHERE id = ${payload.id}`;
 
@@ -214,7 +216,8 @@ export const editStationOfflineSaga = function* ({payload}: any) {
                 nazw_stac: unescape(el.nazw_stac),
                 num_eksp_s: unescape(el.num_eksp_s),
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
-                points: JSON.parse(unescape(el.points))
+                points: JSON.parse(unescape(el.points)),
+                uploads: JSON.parse(unescape(el.uploads))
             };
         });
 

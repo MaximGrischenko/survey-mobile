@@ -1,6 +1,6 @@
 import axios from "react-native-axios";
 import {API, appName} from "../../../config";
-import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
+import {call, put} from 'redux-saga/effects';
 import {LIMIT_TO_LOAD, moduleName} from './config';
 import {DBAdapter} from "../../../sync/database";
 import {AsyncStorage} from "react-native";
@@ -25,7 +25,6 @@ export const DELETE_POI_REQUEST = `${appName}/${moduleName}/DELETE_POI_REQUEST`;
 export const DELETE_POI_OFFLINE_REQUEST = `${appName}/${moduleName}/DELETE_POI_OFFLINE_REQUEST`;
 export const DELETE_POI_ERROR = `${appName}/${moduleName}/DELETE_POI_ERROR`;
 export const POI_DELETE_SUCCESS = `${appName}/${moduleName}/POI_DELETE_SUCCESS`;
-
 
 export const EDIT_POI_REQUEST = `${appName}/${moduleName}/EDIT_POI_REQUEST`;
 export const EDIT_POI_OFFLINE_REQUEST = `${appName}/${moduleName}/EDIT_POI_OFFLINE_REQUEST`;
@@ -77,6 +76,7 @@ export function removePoiOffline(data: any) {
 }
 
 export function editPoi(data: any) {
+    console.log('EDIT POI');
     return {
         type: POI_EDIT,
         payload: data
@@ -107,6 +107,7 @@ export const fetchPoiOfflineSaga = function* (action: any) {
                 ...el,
                 title: unescape(el.title),
                 description: unescape(el.description),
+                uploads: JSON.parse(unescape(el.uploads)),
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
                 points: JSON.parse(unescape(el.points))
             };
@@ -131,8 +132,9 @@ export const fetchLocationPoiSaga = function* (action: any) {
         });
         const res = yield call(() => {
                 return axios.get(`${API}api/projects/${action.payload.id}/poi?limit=${LIMIT_TO_LOAD}`);
-            },
+            }
         );
+        console.log('POI RESPONSE', res);
         yield put({
             type: FETCH_LOCATION_POIS_SUCCESS,
             payload: res.data.rows
@@ -162,6 +164,7 @@ export const addPoiOfflineSaga = function* ({payload}: any) {
             userId,
             projectId,
             categoryId,
+            uploads,
             createdAt,
             updatedAt,
             deletedAt) VALUES (
@@ -172,6 +175,7 @@ export const addPoiOfflineSaga = function* ({payload}: any) {
             ${payload.userId}, 
             ${payload.projectId}, 
             ${payload.categoryId},
+            "${escape(JSON.stringify(payload.uploads))}",
             ${Date.now()}, 
             ${Date.now()}, 
             ${null}
@@ -190,7 +194,8 @@ export const addPoiOfflineSaga = function* ({payload}: any) {
                 title: unescape(el.title),
                 description: unescape(el.description),
                 comment: unescape(el.comment) === 'undefined' ? '' : unescape(el.comment),
-                points: JSON.parse(unescape(el.points))
+                points: JSON.parse(unescape(el.points)),
+                uploads: JSON.parse(unescape(el.uploads))
             };
         });
 
@@ -237,14 +242,12 @@ export const addPoiSaga = function* (action: any) {
         });
         const res = yield call(() => {
                 return axios.post(`${API}api/projects/${action.payload.projectId}/poi`, action.payload);
-            },
+            }
         );
-
         yield put({
             type: ADD_POI_SUCCESS,
             payload: res.data
         });
-
     } catch (error) {
         yield put({
             type: ADD_POI_ERROR,
@@ -356,6 +359,7 @@ export const editPoiOfflineSaga = function* ({payload}: any) {
             projectId = "${payload.projectId}",
             categoryId = "${payload.categoryId}",
             comment = "${escape(payload.comment)}",
+            uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}
             WHERE id = ${payload.id}`;
 
@@ -374,7 +378,8 @@ export const editPoiOfflineSaga = function* ({payload}: any) {
                 projectId: el.projectId,
                 categoryId: el.categoryId,
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
-                points: JSON.parse(unescape(el.points))
+                points: JSON.parse(unescape(el.points)),
+                uploads: JSON.parse(unescape(el.uploads))
             };
         });
 

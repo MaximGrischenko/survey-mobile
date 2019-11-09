@@ -102,17 +102,6 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
             categoryPoiSelected
         } = this.props;
 
-        // if(this.props.categories.length && !this.state.rendered)  {
-        //     this.props.categories.forEach((cat)=> {
-        //
-        //         categoryPoiSelected.push(cat.id)
-        //     });
-        //
-        //     this.setState({
-        //         rendered: true
-        //     });
-        // }
-
         const elements: any = [
             {
                 name: 'showPoles',

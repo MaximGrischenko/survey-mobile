@@ -6693,6 +6693,13 @@ rimraf@~2.2.6:
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.2.8.tgz#e439be2aaee327321952730f99a8929e4fc50582"
   integrity sha1-5Dm+Kq7jJzIZUnMPmaiSnk/FBYI=
 
+rn-double-click@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/rn-double-click/-/rn-double-click-1.0.3.tgz#8610e8b3d5d0fbc078648fef5e0256381d887a0b"
+  integrity sha512-BUIgZLyfnrH4SRGwTXZvl/+1Zum4x2FWVXUGJ5ulAGvAzDamsrx1hiMaT6qz+0TrnCy/DJIS+3Qv8qldkYdNbA==
+  dependencies:
+    prop-types "^15.6.1"
+
 rn-host-detect@^1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/rn-host-detect/-/rn-host-detect-1.1.5.tgz#fbecb982b73932f34529e97932b9a63e58d8deb6"

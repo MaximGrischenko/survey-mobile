@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import {API} from "../config";
 
 export const moment = (date) => {
     const d1 = new Date(date);
@@ -12,33 +13,33 @@ export const moment = (date) => {
     }
 };
 
-export const checkError = (nextProps: any, curProps: any, onSuccess: Function, toast: any) => {
-    if (!toast) return null;
-    if (nextProps.error && !_.isEqual(nextProps.error, curProps.error)) {
-        if (nextProps.error.error) {
-            if (nextProps.error.error.original) {
-                toast.show(nextProps.error.error.original.detail, {
-                    position: toast.POSITION.TOP_LEFT
-                });
-            } else {
-                if (typeof nextProps.error.error === "string") {
-                    toast.show(nextProps.error.error, {
-                        position: toast.POSITION.TOP_LEFT
-                    });
-                } else {
-                    toast.show(nextProps.error.message, {
-                        position: toast.POSITION.TOP_LEFT
-                    });
-                }
-            }
-        } else {
-            toast.show(nextProps.error.error || nextProps.error.message, {
-                position: toast.POSITION.TOP_LEFT
-            });
-        }
-        onSuccess();
-    }
-};
+// export const checkError = (nextProps: any, curProps: any, onSuccess: Function, toast: any) => {
+//     if (!toast) return null;
+//     if (nextProps.error && !_.isEqual(nextProps.error, curProps.error)) {
+//         if (nextProps.error.error) {
+//             if (nextProps.error.error.original) {
+//                 toast.show(nextProps.error.error.original.detail, {
+//                     position: toast.POSITION.TOP_LEFT
+//                 });
+//             } else {
+//                 if (typeof nextProps.error.error === "string") {
+//                     toast.show(nextProps.error.error, {
+//                         position: toast.POSITION.TOP_LEFT
+//                     });
+//                 } else {
+//                     toast.show(nextProps.error.message, {
+//                         position: toast.POSITION.TOP_LEFT
+//                     });
+//                 }
+//             }
+//         } else {
+//             toast.show(nextProps.error.error || nextProps.error.message, {
+//                 position: toast.POSITION.TOP_LEFT
+//             });
+//         }
+//         onSuccess();
+//     }
+// };
 
 export const segment_operation_type = [
     {
@@ -75,6 +76,22 @@ export const parcel_statuses = [
         title: 'no permission'
     },
 ];
+
+/*
+*
+* <Field
+                                        key={el.name}
+                                        onChangeText={this.onFieldChange(el.name)}
+                                        label={el.title}
+                                        placeholder={el.name}
+                                        value={state[el.name]}
+                                        data={el.options.map((el: any) => ({
+                                            label: el.text,
+                                            value: el.value
+                                        }))}
+                                        disabled={el.disabled}
+                                        component={Dropdown}
+                                    /> */
 
 export const segment_statuses = [
     {

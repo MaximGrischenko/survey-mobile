@@ -103,6 +103,7 @@ export const fetchSegmentsOfflineSaga = function* (action: any) {
                 time_for_next_entry: unescape(el.time_for_next_entry) === 'null' ? '' : unescape(el.time_for_next_entry),
                 parcel_number_for_permit: unescape(el.parcel_number_for_permit),
                 notes: unescape(el.notes),
+                uploads: JSON.parse(unescape(el.uploads)),
                 points: JSON.parse(unescape(el.points))
             };
             data.push(segment);
@@ -128,7 +129,6 @@ export const fetchLocationSegmentSaga = function* (action: any) {
                 return axios.get(`${API}api/projects/${action.payload.id}/powerlines/${action.payload.powerLineId}/segments?limit=${LIMIT_TO_LOAD}`);
             },
         );
-        console.log('res segments', res);
 
         yield put({
             type: FETCH_LOCATION_SEGMENTS_SUCCESS,
@@ -143,6 +143,7 @@ export const fetchLocationSegmentSaga = function* (action: any) {
         });
     }
 };
+
 export const addSegmentSaga = function* (action: any) {
     try {
         yield put({
@@ -204,6 +205,7 @@ export const editSegmentOfflineSaga = function* ({payload}: any) {
             shutdown_time = "${payload.shutdown_time}",
             operation_type = "${escape(payload.operation_type)}",
             time_for_next_entry = "${escape(payload.time_for_next_entry)}",
+            uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}
             WHERE id = ${payload.id}`;
 
@@ -228,7 +230,8 @@ export const editSegmentOfflineSaga = function* ({payload}: any) {
                 operation_type: unescape(el.operation_type) === 'null' ? '' : unescape(el.operation_type),
                 time_for_next_entry: unescape(el.time_for_next_entry) === 'null' ? '' : unescape(el.time_for_next_entry),
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
-                points: JSON.parse(unescape(el.points))
+                points: JSON.parse(unescape(el.points)),
+                uploads: JSON.parse(unescape(el.uploads))
             };
         });
 

@@ -1,12 +1,7 @@
 import axios from "react-native-axios";
 import {API, appName} from "../../../config";
-
-import {all, cps, call, put, take, takeEvery} from 'redux-saga/effects';
-import {
-    LOADED_PROJECT_DATA,
-    moduleName,
-    LIMIT_TO_LOAD
-} from './config';
+import {call, put} from 'redux-saga/effects';
+import {LOADED_PROJECT_DATA, moduleName} from './config';
 import {DBAdapter} from "../../../sync/database";
 import {AsyncStorage} from "react-native";
 
@@ -77,7 +72,6 @@ export function fetchParcelsOffline(location: any) {
     };
 }
 
-
 export const fetchParcelsOfflineSaga = function* (action: any) {
     try {
         yield put({
@@ -101,6 +95,7 @@ export const fetchParcelsOfflineSaga = function* (action: any) {
                 gmina: unescape(el.gmina),
                 description: unescape(el.description),
                 numer: unescape(el.numer),
+                uploads: JSON.parse(unescape(el.uploads)),
                 points: JSON.parse(unescape(el.points))
             };
             data.push(parcel);
@@ -146,6 +141,7 @@ export const fetchLocationParcelSaga = function* (action: any) {
         });
     }
 };
+
 export const addParcelSaga = function* (action: any) {
     try {
         yield put({
@@ -201,6 +197,7 @@ export const editParcelOfflineSaga = function* ({payload}: any) {
             numer = "${escape(payload.numer)}",
             status = "${payload.staus}",
             comment = "${escape(payload.comment)}",
+            uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}
             WHERE id = ${payload.id}`;
 
@@ -219,7 +216,8 @@ export const editParcelOfflineSaga = function* ({payload}: any) {
                 numer: unescape(el.numer),
                 status: el.status,
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),
-                points: JSON.parse(unescape(el.points))
+                points: JSON.parse(unescape(el.points)),
+                uploads: JSON.parse(unescape(el.uploads))
             };
         });
 

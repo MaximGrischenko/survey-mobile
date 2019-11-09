@@ -52,6 +52,7 @@
     "react-navigation-tabs": "^2.5.2",
     "react-redux": "^7.1.1",
     "remote-redux-devtools": "^0.5.16",
+    "rn-double-click": "^1.0.3",
     "sqlstring": "^2.3.1"
   },
   "devDependencies": {

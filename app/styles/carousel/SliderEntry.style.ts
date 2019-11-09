@@ -10,7 +10,7 @@ function wp (percentage) {
     return Math.round(value);
 }
 
-const slideHeight = viewportHeight * 0.25;
+const slideHeight = viewportHeight * 0.35;
 const slideWidth = wp(75);
 const itemHorizontalMargin = wp(1);
 
@@ -25,7 +25,7 @@ export default StyleSheet.create({
         width: itemWidth,
         height: slideHeight,
         paddingHorizontal: itemHorizontalMargin,
-        paddingBottom: 18 // needed for shadow
+        paddingBottom: 45 // needed for shadow
     },
     shadow: {
         position: 'absolute',
@@ -44,14 +44,15 @@ export default StyleSheet.create({
         marginBottom: IS_IOS ? 0 : -1, // Prevent a random Android rendering issue
         backgroundColor: 'white',
         borderTopLeftRadius: entryBorderRadius,
-        borderTopRightRadius: entryBorderRadius
+        borderTopRightRadius: entryBorderRadius,
+        // borderRadius: entryBorderRadius,
     },
     imageContainerEven: {
         backgroundColor: colors.black
     },
     image: {
         ...StyleSheet.absoluteFillObject,
-        resizeMode: 'cover',
+        resizeMode: 'center', //TODO change on 'cover'
         borderRadius: IS_IOS ? entryBorderRadius : 0,
         borderTopLeftRadius: entryBorderRadius,
         borderTopRightRadius: entryBorderRadius

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Upload, Pole, Parcel, Segment, Station, Category, Project, Powerline} from "../../../../entities";
-import {segment_statuses, parcel_statuses, segment_operation_type, checkError} from "../../../../redux/utils";
+import {segment_statuses, parcel_statuses, segment_operation_type} from "../../../../redux/utils";
 
 import {Form, Field} from 'react-native-validate-form';
 import {
@@ -254,18 +254,24 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
         } catch (e) {
             console.log(e);
-        } finally {
-            // this.props.setDialogDeleteButton(null);
         }
     };
 
     private onUploadFile = (fileList) => {
-        this.setState({
-            uploads: [
-                ...this.state.uploads,
-                ...fileList
-            ]
-        })
+        if(this.props.connection) {
+            this.setState({
+                uploads: [
+                    ...this.state.uploads,
+                    ...fileList
+                ]
+            })
+        } else {
+            this.setState({
+                uploads: [
+                    ...fileList
+                ]
+            })
+        }
     };
 
     private  onUpdateFile = (fileList) => {
@@ -596,17 +602,11 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                         onChangeText = {this.onFieldChange('comment')}
                         customStyle = {{width: '100%'}}
                     />
-                    <View>
-                        {
-                            this.props.connection ? (
-                                <UploadComponent
-                                    files={selectedItem.uploads}
-                                    onUpload = {this.onUploadFile}
-                                    onUpdate = {this.onUpdateFile}
-                                />
-                            ) : null
-                        }
-                    </View>
+                    <UploadComponent
+                        files={selectedItem.uploads}
+                        onUpload = {this.onUploadFile}
+                        onUpdate = {this.onUpdateFile}
+                    />
                 </Form>
             </ScrollView>
         )
