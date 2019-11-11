@@ -10,15 +10,16 @@ import SvgUri from 'react-native-svg-uri';
 import {Observer, Emitter} from "../../../../utils/interfaces";
 import {DBAdapter} from "../../../../sync/database";
 import {COLORS} from "../../../../styles/colors";
-import {changeControls, tablesStateSelector} from "../../../../redux/modules/map";
-import {addPoi, editPoi, removePoi} from "../../../../redux/modules/map/poi";
-import {editStation} from "../../../../redux/modules/map/stations";
-import {editSegments} from "../../../../redux/modules/map/segments";
-import {editPole} from "../../../../redux/modules/map/poles";
-import {editParcel} from "../../../../redux/modules/map/parcels";
+import {changeControls, locationSelector, powerlinesSelector, tablesStateSelector} from "../../../../redux/modules/map";
+import {addPoi, editPoi, fetchLocationPoi, fetchPoiOffline, removePoi} from "../../../../redux/modules/map/poi";
+import {editStation, fetchLocationStations, fetchStationsOffline} from "../../../../redux/modules/map/stations";
+import {editSegments, fetchLocationSegments, fetchSegmentsOffline} from "../../../../redux/modules/map/segments";
+import {editPole, fetchLocationPoles, fetchPolesOffline} from "../../../../redux/modules/map/poles";
+import {editParcel, fetchLocationParcels, fetchParcelsOffline} from "../../../../redux/modules/map/parcels";
 import {connectionSelector} from "../../../../redux/modules/connect";
 import {uploadAssetsAsync} from '../../../../utils/upload.assets';
-import {Upload} from "../../../../entities";
+import {Project, Upload} from "../../../../entities";
+import {fetchPowerlinesOffline, fetchProjectPowerlines} from "../../../../redux/modules/map/powerlines";
 
 interface IMapProps {
     navigation: any,
@@ -32,6 +33,23 @@ interface IMapProps {
     editSegments: Function,
     editPole: Function,
     editParcel: Function,
+
+    project: Project,
+    selected_powerlines: Array<number>,
+
+    fetchProjectPowerlines: Function,
+    fetchLocationStations: Function,
+    fetchLocationPoi: Function,
+    fetchLocationSegments: Function,
+    fetchLocationPoles: Function,
+    fetchLocationParcels: Function,
+
+    fetchPowerlinesOffline: Function,
+    fetchStationsOffline: Function,
+    fetchPoiOffline: Function,
+    fetchSegmentsOffline: Function,
+    fetchPolesOffline: Function,
+    fetchParcelsOffline: Function,
 }
 
 interface IMapState {
@@ -67,7 +85,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
 
     async componentDidMount() {
         this.state.database.attach(this);
-        await this.synchronization();
+        setTimeout(async () => await this.synchronization(), 2000);
     }
 
     async componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any) {
@@ -164,7 +182,79 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
 
     private updateDB = async () => {
         const timestamp = await AsyncStorage.getItem('timestamp');
-        this.state.database.updateDB(timestamp);
+        this.state.database.updateDB(timestamp).then(async () => {
+            if(this.state.status.storage === 'updated' && this.props.connection) {
+                const uploadPiper = new PromisePiper();
+                const stored = await AsyncStorage.getItem('updates');
+                if(stored) {
+                    const updates = JSON.parse(stored);
+                    const transactions = updates
+                        .sort((a, b) => a.data.updatedAt - b.data.updatedAt)
+                        .reduce((acc, update) => {
+                            if(update.action === 'add') {
+                                return [...acc, update]
+                            } else if(update.action === 'edit') {
+                                const result = acc.find((i) => i.data.id === update.data.id && i.action === 'add');
+                                if(result) {
+                                    return acc.map(i => i.data.id === update.data.id && i.data.updatedAt < update.data.updatedAt ? {
+                                        ...i,
+                                        data: update.data
+                                    } : i)
+                                } else {
+                                    return [...acc, update]
+                                }
+                            }
+                            return [...acc, update]
+                        }, []);
+
+                    transactions.map((update) => {
+                        uploadPiper.pipe((resolve, reject) => {
+                            this.upload(update).then((uploadResult) => {
+                                resolve(uploadResult);
+                            }, (uploadReason) => {
+                                reject(uploadReason);
+                            });
+                        });
+                    });
+
+                    await uploadPiper.finally(async (uploadResult) => {
+                        await this.finalize();
+                        console.log('Upload Success', uploadResult);
+                    }, async (rejectReason) => {
+                        await this.checkStatus();
+                        console.log('Upload Error', rejectReason);
+                    });
+                }
+            }
+        }).then(() => {
+            const {connection, project, selected_powerlines} = this.props;
+            console.log('BEFORE FETCH');
+            if(connection) {
+                if(project) {
+                    this.props.fetchLocationStations(project);
+                    this.props.fetchLocationPoi(project);
+                    this.props.fetchProjectPowerlines(project);
+                } else if(selected_powerlines.length) {
+                    const reqData = {...project, powerLineId: selected_powerlines[0]};
+                    this.props.fetchLocationParcels(reqData);
+                    this.props.fetchLocationPoles(reqData);
+                    this.props.fetchLocationSegments(reqData);
+                }
+            } else {
+                if(project) {
+                    this.props.fetchPowerlinesOffline(project);
+                    this.props.fetchStationsOffline(project);
+                    this.props.fetchPoiOffline(project);
+                } else if(selected_powerlines.length) {
+                    const reqData = {...project, powerLineId: selected_powerlines[0]};
+                    this.props.fetchParcelsOffline(reqData);
+                    this.props.fetchPolesOffline(reqData);
+                    this.props.fetchSegmentsOffline(reqData);
+                }
+            }
+        }).catch((error) => {
+            console.log('Update Error', error);
+        });
     };
 
     private uploadAssets = (asset) => {
@@ -357,88 +447,41 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         await this.checkStatus();
         const {status} = this.state;
 
-        //TODO before merge check remote updates...
-
         if(status.database === 'exist' && this.props.connection) {
-           await this.downloadDB();
+            await this.downloadDB();
         }
 
         if(status.database === 'updated' && this.props.connection) {
             await this.updateDB();
         }
-
-        if(status.storage === 'updated' && this.props.connection) {
-            const uploadPiper = new PromisePiper();
-            const stored = await AsyncStorage.getItem('updates');
-            if(stored) {
-                const updates = JSON.parse(stored);
-                const transactions = updates
-                    .sort((a, b) => a.data.updatedAt - b.data.updatedAt)
-                    .reduce((acc, update) => {
-                        if(update.action === 'add') {
-                            return [...acc, update]
-                        } else if(update.action === 'edit') {
-                            const result = acc.find((i) => i.data.id === update.data.id && i.action === 'add');
-                            if(result) {
-                                return acc.map(i => i.data.id === update.data.id && i.data.updatedAt < update.data.updatedAt ? {
-                                    ...i,
-                                    data: update.data
-                                } : i)
-                            } else {
-                                return [...acc, update]
-                            }
-                        }
-                        return [...acc, update]
-                    }, []);
-
-                transactions.map((update) => {
-                    uploadPiper.pipe((resolve, reject) => {
-                        this.upload(update).then((uploadResult) => {
-                            resolve(uploadResult);
-                        }, (uploadReason) => {
-                            reject(uploadReason);
-                        });
-                    });
-                });
-
-                await uploadPiper.finally(async (uploadResult) => {
-                    await this.finalize();
-                    console.log('Upload Success', uploadResult);
-                }, async (rejectReason) => {
-                    // await AsyncStorage.setItem('db_status', 'error');
-                    await this.checkStatus();
-                    console.log('Upload Error', rejectReason);
-                });
-            }
-        }
     };
 
     render() {
         const {navigation} = this.props;
-        const {progress, status} = this.state;
+        const {progress} = this.state;
         return (
             <View>
                 <View style={localStyles.container}>
                     <TouchableOpacity style={localStyles.item} onPress={() => this.synchronization()}>
-                        <SvgUri
-                            width={Dimensions.get('window').width * 0.2}
-                            height={28}
-                            source={require('../../../../../assets/images/sync.svg')}
-                        />
-                        {/*<Image style={{width: 35, height: 30}} source={require('../../../../../assets/images/sync.png')}/>*/}
+                        {/*<SvgUri*/}
+                        {/*    width={Dimensions.get('window').width * 0.2}*/}
+                        {/*    height={28}*/}
+                        {/*    source={require('../../../../../assets/images/sync.svg')}*/}
+                        {/*/>*/}
+                        <Image style={{width: 36, height: 30}} source={require('../../../../../assets/images/drawer-sync.png')}/>
                         <Text style={{marginTop: 10}}>Sync</Text>
                     </TouchableOpacity>
                     <View style={localStyles.divider}/>
 
                     <TouchableOpacity style={localStyles.item} onPress={() => {navigation.dispatch(DrawerActions.toggleDrawer())}}>
-                        <SvgUri
-                            width={Dimensions.get('window').width * 0.2}
-                            height={28}
-                            source={require('../../../../../assets/images/map.svg')}
-                        />
+                        {/*<SvgUri*/}
+                        {/*    width={Dimensions.get('window').width * 0.2}*/}
+                        {/*    height={28}*/}
+                        {/*    source={require('../../../../../assets/images/map.svg')}*/}
+                        {/*/>*/}
+                        <Image style={{width: 30, height: 30, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-map.png')}/>
                         <Text style={{marginTop: 10}}>Map</Text>
                     </TouchableOpacity>
-
                     <TouchableOpacity style={localStyles.item} onPress={() => {
                         navigation.navigate('Tables');
                         this.props.changeControls({
@@ -446,19 +489,17 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                             value: true
                         })
                     }}>
-                        <SvgUri
-                            width={Dimensions.get('window').width * 0.2}
-                            height={28}
-                            source={require('../../../../../assets/images/table.svg')}
-                        />
-                        <Text style={{marginTop: 10}}>Table</Text>
+                        {/*<SvgUri*/}
+                        {/*    width={Dimensions.get('window').width * 0.2}*/}
+                        {/*    height={28}*/}
+                        {/*    source={require('../../../../../assets/images/table.svg')}*/}
+                        {/*/>*/}
+                        <Image style={{width: 30, height: 30, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-list.png')}/>
+                        <Text style={{marginTop: 10}}>List</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{height: 28, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={localStyles.status}>{progress.logger}</Text>
-                    <TouchableOpacity style={localStyles.item} onPress={() => this.updateDB()}>
-                        <Text style={localStyles.reset}>UPDATE</Text>
-                    </TouchableOpacity>
+                    <Text style={localStyles.status}>{progress ? progress.logger : ''}</Text>
                     <TouchableOpacity style={localStyles.item} onPress={() => this.resetDB()}>
                         <Text style={localStyles.reset}>Reset</Text>
                     </TouchableOpacity>
@@ -510,7 +551,9 @@ const localStyles = StyleSheet.create({
 
 const mapStateToProps = (state: any) => ({
     isTablesOpen: tablesStateSelector(state),
-    connection: connectionSelector(state)
+    connection: connectionSelector(state),
+    project: locationSelector(state),
+    selected_powerlines: powerlinesSelector(state)
 });
 
 const mapDispatchToProps = (dispatch: any) => (
@@ -522,7 +565,19 @@ const mapDispatchToProps = (dispatch: any) => (
         editStation,
         editSegments,
         editPole,
-        editParcel
+        editParcel,
+        fetchProjectPowerlines,
+        fetchLocationStations,
+        fetchLocationPoi,
+        fetchLocationSegments,
+        fetchLocationPoles,
+        fetchLocationParcels,
+        fetchPowerlinesOffline,
+        fetchStationsOffline,
+        fetchPoiOffline,
+        fetchSegmentsOffline,
+        fetchPolesOffline,
+        fetchParcelsOffline,
     }, dispatch)
 );
 

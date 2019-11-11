@@ -2,26 +2,37 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/app/components/buttons/double-click.button.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/upload.assets/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/drawer-list.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/drawer-map.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/drawer-parcel.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/drawer-poi.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/drawer-pole.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/drawer-segment.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/drawer-station.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/drawer-sync.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.expo-shared/assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/.expo-shared/assets.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/upload.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/upload.component/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/components/uploads.preview/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/uploads.preview/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/poles.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/poles.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/stations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/stations.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/utils.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/poi.entity/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/poi.entity/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/styles/carousel/SliderEntry.style.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/styles/carousel/SliderEntry.style.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.powerlines/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/project.list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.sync/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.sync/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/sync/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/map.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/svg/map.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/parcel.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/svg/parcel.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/poi.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/poi.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/poi.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/svg/poi.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/pole.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/pole.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/pole.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/svg/pole.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/segment.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/svg/segment.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/station.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/station.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/station.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/svg/station.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/sync.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/svg/sync.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/table.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/svg/table.svg" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -83,18 +94,18 @@
     <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/app/utils" />
-      <recent name="$PROJECT_DIR$/app/sync" />
-      <recent name="$PROJECT_DIR$/app/screens/home" />
-      <recent name="$PROJECT_DIR$/app/utils/sync/sql" />
-      <recent name="$PROJECT_DIR$/app/components/dialog.component/dialogs" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/assets/images" />
       <recent name="$PROJECT_DIR$/app/utils/database" />
       <recent name="$PROJECT_DIR$/custom-node-modules" />
       <recent name="$PROJECT_DIR$/app/components/tables.header" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/svg" />
+      <recent name="$PROJECT_DIR$/app/utils" />
+      <recent name="$PROJECT_DIR$/app/sync" />
+      <recent name="$PROJECT_DIR$/app/screens/home" />
+      <recent name="$PROJECT_DIR$/app/utils/sync/sql" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -134,7 +145,7 @@
       <workItem from="1570460928696" duration="264932000" />
       <workItem from="1571738472324" duration="941000" />
       <workItem from="1571751086419" duration="268901000" />
-      <workItem from="1573062766031" duration="52567000" />
+      <workItem from="1573062766031" duration="76023000" />
     </task>
     <servers />
   </component>

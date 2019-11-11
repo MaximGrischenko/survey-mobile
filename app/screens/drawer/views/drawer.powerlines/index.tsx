@@ -35,37 +35,12 @@ class DrawerPowerlines extends Component<IMapProps> {
     private selectItem = (item: any) => {
         let list: Array<number> = this.props.selected_powerlines.filter((el: any) => el.id === item.id);
 
-        // if (!item) {
-        //     list = this.state.isAll ? [] : [...this.props.powerlines.map.viewer(el => el.id)];
-        //     this.props.changeControls({
-        //         name: 'selected_powerlines',
-        //         value: [...list]
-        //     });
-        //     this.setState({
-        //         isAll: !this.state.isAll
-        //     });
-        //     return this.props.powerlines.forEach((el: any) => {
-        //         this.loadItemData(el);
-        //     });
-        // }
-
-        // for (let i = 0; i < list.length; i++) {
-        //     if (list[i] === item.id) {
-        //         list.splice(i, 1);
-        //         this.props.changeControls({
-        //             name: 'selected_powerlines',
-        //             value: [...list]
-        //         });
-        //         return;
-        //     }
-        // }
-
         list.push(item.id);
         this.props.changeControls({
             name: 'selected_powerlines',
             value: [...list]
         });
-      //  list.push(item.id);
+
         this.loadItemData(item);
     };
 
@@ -222,19 +197,7 @@ const localStyles = StyleSheet.create({
         fontSize: 16,
         height: 40,
         opacity: 1,
-    },
-    // item: {
-    //     padding: 10,
-    //     fontSize: 16,
-    //     height: 40,
-    //     opacity: 0.7,
-    // },
-    // selected: {
-    //     padding: 10,
-    //     fontSize: 16,
-    //     height: 40,
-    //     opacity: 1,
-    // },
+    }
 });
 
 const mapStateToProps = (state: any) => ({

@@ -16,7 +16,6 @@ import {COLORS} from "../../../../styles/colors";
 import {connectionSelector} from "../../../../redux/modules/connect";
 
 interface IMapProps {
-    fetchLocationSegments: Function,
     fetchProjectPowerlines: Function,
     fetchLocationStations: Function,
     fetchLocationPoi: Function,

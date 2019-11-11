@@ -56,7 +56,7 @@ class PoiEntity extends Component<IMapProps, IMapState> {
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
                         <Text style={styles}>POI ({this.props.pois.length})</Text>
-                        <SvgUri source={require('../../../../../../assets/images/poi.svg')}
+                        <SvgUri source={require('../../../../../../assets/svg/poi.svg')}
                                 width={20}
                                 height={20}
                         />

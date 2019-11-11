@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {Category, Parcel, Poi, Pole, Project, Segment, Station} from "../../../../entities";
-import {Platform, StyleSheet, Text, TextInput, View} from "react-native";
+import {Image, Platform, StyleSheet, Text, TextInput, View} from "react-native";
 import CheckBox from "../../../../components/checkbox";
 import {COLORS} from "../../../../styles/colors";
 import SvgUri from "react-native-svg-uri";
@@ -108,10 +108,11 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
                         <Text style={styles}>Electrical pole ({this.props.poles.length})</Text>
-                        <SvgUri source={require('../../../../../assets/images/pole.svg')}
-                                width={20}
-                                height={20}
-                        />
+                        {/*<SvgUri source={require('../../../../../assets/images/pole.svg')}*/}
+                        {/*        width={20}*/}
+                        {/*        height={20}*/}
+                        {/*/>*/}
+                        <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-pole.png')}/>
                     </View>
                 )
             },
@@ -120,10 +121,11 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
                         <Text style={styles}>Powerline segment ({this.props.segments.length})</Text>
-                        <SvgUri source={require('../../../../../assets/images/segment.svg')}
-                                width={20}
-                                height={20}
-                        />
+                        {/*<SvgUri source={require('../../../../../assets/images/segment.svg')}*/}
+                        {/*        width={20}*/}
+                        {/*        height={20}*/}
+                        {/*/>*/}
+                        <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-segment.png')}/>
                     </View>
                 ),
                 selected: segmentsStatusSelected,
@@ -136,10 +138,11 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
                         <Text style={styles}>Stations ({this.props.stations.length})</Text>
-                        <SvgUri source={require('../../../../../assets/images/station.svg')}
-                                width={20}
-                                height={20}
-                        />
+                        {/*<SvgUri source={require('../../../../../assets/images/station.svg')}*/}
+                        {/*        width={20}*/}
+                        {/*        height={20}*/}
+                        {/*/>*/}
+                        <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-station.png')}/>
                     </View>
                 )
             },
@@ -148,10 +151,11 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
                         <Text style={styles}>Land parcel ({this.props.parcels.length})</Text>
-                        <SvgUri source={require('../../../../../assets/images/parcel.svg')}
-                                width={20}
-                                height={20}
-                        />
+                        {/*<SvgUri source={require('../../../../../assets/images/parcel.svg')}*/}
+                        {/*        width={20}*/}
+                        {/*        height={20}*/}
+                        {/*/>*/}
+                        <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-parcel.png')}/>
                     </View>
                 ),
                 selected: parcelsStatusSelected,
@@ -164,10 +168,11 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
                         <Text style={styles}>POI ({this.props.pois.length})</Text>
-                        <SvgUri source={require('../../../../../assets/images/poi.svg')}
-                                width={20}
-                                height={20}
-                        />
+                        {/*<SvgUri source={require('../../../../../assets/images/poi.svg')}*/}
+                        {/*        width={20}*/}
+                        {/*        height={20}*/}
+                        {/*/>*/}
+                        <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-poi.png')}/>
                     </View>
                 ),
                 selected: categoryPoiSelected,

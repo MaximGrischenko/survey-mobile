@@ -76,7 +76,6 @@ export function removePoiOffline(data: any) {
 }
 
 export function editPoi(data: any) {
-    console.log('EDIT POI');
     return {
         type: POI_EDIT,
         payload: data
@@ -134,7 +133,6 @@ export const fetchLocationPoiSaga = function* (action: any) {
                 return axios.get(`${API}api/projects/${action.payload.id}/poi?limit=${LIMIT_TO_LOAD}`);
             }
         );
-        console.log('POI RESPONSE', res);
         yield put({
             type: FETCH_LOCATION_POIS_SUCCESS,
             payload: res.data.rows

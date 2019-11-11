@@ -37,7 +37,7 @@ class SyncAdapter extends Component<{}, IMapState> implements Observer{
                     <SvgUri
                         width={Dimensions.get('window').width * 0.2}
                         height={28}
-                        source={require('../../../../../assets/images/sync.svg')}
+                        source={require('../../../../../assets/svg/sync.svg')}
                     />
                     <Text style={{marginTop: 10}}>Sync</Text>
                 </TouchableOpacity>

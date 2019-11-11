@@ -37,22 +37,25 @@ export default class App extends Component {
     async _loadDataAsync() {
         const imageAssets = cacheImages([
             require('./assets/images/logo.png'),
+            require('./assets/images/drawer-poi.png'),
             require('./assets/images/poi.png'),
             require('./assets/images/poi-x4.png'),
+            require('./assets/images/drawer-pole.png'),
             require('./assets/images/pole.png'),
             require('./assets/images/pole-x4.png'),
+            require('./assets/images/drawer-station.png'),
             require('./assets/images/station.png'),
             require('./assets/images/station-x4.png'),
             require('./assets/images/location.png'),
             require('./assets/images/location-x4.png'),
-            require('./assets/images/map.svg'),
-            require('./assets/images/parcel.svg'),
-            require('./assets/images/poi.svg'),
-            require('./assets/images/pole.svg'),
-            require('./assets/images/segment.svg'),
-            require('./assets/images/station.svg'),
-            require('./assets/images/sync.svg'),
-            require('./assets/images/table.svg'),
+            require('./assets/svg/map.svg'),
+            require('./assets/svg/parcel.svg'),
+            require('./assets/svg/poi.svg'),
+            require('./assets/svg/pole.svg'),
+            require('./assets/svg/segment.svg'),
+            require('./assets/svg/station.svg'),
+            require('./assets/svg/sync.svg'),
+            require('./assets/svg/table.svg'),
         ]);
 
         const fontAssets = cacheFonts([]);
