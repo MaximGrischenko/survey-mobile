@@ -6,6 +6,7 @@ import {API} from "../../config";
 import {Powerline, Project} from "../../entities";
 import PromisePiper from '../../utils/promise.piper/index';
 import {Observer, Emitter} from "../../utils/interfaces";
+import {call} from "@redux-saga/core/effects";
 
 export interface IAdapter {
     initDB(): void;
@@ -392,6 +393,7 @@ export class DBAdapter implements IAdapter {
         this.notifier({...this.state, pending: true, logger: `Checking updates`});
         switch (action) {
             case 'update': {
+                console.log('UPDATE CASE');
                 return new Promise((resolve, reject) => {
                     let api = '';
                     const filter = [
@@ -460,6 +462,7 @@ export class DBAdapter implements IAdapter {
                         if(response.data) {
                             switch (table.name) {
                                 case 'categories': {
+                                    console.log('CASE CAT');
                                     if(response.data.rows) {
                                         query = `INSERT OR REPLACE INTO categories (id, title, comment, userId, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
@@ -502,6 +505,7 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'projects': {
+                                    console.log('CASE PROJECT');
                                     if(response.data.length) {
                                         query = `INSERT OR REPLACE INTO projects (id, title, contractor, status, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data;
@@ -546,6 +550,7 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'powerlines': {
+                                    console.log('CASE POWER');
                                     if(response.data.rows.length) {
                                         query = `INSERT OR REPLACE INTO powerlines (id, title, status, comment, userId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
@@ -590,6 +595,7 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'stations': {
+                                    console.log('CASE STATION');
                                     if(response.data.rows.length) {
                                         query = `INSERT OR REPLACE INTO stations (id, title, description, nazw_stac, num_eksp_s, comment, type, status, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
@@ -638,13 +644,11 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'pois': {
+                                    console.log('CASE POI');
                                     if(response.data.rows.length) {
                                         query = `INSERT OR REPLACE INTO pois (id, title, description, points, comment, status, userId, projectId, categoryId, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
                                         const chunksPiper = new PromisePiper();
-
-                                        console.log('FILTERED UPDATED LIST', list);
-
                                         while (list.length) {
                                             const offset = list.length > limit ? limit : list.length;
                                             const chunk = list.splice(0, offset);
@@ -852,6 +856,7 @@ export class DBAdapter implements IAdapter {
                 })
             }
             case 'delete': {
+                console.log('REMOVE CASE');
                 return new Promise((resolve, reject) => {
                     let api = '';
                     const filter = [
@@ -869,7 +874,7 @@ export class DBAdapter implements IAdapter {
                             api = `${API}api/category&filter=${JSON.stringify(filter)}&paranoid=true`;
                         } break;
                         case 'projects': {
-                            api = `${API}api/projects?limit=${this.LIMIT_TO_LOAD}&filter=${JSON.stringify(filter)}&paranoid=true`;
+                            api = `${API}api/projects?limit=${this.LIMIT_TO_LOAD}`;
                         } break;
                         case 'powerlines': {
                             const projectIds = [];
@@ -916,7 +921,8 @@ export class DBAdapter implements IAdapter {
                     }
 
                     let query = '';
-                    axios.get(api).then( (response: any) => {
+                    console.log('API END POINT', api);
+                    axios.get(api).then( async (response: any) => {
                         const limit = 2000;
                         if(response.data) {
                             switch (table.name) {
@@ -951,28 +957,52 @@ export class DBAdapter implements IAdapter {
                                 } break;
                                 case 'projects': {
                                     if(response.data.length) {
-                                        const list = response.data;
-                                        const chunksPiper = new PromisePiper();
-                                        while (list.length) {
-                                            const offset = list.length > limit ? limit : list.length;
-                                            const chunk = list.splice(0, offset);
-                                            chunksPiper.pipe((resolveChunksWorker, rejectChunksWorker) => {
-                                                chunk.forEach((item) => {
-                                                    const query = `DELETE FROM projects WHERE id = ${item.id}`;
-                                                    this.clear(query).then((resolveClearResult) => {
-                                                        resolveChunksWorker(resolveClearResult);
-                                                    }, (rejectClearReason) => {
-                                                        rejectChunksWorker(rejectClearReason);
-                                                    })
-                                                })
-                                            });
-                                        }
 
-                                        chunksPiper.finally( (resolveResult) => {
-                                            resolve(resolveResult);
-                                        }, (rejectReason) => {
-                                            reject(rejectReason);
-                                        });
+                                        const list = response.data;
+
+                                        const compare = (list, projects) => {
+                                            return projects.filter(project => !list.map(i => i.id).includes(project.id));
+                                        };
+
+                                        const stored: any = await this.select('SELECT * FROM projects');
+
+                                        if(list.length < stored.rows._array.length) {
+                                            const _projects: Array<any> = stored.rows._array;
+                                            const uniques = compare(list, _projects);
+
+                                            console.log('UNIQUES', uniques);
+
+                                            const selector = uniques.map(async (i) => {
+                                                const results: any = await this.select(`SELECT * FROM powerlines WHERE projectId = ${i.id}`);
+                                                return results.rows._array;
+                                            });
+
+                                            const selected = await Promise.all(selector);
+                                            const _powerlines = selected.reduce((acc: any[], i: any[]) => [...acc, ...i], []);
+
+                                            console.log('SELECTED POWERLINES', _powerlines);
+
+                                            const linesCleaner = (_powerlines as any[]).map(async (i)=> {
+                                                return Promise.all([
+                                                    await this.clear(`DELETE FROM poles WHERE powerlineId = ${i.id}`),
+                                                    await this.clear(`DELETE FROM parcels WHERE powerlineId = ${i.id}`),
+                                                    await this.clear(`DELETE FROM segments WHERE powerlineId = ${i.id}`),
+                                                    await this.clear(`DELETE FROM powerlines WHERE id = ${i.id}`),
+                                                ])
+                                            });
+
+                                            const projectsCleaner = uniques.map(async (i) => {
+                                               return Promise.all([
+                                                   await this.clear(`DELETE FROM stations WHERE projectId = ${i.id}`),
+                                                   await this.clear(`DELETE FROM pois WHERE peojectId = ${i.id}`),
+                                                   await this.clear(`DELETE FROM projects WHERE id = ${i.id}`),
+                                               ]);
+                                            });
+
+                                            await Promise.all([linesCleaner, projectsCleaner]);
+
+                                            resolve({result: 'Removed'});
+                                        }
                                     } else {
                                         resolve({result: 'No projects data provided'});
                                     }
@@ -1034,8 +1064,10 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'pois': {
+                                    console.log('DELETE POI CASE');
                                     if(response.data.rows.length) {
                                         const list = response.data.rows;
+                                        console.log('INSIDE', list);
                                         const chunksPiper = new PromisePiper();
                                         while(list.length) {
                                             const offset = list.length > limit ? limit : list.length;
@@ -1052,8 +1084,10 @@ export class DBAdapter implements IAdapter {
                                             });
                                         }
                                         chunksPiper.finally( (resolveResult) => {
+                                            console.log('SUCCESS PIPE');
                                             resolve(resolveResult);
                                         }, (rejectReason) => {
+                                            console.log('ERROR PIPE', rejectReason);
                                             reject(rejectReason);
                                         });
                                     } else {
@@ -1143,6 +1177,8 @@ export class DBAdapter implements IAdapter {
                                         resolve({result: 'No segments data provided'});
                                     }
                                 } break;
+                                default:
+                                    break;
                             }
                         } else {
                             resolve({finished: true});

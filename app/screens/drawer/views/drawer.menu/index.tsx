@@ -231,10 +231,12 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
             console.log('BEFORE FETCH');
             if(connection) {
                 if(project) {
+                    console.log('FETCH PROJECT ENTITIES');
                     this.props.fetchLocationStations(project);
                     this.props.fetchLocationPoi(project);
                     this.props.fetchProjectPowerlines(project);
                 } else if(selected_powerlines.length) {
+                    console.log('FETCH POWERLINES ENTITIES');
                     const reqData = {...project, powerLineId: selected_powerlines[0]};
                     this.props.fetchLocationParcels(reqData);
                     this.props.fetchLocationPoles(reqData);

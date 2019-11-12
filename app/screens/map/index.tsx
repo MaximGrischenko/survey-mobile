@@ -546,6 +546,13 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                                     GEOPosition.coords.longitude,
                                     GEOPosition.coords.latitude
                                 ];
+                                this.setState({
+                                    location: {...GEOPosition.coords},
+                                    region: {...GEOPosition.coords, latitudeDelta: 0.1, longitudeDelta: 0.1},
+                                    shouldUpdate: true,
+                                    showUserLocation: true,
+                                    relocate: true,
+                                });
                             }
                         }
 
