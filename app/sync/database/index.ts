@@ -6,7 +6,6 @@ import {API} from "../../config";
 import {Powerline, Project} from "../../entities";
 import PromisePiper from '../../utils/promise.piper/index';
 import {Observer, Emitter} from "../../utils/interfaces";
-import {call} from "@redux-saga/core/effects";
 
 export interface IAdapter {
     initDB(): void;
@@ -141,7 +140,6 @@ export class DBAdapter implements IAdapter {
                             storage: 'updated'
                         })
                     );
-                    // await AsyncStorage.setItem('db_status', 'updated');
                 }
             }).catch(async (error) => {
                 const stored = await AsyncStorage.getItem('status');
@@ -151,7 +149,6 @@ export class DBAdapter implements IAdapter {
                         database: 'error',
                     }
                 ));
-                // await AsyncStorage.setItem('db_status', 'error');
                 reject(error)
             });
         });
@@ -178,7 +175,6 @@ export class DBAdapter implements IAdapter {
                     })
                 );
                 resolve(result);
-               // await AsyncStorage.setItem('db_status', 'updated');
             }).catch(async (error) => {
                 const stored = await AsyncStorage.getItem('status');
                 const status = JSON.parse(stored);
@@ -188,7 +184,6 @@ export class DBAdapter implements IAdapter {
                     }
                 ));
                 reject(error);
-                // await AsyncStorage.setItem('db_status', 'error');
             });
         });
     };
@@ -207,9 +202,8 @@ export class DBAdapter implements IAdapter {
                         ...status,
                         database: 'exist'
                     }));
-                   // await AsyncStorage.setItem('db_status', 'exist');
                     this.notifier({...this.state, pending: false, logger: `Local DB initialized`});
-                    console.log('Created Success', resolve);
+                    console.log('Create Success', resolve);
                 })
                 .catch(async (reject) => {
                     this.notifier({...this.state, pending: false, logger: `Initialization Error`});
@@ -220,8 +214,7 @@ export class DBAdapter implements IAdapter {
                             database: 'error'
                         })
                     );
-                    // await AsyncStorage.setItem('db_status', 'error');
-                    console.log('Created Error', reject)
+                    console.log('Create Error', reject)
                 });
         }
         return this.connect();
@@ -231,15 +224,14 @@ export class DBAdapter implements IAdapter {
         if(DBAdapter.database !== undefined) {
             Promise.all(this.tables.map((table) => this.deleteRows(table)))
             .then(async (resolve) => {
-                // await AsyncStorage.removeItem('db_status');
                 const stored = await AsyncStorage.getItem('status');
                 const status = JSON.parse(stored);
                 await AsyncStorage.setItem('status', JSON.stringify({
                         ...status,
-                        database: null
+                        database: 'exist'
                     })
                 );
-                console.log('Deleted Success', resolve)
+                console.log('Delete Success', resolve)
             })
             .catch(async (reject) => {
                 const stored = await AsyncStorage.getItem('status');
@@ -249,8 +241,7 @@ export class DBAdapter implements IAdapter {
                         database: 'error'
                     })
                 );
-                // await AsyncStorage.setItem('db_status', 'error');
-                console.log('Deleted Error', reject)
+                console.log('Delete Error', reject)
             });
         }
         return this.connect();
@@ -277,11 +268,9 @@ export class DBAdapter implements IAdapter {
                         database: 'updated'
                     })
                 );
-                // await AsyncStorage.setItem('db_status', 'synced');
                 this.notifier({...this.state, pending: false, logger: `Local DB is up-to-date`});
                 console.log('Sync Success', resolveResult);
             }, async (rejectReason) => {
-                // await AsyncStorage.setItem('db_status', 'error');
                 const stored = await AsyncStorage.getItem('status');
                 const status = JSON.parse(stored);
                 await AsyncStorage.setItem('status', JSON.stringify({
@@ -296,12 +285,10 @@ export class DBAdapter implements IAdapter {
     }
 
     public updateDB = (timestamp: any) => {
-        console.log('TimesStamp', timestamp);
-
         return new Promise(async (resolve, reject) => {
             if(DBAdapter.database !== undefined) {
                 const syncPiper = new PromisePiper();
-                const updates = [
+                const processes = [
                     {
                         action: 'update',
                     },
@@ -309,40 +296,40 @@ export class DBAdapter implements IAdapter {
                         action: 'delete'
                     }
                 ];
-                updates.forEach((update) => {
+                processes.forEach((process) => {
                     this.tables.map((table) => {
                         syncPiper.pipe((resolve, reject) => {
-                            this.update(table, timestamp, update.action).then((syncResult)  => {
+                            this.update(table, timestamp, process.action).then((syncResult)  => {
                                 resolve(syncResult);
                             }, (syncReason) => {
                                 reject(syncReason);
                             });
                         });
                     });
+                });
 
-                    syncPiper.finally( async (resolveResult) => {
-                        const stored = await AsyncStorage.getItem('status');
-                        const status = JSON.parse(stored);
-                        await AsyncStorage.setItem('status', JSON.stringify({
-                                ...status,
-                                database: 'updated'
-                            })
-                        );
-                        this.notifier({...this.state, pending: false, logger: `Local DB is up-to-date`});
-                        console.log('Sync Success', resolveResult);
-                        resolve(resolveResult);
-                    }, async (rejectReason) => {
-                        const stored = await AsyncStorage.getItem('status');
-                        const status = JSON.parse(stored);
-                        await AsyncStorage.setItem('status', JSON.stringify({
-                                ...status,
-                                database: 'error'
-                            })
-                        );
-                        this.notifier({...this.state, pending: false, logger: `Synchronization Error`});
-                        console.log('Sync Error', rejectReason);
-                        reject(rejectReason);
-                    });
+                syncPiper.finally( async (resolveResult) => {
+                    const stored = await AsyncStorage.getItem('status');
+                    const status = JSON.parse(stored);
+                    await AsyncStorage.setItem('status', JSON.stringify({
+                            ...status,
+                            database: 'updated'
+                        })
+                    );
+                    this.notifier({...this.state, pending: false, logger: `Local DB is up-to-date`});
+                    console.log('Sync Success', resolveResult);
+                    resolve(resolveResult);
+                }, async (rejectReason) => {
+                    const stored = await AsyncStorage.getItem('status');
+                    const status = JSON.parse(stored);
+                    await AsyncStorage.setItem('status', JSON.stringify({
+                            ...status,
+                            database: 'error'
+                        })
+                    );
+                    this.notifier({...this.state, pending: false, logger: `Synchronization Error`});
+                    console.log('Sync Error', rejectReason);
+                    reject(rejectReason);
                 });
             }
         });
@@ -393,7 +380,6 @@ export class DBAdapter implements IAdapter {
         this.notifier({...this.state, pending: true, logger: `Checking updates`});
         switch (action) {
             case 'update': {
-                console.log('UPDATE CASE');
                 return new Promise((resolve, reject) => {
                     let api = '';
                     const filter = [
@@ -405,6 +391,7 @@ export class DBAdapter implements IAdapter {
                             }
                         },
                     ];
+
                     switch (table.name) {
                         case 'categories': {
                             api = `${API}api/category`;
@@ -413,46 +400,22 @@ export class DBAdapter implements IAdapter {
                             api = `${API}api/projects?limit=${this.LIMIT_TO_LOAD}`;
                         } break;
                         case 'powerlines': {
-                            const projectIds = [];
-                            this.projects.forEach((project) => {
-                                projectIds.push(project.id);
-                            });
-                            api = `${API}api/projects/${projectIds[0]}/powerlines?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}`;
+                            api = `${API}api/projects/${this.projects[0]}/powerlines?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}`;
                         } break;
                         case 'stations': {
-                            const projectIds = [];
-                            this.projects.forEach((project) => {
-                                projectIds.push(project.id);
-                            });
-                            api = `${API}api/projects/${projectIds[0]}/stations?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}&filter=${JSON.stringify(filter)}`;
+                            api = `${API}api/projects/${this.projects[0]}/stations?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}&filter=${JSON.stringify(filter)}`;
                         } break;
                         case 'pois': {
-                            const projectIds = [];
-                            this.projects.forEach((project) => {
-                                projectIds.push(project.id);
-                            });
-                            api = `${API}api/projects/${projectIds[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}&filter=${JSON.stringify(filter)}`;
+                            api = `${API}api/projects/${this.projects[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}&filter=${JSON.stringify(filter)}`;
                         } break;
                         case 'parcels': {
-                            const powerlineIds = [];
-                            this.powerlines.forEach((powerline) => {
-                                powerlineIds.push(powerline.id);
-                            });
-                            api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/parcels?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}&filter=${JSON.stringify(filter)}`;
+                            api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/parcels?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}&filter=${JSON.stringify(filter)}`;
                         } break;
                         case 'poles': {
-                            const powerlineIds = [];
-                            this.powerlines.forEach((powerline) => {
-                                powerlineIds.push(powerline.id);
-                            });
-                            api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/poles?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}&filter=${JSON.stringify(filter)}`;
+                            api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/poles?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}&filter=${JSON.stringify(filter)}`;
                         } break;
                         case 'segments': {
-                            const powerlineIds = [];
-                            this.powerlines.forEach((powerline) => {
-                                powerlineIds.push(powerline.id);
-                            });
-                            api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/segments?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}&filter=${JSON.stringify(filter)}`;
+                            api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/segments?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}&filter=${JSON.stringify(filter)}`;
                         } break;
                     }
 
@@ -462,7 +425,6 @@ export class DBAdapter implements IAdapter {
                         if(response.data) {
                             switch (table.name) {
                                 case 'categories': {
-                                    console.log('CASE CAT');
                                     if(response.data.rows) {
                                         query = `INSERT OR REPLACE INTO categories (id, title, comment, userId, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
@@ -505,11 +467,12 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'projects': {
-                                    console.log('CASE PROJECT');
                                     if(response.data.length) {
                                         query = `INSERT OR REPLACE INTO projects (id, title, contractor, status, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data;
-                                        this.projects = [...response.data];
+                                        this.projects = response.data.map((project) => {
+                                            return project.id;
+                                        });
                                         const chunksPiper = new PromisePiper();
                                         while (list.length) {
                                             const offset = list.length > limit ? limit : list.length;
@@ -550,11 +513,12 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'powerlines': {
-                                    console.log('CASE POWER');
                                     if(response.data.rows.length) {
                                         query = `INSERT OR REPLACE INTO powerlines (id, title, status, comment, userId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
-                                        this.powerlines = [...response.data.rows];
+                                        this.powerlines = response.data.rows.map((powerline) => {
+                                            return powerline.id;
+                                        });
                                         const chunksPiper = new PromisePiper();
                                         while (list.length) {
                                             const offset = list.length > limit ? limit : list.length;
@@ -595,9 +559,8 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'stations': {
-                                    console.log('CASE STATION');
                                     if(response.data.rows.length) {
-                                        query = `INSERT OR REPLACE INTO stations (id, title, description, nazw_stac, num_eksp_s, comment, type, status, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                        query = `INSERT OR REPLACE INTO stations (id, title, description, nazw_stac, num_eksp_s, comment, type, status, userId, projectId, points, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
                                         const chunksPiper = new PromisePiper();
                                         while (list.length) {
@@ -619,6 +582,7 @@ export class DBAdapter implements IAdapter {
                                                     ${item.userId},
                                                     ${item.projectId},
                                                     "${escape(JSON.stringify(item.points))}",
+                                                    (SELECT uploads FROM stations WHERE id = ${item.id}),
                                                     ${this.convertToTimeStamp(item.createdAt)},
                                                     ${this.convertToTimeStamp(item.updatedAt)},
                                                     ${this.convertToTimeStamp(item.deletedAt)}
@@ -644,9 +608,8 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'pois': {
-                                    console.log('CASE POI');
                                     if(response.data.rows.length) {
-                                        query = `INSERT OR REPLACE INTO pois (id, title, description, points, comment, status, userId, projectId, categoryId, createdAt, updatedAt, deletedAt) VALUES`;
+                                        query = `INSERT OR REPLACE INTO pois (id, title, description, points, comment, status, userId, projectId, categoryId, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
                                         const chunksPiper = new PromisePiper();
                                         while (list.length) {
@@ -666,6 +629,7 @@ export class DBAdapter implements IAdapter {
                                                     ${item.userId},
                                                     ${item.projectId},
                                                     ${item.categoryId},
+                                                    (SELECT uploads FROM pois WHERE id = ${item.id}),
                                                     ${this.convertToTimeStamp(item.createdAt)},
                                                     ${this.convertToTimeStamp(item.updatedAt)},
                                                     ${this.convertToTimeStamp(item.deletedAt)}
@@ -692,7 +656,7 @@ export class DBAdapter implements IAdapter {
                                 } break;
                                 case 'parcels': {
                                     if(response.data.rows.length) {
-                                        query = `INSERT OR REPLACE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
+                                        query = `INSERT OR REPLACE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
                                         const chunksPiper = new PromisePiper();
                                         while (list.length) {
@@ -715,6 +679,7 @@ export class DBAdapter implements IAdapter {
                                                     ${item.userId},
                                                     ${item.powerLineId},
                                                     ${item.projectId},
+                                                    (SELECT uploads FROM parcels WHERE id = ${item.id}),
                                                     ${this.convertToTimeStamp(item.createdAt)},
                                                     ${this.convertToTimeStamp(item.updatedAt)},
                                                     ${this.convertToTimeStamp(item.deletedAt)}
@@ -741,7 +706,7 @@ export class DBAdapter implements IAdapter {
                                 } break;
                                 case 'poles': {
                                     if(response.data.rows.length) {
-                                        query = `INSERT OR REPLACE INTO poles (id, title, description, comment, type, num_slup, status, powerLineId, userId, projectId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                        query = `INSERT OR REPLACE INTO poles (id, title, description, comment, type, num_slup, status, powerLineId, userId, projectId, points, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
                                         const chunksPiper = new PromisePiper();
                                         while (list.length) {
@@ -763,6 +728,7 @@ export class DBAdapter implements IAdapter {
                                                     ${item.userId},
                                                     ${item.projectId},
                                                     "${escape(JSON.stringify(item.points))}",
+                                                    (SELECT uploads FROM poles WHERE id = ${item.id}),
                                                     ${this.convertToTimeStamp(item.createdAt)},
                                                     ${this.convertToTimeStamp(item.updatedAt)},
                                                     ${this.convertToTimeStamp(item.deletedAt)}
@@ -789,7 +755,7 @@ export class DBAdapter implements IAdapter {
                                 } break;
                                 case 'segments': {
                                     if(response.data.rows.length) {
-                                        query = `INSERT OR REPLACE INTO segments (id, title, comment, description, nazwa_ciagu_id, przeslo, status, vegetation_status, distance_lateral, distance_bottom, shutdown_time, track, operation_type, time_of_operation, time_for_next_entry, parcel_number_for_permit, notes, powerLineId, projectId, userId, points, createdAt, updatedAt, deletedAt) VALUES`;
+                                        query = `INSERT OR REPLACE INTO segments (id, title, comment, description, nazwa_ciagu_id, przeslo, status, vegetation_status, distance_lateral, distance_bottom, shutdown_time, track, operation_type, time_of_operation, time_for_next_entry, parcel_number_for_permit, notes, powerLineId, projectId, userId, points, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
                                         const chunksPiper = new PromisePiper();
                                         while (list.length) {
@@ -821,6 +787,7 @@ export class DBAdapter implements IAdapter {
                                                     ${item.projectId},
                                                     ${item.userId},
                                                     "${escape(JSON.stringify(item.points))}",
+                                                    (SELECT uploads FROM segments WHERE id = ${item.id}),
                                                     ${this.convertToTimeStamp(item.createdAt)},
                                                     ${this.convertToTimeStamp(item.updatedAt)},
                                                     ${this.convertToTimeStamp(item.deletedAt)}
@@ -856,7 +823,6 @@ export class DBAdapter implements IAdapter {
                 })
             }
             case 'delete': {
-                console.log('REMOVE CASE');
                 return new Promise((resolve, reject) => {
                     let api = '';
                     const filter = [
@@ -877,51 +843,25 @@ export class DBAdapter implements IAdapter {
                             api = `${API}api/projects?limit=${this.LIMIT_TO_LOAD}`;
                         } break;
                         case 'powerlines': {
-                            const projectIds = [];
-                            this.projects.forEach((project) => {
-                                projectIds.push(project.id);
-                            });
-                            api = `${API}api/projects/${projectIds[0]}/powerlines?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}&filter=${JSON.stringify(filter)}&paranoid=true`;
+                            api = `${API}api/projects/${this.projects[0]}/powerlines?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}&filter=${JSON.stringify(filter)}&paranoid=true`;
                         } break;
                         case 'stations': {
-                            const projectIds = [];
-                            this.projects.forEach((project) => {
-                                projectIds.push(project.id);
-                            });
-                            api = `${API}api/projects/${projectIds[0]}/stations?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}&filter=${JSON.stringify(filter)}&paranoid=true`;
+                            api = `${API}api/projects/${this.projects[0]}/stations?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}&filter=${JSON.stringify(filter)}&paranoid=true`;
                         } break;
                         case 'pois': {
-                            const projectIds = [];
-                            this.projects.forEach((project) => {
-                                projectIds.push(project.id);
-                            });
-                            api = `${API}api/projects/${projectIds[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}&filter=${JSON.stringify(filter)}&paranoid=true`;
+                            api = `${API}api/projects/${this.projects[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}&filter=${JSON.stringify(filter)}&paranoid=true`;
                         } break;
                         case 'parcels': {
-                            const powerlineIds = [];
-                            this.powerlines.forEach((powerline) => {
-                                powerlineIds.push(powerline.id);
-                            });
-                            api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/parcels?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}&filter=${JSON.stringify(filter)}&paranoid=true`;
+                            api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/parcels?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}&filter=${JSON.stringify(filter)}&paranoid=true`;
                         } break;
                         case 'poles': {
-                            const powerlineIds = [];
-                            this.powerlines.forEach((powerline) => {
-                                powerlineIds.push(powerline.id);
-                            });
-                            api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/poles?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}&filter=${JSON.stringify(filter)}&paranoid=true`;
+                            api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/poles?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}&filter=${JSON.stringify(filter)}&paranoid=true`;
                         } break;
                         case 'segments': {
-                            const powerlineIds = [];
-                            this.powerlines.forEach((powerline) => {
-                                powerlineIds.push(powerline.id);
-                            });
-                            api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/segments?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}&filter=${JSON.stringify(filter)}&paranoid=true`;
+                            api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/segments?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}&filter=${JSON.stringify(filter)}&paranoid=true`;
                         } break;
                     }
 
-                    let query = '';
-                    console.log('API END POINT', api);
                     axios.get(api).then( async (response: any) => {
                         const limit = 2000;
                         if(response.data) {
@@ -957,7 +897,6 @@ export class DBAdapter implements IAdapter {
                                 } break;
                                 case 'projects': {
                                     if(response.data.length) {
-
                                         const list = response.data;
 
                                         const compare = (list, projects) => {
@@ -967,10 +906,9 @@ export class DBAdapter implements IAdapter {
                                         const stored: any = await this.select('SELECT * FROM projects');
 
                                         if(list.length < stored.rows._array.length) {
+
                                             const _projects: Array<any> = stored.rows._array;
                                             const uniques = compare(list, _projects);
-
-                                            console.log('UNIQUES', uniques);
 
                                             const selector = uniques.map(async (i) => {
                                                 const results: any = await this.select(`SELECT * FROM powerlines WHERE projectId = ${i.id}`);
@@ -979,8 +917,6 @@ export class DBAdapter implements IAdapter {
 
                                             const selected = await Promise.all(selector);
                                             const _powerlines = selected.reduce((acc: any[], i: any[]) => [...acc, ...i], []);
-
-                                            console.log('SELECTED POWERLINES', _powerlines);
 
                                             const linesCleaner = (_powerlines as any[]).map(async (i)=> {
                                                 return Promise.all([
@@ -1002,8 +938,11 @@ export class DBAdapter implements IAdapter {
                                             await Promise.all([linesCleaner, projectsCleaner]);
 
                                             resolve({result: 'Removed'});
+                                        } else {
+                                            resolve({result: 'No projects data provided'});
                                         }
                                     } else {
+                                        await this.resetDB();
                                         resolve({result: 'No projects data provided'});
                                     }
                                 } break;
@@ -1064,10 +1003,8 @@ export class DBAdapter implements IAdapter {
                                     }
                                 } break;
                                 case 'pois': {
-                                    console.log('DELETE POI CASE');
                                     if(response.data.rows.length) {
                                         const list = response.data.rows;
-                                        console.log('INSIDE', list);
                                         const chunksPiper = new PromisePiper();
                                         while(list.length) {
                                             const offset = list.length > limit ? limit : list.length;
@@ -1084,10 +1021,8 @@ export class DBAdapter implements IAdapter {
                                             });
                                         }
                                         chunksPiper.finally( (resolveResult) => {
-                                            console.log('SUCCESS PIPE');
                                             resolve(resolveResult);
                                         }, (rejectReason) => {
-                                            console.log('ERROR PIPE', rejectReason);
                                             reject(rejectReason);
                                         });
                                     } else {
@@ -1193,7 +1128,7 @@ export class DBAdapter implements IAdapter {
     };
 
     private download = (table) => {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let api = '';
             this.notifier({...this.state, pending: true, logger: `Fetching ${table.name} data`});
 
@@ -1205,46 +1140,22 @@ export class DBAdapter implements IAdapter {
                     api = `${API}api/projects?limit=${this.LIMIT_TO_LOAD}`;
                 } break;
                 case 'powerlines': {
-                    const projectIds = [];
-                    this.projects.forEach((project) => {
-                        projectIds.push(project.id);
-                    });
-                    api = `${API}api/projects/${projectIds[0]}/powerlines?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}`;
+                    api = `${API}api/projects/${this.projects[0]}/powerlines?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}`;
                 } break;
                 case 'stations': {
-                    const projectIds = [];
-                    this.projects.forEach((project) => {
-                        projectIds.push(project.id);
-                    });
-                    api = `${API}api/projects/${projectIds[0]}/stations?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}`;
+                    api = `${API}api/projects/${this.projects[0]}/stations?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}`;
                 } break;
                 case 'pois': {
-                    const projectIds = [];
-                    this.projects.forEach((project) => {
-                        projectIds.push(project.id);
-                    });
-                    api = `${API}api/projects/${projectIds[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(projectIds)}`;
+                    api = `${API}api/projects/${this.projects[0]}/poi?limit=${this.LIMIT_TO_LOAD}&projectsList=${JSON.stringify(this.projects)}`;
                 } break;
                 case 'parcels': {
-                    const powerlineIds = [];
-                    this.powerlines.forEach((powerline) => {
-                        powerlineIds.push(powerline.id);
-                    });
-                    api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/parcels?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}`;
+                    api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/parcels?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}`;
                 } break;
                 case 'poles': {
-                    const powerlineIds = [];
-                    this.powerlines.forEach((powerline) => {
-                        powerlineIds.push(powerline.id);
-                    });
-                    api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/poles?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}`;
+                    api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/poles?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}`;
                 } break;
                 case 'segments': {
-                    const powerlineIds = [];
-                    this.powerlines.forEach((powerline) => {
-                        powerlineIds.push(powerline.id);
-                    });
-                    api = `${API}api/projects/${this.projects[0].id}/powerlines/${powerlineIds[0]}/segments?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(powerlineIds)}`;
+                    api = `${API}api/projects/${this.projects[0]}/powerlines/${this.powerlines[0]}/segments?limit=${this.LIMIT_TO_LOAD}&powerlinesList=${JSON.stringify(this.powerlines)}`;
                 } break;
             }
 
@@ -1299,7 +1210,9 @@ export class DBAdapter implements IAdapter {
                             if(response.data.length) {
                                 query = `INSERT OR IGNORE INTO projects (id, title, contractor, status, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data;
-                                this.projects = [...response.data];
+                                this.projects = response.data.map((project) => {
+                                    return project.id;
+                                });
                                 const chunksPiper = new PromisePiper();
                                 while (list.length) {
                                     const offset = list.length > limit ? limit : list.length;
@@ -1343,7 +1256,9 @@ export class DBAdapter implements IAdapter {
                             if(response.data.rows.length) {
                                 query = `INSERT OR IGNORE INTO powerlines (id, title, status, comment, userId, projectId, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
-                                this.powerlines = [...response.data.rows];
+                                this.powerlines = response.data.rows.map((powerline) => {
+                                    return powerline.id;
+                                });
                                 const chunksPiper = new PromisePiper();
                                 while (list.length) {
                                     const offset = list.length > limit ? limit : list.length;

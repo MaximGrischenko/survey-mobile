@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
 import {ClusterMap} from 'react-native-cluster-map';
 import MapView, {PROVIDER_GOOGLE, Marker} from "react-native-maps";
-import {View, StyleSheet, Platform, Image, AsyncStorage} from "react-native";
+import {View, StyleSheet, Platform, Image} from "react-native";
 import {merge} from "immutable";
 
 interface IMapProps {
+    layout: any,
     initialized: boolean,
     shouldUpdate: boolean,
     showUserLocation: boolean,
@@ -44,7 +45,7 @@ class MapViewer extends Component<IMapProps, IMapState> {
             options: {
                 radius: 0,
                 nodeSize: 25,
-                maxZoom: 10,
+                maxZoom: 14,
                 minZoom: 1
             },
             mapSnapshot: null,
@@ -95,7 +96,7 @@ class MapViewer extends Component<IMapProps, IMapState> {
     };
 
     private mergeCluster = (zoom) => {
-        if(!this.props.relocate && this.props.initialized) {
+        if(!this.props.relocate && this.props.initialized && this.props.cluster.length) {
             if(zoom >= 8 && this.props.merged) {
                 this.props.callback({status: 'expand'});
             }
@@ -115,7 +116,7 @@ class MapViewer extends Component<IMapProps, IMapState> {
     };
 
     render() {
-        const {showUserLocation, region, location} = this.props;
+        const {showUserLocation, region, location, layout} = this.props;
         return (
             <View style={{flex: 1, position: 'relative'}}>
                 <View style={[localStyles.layer, this.state.layers.expanded.isReady ? localStyles.visible : localStyles.hidden]}>
@@ -125,6 +126,8 @@ class MapViewer extends Component<IMapProps, IMapState> {
                                 provider={PROVIDER_GOOGLE}
                                 region={{...region}}
                                 ref={ref => this.map = ref}
+                                mapType={layout.charAt(0).toLowerCase() + layout.slice(1)}
+                                maxZoomLevel={this.state.options.maxZoom}
                                 onMapReady={() => {
                                     this.setState({
                                         layers: {
@@ -149,7 +152,6 @@ class MapViewer extends Component<IMapProps, IMapState> {
                                     ) : null
                                 }
                                 onZoomChange={(zoom) => this.mergeCluster(zoom)}
-                                // onClusterClick={(cluster) => this.expandCluster(cluster)}
                             >
                                 {
                                     this.props.cluster.length ? (
@@ -172,8 +174,9 @@ class MapViewer extends Component<IMapProps, IMapState> {
                                 provider={PROVIDER_GOOGLE}
                                 region={{...region}}
                                 ref={ref => this.map = ref}
+                                maxZoomLevel={this.state.options.maxZoom}
+                                mapType={layout.charAt(0).toLowerCase() + layout.slice(1)}
                                 onPress={(event) => {
-                                    // console.log('ON CLICK');
                                    this.props.onMapClick(event)
                                 }}
                                 superClusterOptions={{...this.props.options}}

@@ -8,7 +8,6 @@ import {PrimaryButton} from "../buttons/primary.button";
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import * as FileSystem from 'expo-file-system';
-import {API} from "../../config";
 
 import {showAlert} from "../../redux/modules/dialogs";
 import {Upload} from "../../entities";
@@ -81,6 +80,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                         let picker = await ImagePicker.launchCameraAsync( {
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             allowsEditing: false,
+                            quality: 0.5,
                            // aspect: [4, 3],
                             exif: true,
                         });
@@ -93,6 +93,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                         let picker = await ImagePicker.launchImageLibraryAsync({
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             allowsEditing: false,
+                            quality: 0.5,
                           //  aspect: [4, 3],
                             exif: true,
                         });
@@ -176,33 +177,12 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                 data={item}
                 even={(index + 1) % 2 === 0}
                 expanded={this.state.expanded}
-                parallax={true}
+                parallax={false}
                 parallaxProps={parallaxProps}
                 onDelete={this.handleDelete}
                 onExpand={this.handleExpand}/>
         )
     };
-
-    // private uploadAssetsAsync = async (file: any, token: any) => {
-    //     return new Promise((resolve, reject) => {
-    //
-    //         const body = new FormData();
-    //         body.append('filesData', file);
-    //         const xhr = new XMLHttpRequest();
-    //
-    //         xhr.open('POST', `${API}api/uploads`);
-    //         xhr.setRequestHeader('authorization', token);
-    //         xhr.responseType = 'json';
-    //         xhr.send(body);
-    //         xhr.onerror = function(e) {
-    //             reject(e)
-    //         };
-    //         xhr.onload = function() {
-    //             let responseObj = xhr.response;
-    //             resolve(responseObj);
-    //         };
-    //     });
-    // };
 
     render() {
         const { width: viewportWidth, height: viewportHeight } = Dimensions.get('window');
@@ -230,7 +210,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                             <Carousel
                                 ref={(ref) => {this.carousel = ref;}}
                                 data={this.state.files}
-                                hasParallaxImages={true}
+                                hasParallaxImages={false}
                                 renderItem={this.renderUploads}
                                 sliderWidth={viewportWidth}
                                 itemWidth={viewportWidth}
@@ -260,7 +240,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                     ref={(ref) => {this.carousel = ref;}}
                     data={this.state.files}
                     //layout={'stack'}
-                    hasParallaxImages={true}
+                    hasParallaxImages={false}
                    // layoutCardOffset={15}
                     renderItem={this.renderUploads}
                     sliderWidth={sliderWidth}

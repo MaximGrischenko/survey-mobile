@@ -184,17 +184,17 @@ export default function reducer(state = new ReducerRecord(), action: any) {
         }
 
         case FETCH_LOCATION_POLES_SUCCESS: {
-            const loaded = state.poles.map((el: any) => el.id);
-            for (let i = 0; i < action.payload.length; i++) {
-                if (loaded.indexOf(action.payload[i].id) < 0) {
-                    state.poles.push(action.payload[i]);
-                    loaded.push(action.payload[i].id);
-                }
-            }
+            // const loaded = state.poles.map((el: any) => el.id);
+            // for (let i = 0; i < action.payload.length; i++) {
+            //     if (loaded.indexOf(action.payload[i].id) < 0) {
+            //         state.poles.push(action.payload[i]);
+            //         loaded.push(action.payload[i].id);
+            //     }
+            // }
             return state
                 .set('loading', false)
                 .set('polesList', Date.now())
-                .set('poles', [...state.poles.map((el: any) => new Pole(el))])
+                .set('poles', [...action.payload.map((el: any) => new Pole(el))])
                 .set('error', null);
         }
         case ADD_POLE_SUCCESS: {
@@ -224,17 +224,17 @@ export default function reducer(state = new ReducerRecord(), action: any) {
         }
 
         case FETCH_LOCATION_SEGMENTS_SUCCESS: {
-            const loaded = state.segments.map((el: any) => el.id);
-            for (let i = 0; i < action.payload.length; i++) {
-                if (loaded.indexOf(action.payload[i].id) < 0) {
-                    state.segments.push(action.payload[i]);
-                    loaded.push(action.payload[i].id);
-                }
-            }
+            // const loaded = state.segments.map((el: any) => el.id);
+            // for (let i = 0; i < action.payload.length; i++) {
+            //     if (loaded.indexOf(action.payload[i].id) < 0) {
+            //         state.segments.push(action.payload[i]);
+            //         loaded.push(action.payload[i].id);
+            //     }
+            // }
             return state
                 .set('loading', false)
                 .set('segmentList', Date.now())
-                .set('segments', [...state.segments.map((el: any) => new Segment(el))])
+                .set('segments', [...action.payload.map((el: any) => new Segment(el))])
                 .set('error', null);
         }
         case ADD_SEGMENTS_SUCCESS: {
@@ -270,17 +270,17 @@ export default function reducer(state = new ReducerRecord(), action: any) {
         }
 
         case FETCH_LOCATION_STATIONS_SUCCESS: {
-            const loaded = state.stations.map((el: any) => el.id);
-            for (let i = 0; i < action.payload.length; i++) {
-                if (loaded.indexOf(action.payload[i].id) < 0) {
-                    state.stations.push(action.payload[i]);
-                    loaded.push(action.payload[i].id);
-                }
-            }
+            // const loaded = state.stations.map((el: any) => el.id);
+            // for (let i = 0; i < action.payload.length; i++) {
+            //     if (loaded.indexOf(action.payload[i].id) < 0) {
+            //         state.stations.push(action.payload[i]);
+            //         loaded.push(action.payload[i].id);
+            //     }
+            // }
             return state
                 .set('loading', false)
                 .set('stationList', Date.now())
-                .set('stations', [...state.stations.map((el: any) => new Station(el))])
+                .set('stations', [...action.payload.map((el: any) => new Station(el))])
                 .set('error', null);
         }
         case STATIONS.ADD_STATIONS_SUCCESS: {
@@ -331,17 +331,17 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('error', null);
         }
         case FETCH_LOCATION_PARCElS_SUCCESS: {
-            const loaded = state.parcels.map((el: any) => el.id);
-            for (let i = 0; i < action.payload.length; i++) {
-                if (loaded.indexOf(action.payload[i].id) < 0) {
-                    state.parcels.push(action.payload[i]);
-                    loaded.push(action.payload[i].id);
-                }
-            }
+            // const loaded = state.parcels.map((el: any) => el.id);
+            // for (let i = 0; i < action.payload.length; i++) {
+            //     if (loaded.indexOf(action.payload[i].id) < 0) {
+            //         state.parcels.push(action.payload[i]);
+            //         loaded.push(action.payload[i].id);
+            //     }
+            // }
             return state
                 .set('loading', false)
                 .set('parcelList', Date.now())
-                .set('parcels', [...state.parcels.map((el: any) => new Parcel(el))])
+                .set('parcels', [...action.payload.map((el: any) => new Parcel(el))])
                 .set('error', null);
         }
         case EDIT_PARCElS_SUCCESS: {
@@ -365,17 +365,17 @@ export default function reducer(state = new ReducerRecord(), action: any) {
         }
 
         case POI.FETCH_LOCATION_POIS_SUCCESS: {
-            const loaded = state.pois.map((el: any) => el.id);
-            for (let i = 0; i < action.payload.length; i++) {
-                if (loaded.indexOf(action.payload[i].id) < 0) {
-                    state.pois.push(action.payload[i]);
-                    loaded.push(action.payload[i].id);
-                }
-            }
+            // const loaded = state.pois.map((el: any) => el.id);
+            // for (let i = 0; i < action.payload.length; i++) {
+            //     if (loaded.indexOf(action.payload[i].id) < 0) {
+            //         state.pois.push(action.payload[i]);
+            //         loaded.push(action.payload[i].id);
+            //     }
+            // }
             return state
                 .set('loading', false)
                 .set('poiList', Date.now())
-                .set('pois', [...state.pois.map((el: any) => new Poi(el))])
+                .set('pois', [...action.payload.map((el: any) => new Poi(el))])
                 .set('error', null);
         }
         case POI.POI_DELETE_SUCCESS: {
@@ -419,17 +419,17 @@ export default function reducer(state = new ReducerRecord(), action: any) {
                 .set('error', null);
         }
         case POWERLINES.FETCH_LOCATION_POWERLINES_SUCCESS: {
-            const loaded = state.powerlines.map((el: any) => el.id);
-            for (let i = 0; i < action.payload.length; i++) {
-                if (loaded.indexOf(action.payload[i].id) < 0) {
-                    state.powerlines.push(action.payload[i]);
-                    loaded.push(action.payload[i].id);
-                }
-            }
+            // const loaded = state.powerlines.map((el: any) => el.id);
+            // for (let i = 0; i < action.payload.length; i++) {
+            //     if (loaded.indexOf(action.payload[i].id) < 0) {
+            //         state.powerlines.push(action.payload[i]);
+            //         loaded.push(action.payload[i].id);
+            //     }
+            // }
 
             return state
                 .set('loading', false)
-                .set('powerlines', [...state.powerlines.map((el) => new Powerline(el))])
+                .set('powerlines', [...action.payload.map((el) => new Powerline(el))])
                 .set('error', null);
         }
 

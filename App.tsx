@@ -48,34 +48,33 @@ export default class App extends Component {
             require('./assets/images/station-x4.png'),
             require('./assets/images/location.png'),
             require('./assets/images/location-x4.png'),
-            require('./assets/svg/map.svg'),
-            require('./assets/svg/parcel.svg'),
-            require('./assets/svg/poi.svg'),
-            require('./assets/svg/pole.svg'),
-            require('./assets/svg/segment.svg'),
-            require('./assets/svg/station.svg'),
-            require('./assets/svg/sync.svg'),
-            require('./assets/svg/table.svg'),
+            require('./assets/images/map.svg'),
+            require('./assets/images/parcel.svg'),
+            require('./assets/images/poi.svg'),
+            require('./assets/images/pole.svg'),
+            require('./assets/images/segment.svg'),
+            require('./assets/images/station.svg'),
+            require('./assets/images/sync.svg'),
         ]);
 
         const fontAssets = cacheFonts([]);
 
         const token = await AsyncStorage.getItem('access_token');
-        let location: any = '';
-
-        let hasLocationPermissions = false;
-        let locationResult =  null;
-
-        let {status} = await Permissions.askAsync(Permissions.LOCATION);
-
-        if(status !== 'granted') {
-            locationResult = 'Permission to access location was denied';
-        } else {
-            hasLocationPermissions =  true;
-            location = await Location.getCurrentPositionAsync({
-                enableHighAccuracy: true, timeout: 20000,
-            });
-        }
+        // let location: any = '';
+        //
+        // let hasLocationPermissions = false;
+        // let locationResult =  null;
+        //
+        // let {status} = await Permissions.askAsync(Permissions.LOCATION);
+        //
+        // if(status !== 'granted') {
+        //     locationResult = 'Permission to access location was denied';
+        // } else {
+        //     hasLocationPermissions =  true;
+        //     location = await Location.getCurrentPositionAsync({
+        //         enableHighAccuracy: true, timeout: 20000,
+        //     });
+        // }
 
         // this.setState({
         //    locationResult: JSON.stringify(location)
@@ -85,7 +84,7 @@ export default class App extends Component {
 
         //TODO [...imageAssets, ...fontAssets], applyHeader(token), applyGeoposition(location)
 
-        await Promise.all([...imageAssets, ...fontAssets, applyHeader(token), applyGEOPosition(location)]);
+        await Promise.all([...imageAssets, ...fontAssets, applyHeader(token)]);
     }
 
     render() {

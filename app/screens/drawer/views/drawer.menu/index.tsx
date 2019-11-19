@@ -111,6 +111,18 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         if(nextProps.connection !== this.props.connection) {
             if(nextProps.connection) {
                 setTimeout(async () => await this.synchronization(), 2000);
+            } else {
+                const {project, selected_powerlines} = this.props;
+                if(project) {
+                    this.props.fetchPowerlinesOffline(project);
+                    this.props.fetchStationsOffline(project);
+                    this.props.fetchPoiOffline(project);
+                } else if(selected_powerlines.length) {
+                    const reqData = {...project, powerLineId: selected_powerlines[0]};
+                    this.props.fetchParcelsOffline(reqData);
+                    this.props.fetchPolesOffline(reqData);
+                    this.props.fetchSegmentsOffline(reqData);
+                }
             }
         }
     }
@@ -182,81 +194,69 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
 
     private updateDB = async () => {
         const timestamp = await AsyncStorage.getItem('timestamp');
-        this.state.database.updateDB(timestamp).then(async () => {
-            if(this.state.status.storage === 'updated' && this.props.connection) {
-                const uploadPiper = new PromisePiper();
-                const stored = await AsyncStorage.getItem('updates');
-                if(stored) {
-                    const updates = JSON.parse(stored);
-                    const transactions = updates
-                        .sort((a, b) => a.data.updatedAt - b.data.updatedAt)
-                        .reduce((acc, update) => {
-                            if(update.action === 'add') {
-                                return [...acc, update]
-                            } else if(update.action === 'edit') {
-                                const result = acc.find((i) => i.data.id === update.data.id && i.action === 'add');
-                                if(result) {
-                                    return acc.map(i => i.data.id === update.data.id && i.data.updatedAt < update.data.updatedAt ? {
-                                        ...i,
-                                        data: update.data
-                                    } : i)
-                                } else {
+        if(timestamp) {
+            this.state.database.updateDB(timestamp).then(async () => {
+                if(this.state.status.storage === 'updated' && this.props.connection) {
+                    const uploadPiper = new PromisePiper();
+                    const stored = await AsyncStorage.getItem('updates');
+                    if(stored) {
+                        const updates = JSON.parse(stored);
+                        const transactions = updates
+                            .sort((a, b) => a.data.updatedAt - b.data.updatedAt)
+                            .reduce((acc, update) => {
+                                if(update.action === 'add') {
                                     return [...acc, update]
+                                } else if(update.action === 'edit') {
+                                    const result = acc.find((i) => i.data.id === update.data.id && i.action === 'add');
+                                    if(result) {
+                                        return acc.map(i => i.data.id === update.data.id && i.data.updatedAt < update.data.updatedAt ? {
+                                            ...i,
+                                            data: update.data
+                                        } : i)
+                                    } else {
+                                        return [...acc, update]
+                                    }
                                 }
-                            }
-                            return [...acc, update]
-                        }, []);
+                                return [...acc, update]
+                            }, []);
 
-                    transactions.map((update) => {
-                        uploadPiper.pipe((resolve, reject) => {
-                            this.upload(update).then((uploadResult) => {
-                                resolve(uploadResult);
-                            }, (uploadReason) => {
-                                reject(uploadReason);
+                        transactions.map((update) => {
+                            uploadPiper.pipe((resolve, reject) => {
+                                this.upload(update).then((uploadResult) => {
+                                    resolve(uploadResult);
+                                }, (uploadReason) => {
+                                    reject(uploadReason);
+                                });
                             });
                         });
-                    });
 
-                    await uploadPiper.finally(async (uploadResult) => {
-                        await this.finalize();
-                        console.log('Upload Success', uploadResult);
-                    }, async (rejectReason) => {
-                        await this.checkStatus();
-                        console.log('Upload Error', rejectReason);
-                    });
+                        await uploadPiper.finally(async (uploadResult) => {
+                            await this.finalize();
+                            console.log('Upload Success', uploadResult);
+                        }, async (rejectReason) => {
+                            await this.checkStatus();
+                            console.log('Upload Error', rejectReason);
+                        });
+                    }
                 }
-            }
-        }).then(() => {
-            const {connection, project, selected_powerlines} = this.props;
-            console.log('BEFORE FETCH');
-            if(connection) {
-                if(project) {
-                    console.log('FETCH PROJECT ENTITIES');
-                    this.props.fetchLocationStations(project);
-                    this.props.fetchLocationPoi(project);
-                    this.props.fetchProjectPowerlines(project);
-                } else if(selected_powerlines.length) {
-                    console.log('FETCH POWERLINES ENTITIES');
-                    const reqData = {...project, powerLineId: selected_powerlines[0]};
-                    this.props.fetchLocationParcels(reqData);
-                    this.props.fetchLocationPoles(reqData);
-                    this.props.fetchLocationSegments(reqData);
+            }).then(() => {
+                const {connection, project, selected_powerlines} = this.props;
+                if(connection) {
+                    if(project) {
+                        this.props.fetchLocationStations(project);
+                        this.props.fetchLocationPoi(project);
+                        this.props.fetchProjectPowerlines(project);
+                    } else if(selected_powerlines.length) {
+                        const reqData = {...project, powerLineId: selected_powerlines[0]};
+                        this.props.fetchLocationParcels(reqData);
+                        this.props.fetchLocationPoles(reqData);
+                        this.props.fetchLocationSegments(reqData);
+                    }
                 }
-            } else {
-                if(project) {
-                    this.props.fetchPowerlinesOffline(project);
-                    this.props.fetchStationsOffline(project);
-                    this.props.fetchPoiOffline(project);
-                } else if(selected_powerlines.length) {
-                    const reqData = {...project, powerLineId: selected_powerlines[0]};
-                    this.props.fetchParcelsOffline(reqData);
-                    this.props.fetchPolesOffline(reqData);
-                    this.props.fetchSegmentsOffline(reqData);
-                }
-            }
-        }).catch((error) => {
-            console.log('Update Error', error);
-        });
+            }).catch((error) => {
+                console.log('Update Error', error);
+            });
+        }
     };
 
     private uploadAssets = (asset) => {
@@ -462,7 +462,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         const {navigation} = this.props;
         const {progress} = this.state;
         return (
-            <View>
+            <React.Fragment>
                 <View style={localStyles.container}>
                     <TouchableOpacity style={localStyles.item} onPress={() => this.synchronization()}>
                         {/*<SvgUri*/}
@@ -473,6 +473,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                         <Image style={{width: 36, height: 30}} source={require('../../../../../assets/images/drawer-sync.png')}/>
                         <Text style={{marginTop: 10}}>Sync</Text>
                     </TouchableOpacity>
+
                     <View style={localStyles.divider}/>
 
                     <TouchableOpacity style={localStyles.item} onPress={() => {navigation.dispatch(DrawerActions.toggleDrawer())}}>
@@ -501,7 +502,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                     </TouchableOpacity>
                 </View>
                 <View style={{height: 28, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={localStyles.status}>{progress ? progress.logger : ''}</Text>
+                    <Text style={localStyles.status}>{progress && typeof progress.logger === 'string'? progress.logger : '' }</Text>
                     <TouchableOpacity style={localStyles.item} onPress={() => this.resetDB()}>
                         <Text style={localStyles.reset}>Reset</Text>
                     </TouchableOpacity>
@@ -513,7 +514,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                         <View style={localStyles.underline}/>
                     )
                 }
-            </View>
+            </React.Fragment>
         )
     }
 }

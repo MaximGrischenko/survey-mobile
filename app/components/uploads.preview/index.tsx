@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View, Text, Image, TouchableOpacity, Platform, Dimensions} from 'react-native';
+import {View, Text, Image, TouchableOpacity, Platform, Dimensions, TouchableWithoutFeedback} from 'react-native';
 import DoubleClickButton from "../buttons/double-click.button";
 import { ParallaxImage } from 'react-native-snap-carousel';
 import styles from '../../styles/carousel/SliderEntry.style';
@@ -24,8 +24,6 @@ export default class SliderEntry extends Component<IMapProps> {
     private renderImage () {
         const {data: {path}, even, parallax, parallaxProps, connection, expanded} = this.props;
 
-        console.log('PATH', path);
-
         let url = '';
         if(connection) {
             url = `${API}resources`;
@@ -45,12 +43,12 @@ export default class SliderEntry extends Component<IMapProps> {
                 />
             </DoubleClickButton>
         ) : (
-            <DoubleClickButton onDoubleTap={() => this.props.onExpand(expanded)} style={[styles.imageContainer, even ? styles.imageContainerEven : {}]}>
+            <TouchableWithoutFeedback onPress={() => this.props.onExpand(expanded)} style={[styles.imageContainer, even ? styles.imageContainerEven : {}]}>
                 <Image
                     source={{ uri: `${url}/${path}` }}
                     style={styles.image}
                 />
-            </DoubleClickButton>
+            </TouchableWithoutFeedback>
         )
     }
     render () {
@@ -59,15 +57,15 @@ export default class SliderEntry extends Component<IMapProps> {
         return (
             <View style={[expanded ? {flex: 1, paddingBottom: 45} : styles.slideInnerContainer]}>
                 <View style={styles.shadow} />
-                <TouchableOpacity onPress={() => this.props.onExpand(expanded)} style={{position: 'absolute', top: 20, right: 20, zIndex: 5}}>
-                    {
-                        expanded ? (
-                            <Icon name={Platform.OS === 'ios' ? 'ios-contract' : 'md-contract'} size={24} color={COLORS.PRIMARY}/>
-                        ) : (
-                            <Icon name={Platform.OS === 'ios' ? 'ios-expand' : 'md-expand'} size={24} color={COLORS.PRIMARY}/>
-                        )
-                    }
-                </TouchableOpacity>
+                {/*<TouchableOpacity onPress={() => this.props.onExpand(expanded)} style={{position: 'absolute', top: 20, right: 20, zIndex: 5}}>*/}
+                {/*    {*/}
+                {/*        expanded ? (*/}
+                {/*            <Icon name={Platform.OS === 'ios' ? 'ios-contract' : 'md-contract'} size={24} color={COLORS.PRIMARY}/>*/}
+                {/*        ) : (*/}
+                {/*            <Icon name={Platform.OS === 'ios' ? 'ios-expand' : 'md-expand'} size={24} color={COLORS.PRIMARY}/>*/}
+                {/*        )*/}
+                {/*    }*/}
+                {/*</TouchableOpacity>*/}
                 {this.renderImage()}
                 <View style={[expanded ? {...styles.radiusMask, left: 0, right: 0, maxWidth: viewportWidth} : styles.radiusMask]}>
                     <TouchableOpacity onPress={() => this.props.onDelete(path)} style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 10, flex: 1}}>

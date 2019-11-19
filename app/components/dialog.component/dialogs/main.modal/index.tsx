@@ -88,9 +88,16 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             __pending: false,
             formErrors: [],
             fieldError: {},
-            ...p.selectedItem
+            ...p.selectedItem,
+            status: p.type === TYPES.PARCEL ?
+                (
+                    parcel_statuses.find(status => status.id === p.selectedItem.status).value
+                ) : (
+                    p.selectedItem.status
+                )
         };
     }
+
 
     private select: any = null;
     private form: any = null;
@@ -115,7 +122,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     onPress={this.handleSubmit}
                 />
             )
-        )
+        );
     }
 
     componentWillUnmount(): void {
@@ -200,6 +207,10 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             };
             if (this.type === TYPES.SEGMENT) {
                 if (editItem.operation_type) editItem.operation_type = editItem.operation_type ? editItem.operation_type.join(",") : '';
+            }
+
+            if (this.type === TYPES.PARCEL) {
+                editItem.status = parcel_statuses.find(status => status.value === editItem.status).id;
             }
 
             if(this.props.connection) {

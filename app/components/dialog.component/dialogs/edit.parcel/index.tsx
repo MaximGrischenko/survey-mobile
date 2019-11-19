@@ -35,6 +35,7 @@ const mapStateToProps = (state: any) => ({
     isAdmin: isSuperAdminSelector(state),
     tempPosition: lastGeoPostionsSelector(state),
     connection: connectionSelector(state),
+    type: TYPES.PARCEL,
 });
 
 const mapDispatchToProps = (dispatch: any) => (

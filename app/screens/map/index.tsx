@@ -9,8 +9,9 @@ import {
     TouchableOpacity,
     View,
     StyleSheet,
-    Dimensions
+    Dimensions,
 } from "react-native";
+import {Dropdown} from 'react-native-material-dropdown';
 import {
     applyGEOPosition,
     changeControls,
@@ -50,6 +51,7 @@ import * as Location from "expo-location";
 import {fetchCategories, fetchCategoriesOffline} from "../../redux/modules/admin/categories";
 import {connectionSelector} from "../../redux/modules/connect";
 import Icon from "react-native-vector-icons/Ionicons";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";
 
@@ -91,6 +93,7 @@ interface IMapProps {
 }
 
 interface IMapState {
+    layout: any;
     region: any,
     location: any,
     options: any,
@@ -128,13 +131,28 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
         merged: true,
         shouldUpdate: true,
         initialized: false,
+        layout: 'Standard',
         options: {
             radius: 40,
             nodeSize: 25,
-            maxZoom: 10,
+            maxZoom: 14,
             minZoom: 1
         },
     };
+
+    private select: any = null;
+    private layouts = [
+        {
+            value: 'Standard',
+            icon: 'map'
+        }, {
+            value: 'Satellite',
+            icon: 'satellite'
+        }, {
+            value: 'Hybrid',
+            icon: 'terrain'
+        }
+    ];
 
     async componentDidMount() {
         if(this.props.connection) {
@@ -143,24 +161,55 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
            await this.props.fetchCategoriesOffline();
         }
 
-        const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
 
-        let location = await AsyncStorage.getItem('location');
+        // const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
+        //
+        // let location = await AsyncStorage.getItem('location');
+        //
+        // if(location) {
+        //     const GEOPosition = JSON.parse(location);
+        //     region.latitude = GEOPosition.coords.latitude;
+        //     region.longitude = GEOPosition.coords.longitude;
+        //
+        //     this.setState({
+        //         location: {...GEOPosition.coords},
+        //         showUserLocation: true
+        //     });
+        //     await applyGEOPosition(location);
+        // }
+        //
+        // await this.setState({
+        //     region,
+        // });
 
-        if(location) {
-            const GEOPosition = JSON.parse(location);
-            region.latitude = GEOPosition.coords.latitude;
-            region.longitude = GEOPosition.coords.longitude;
+        let locationResult = null;
+        let {status} = await Permissions.askAsync(Permissions.LOCATION);
 
-            this.setState({
-                location: {...GEOPosition.coords},
-                showUserLocation: true
-            });
-            await applyGEOPosition(location);
+        if(status !== 'granted') {
+            locationResult = 'Permission to access location was denied';
+            const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
+            this.setState({region});
+            return this.props.showAlert(locationResult);
         }
 
-        await this.setState({
-            region,
+        let location = await Location.getCurrentPositionAsync({
+            enableHighAccuracy: true, timeout: 20000,
+        });
+
+        this.setState({
+            region: {...location.coords, latitudeDelta: 0.1, longitudeDelta: 0.1}
+        });
+
+        await Location.watchPositionAsync({
+            accuracy: Location.Accuracy.BestForNavigation, timeInterval: 1000, distanceInterval: 1
+        }, async (location) => {
+            this.setState({
+                location: {...location.coords},
+                shouldUpdate: true,
+                showUserLocation: true,
+            });
+
+            await applyGEOPosition(location);
         });
     }
 
@@ -451,7 +500,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                 <Polyline
                     key={marker.id}
                     coordinates={marker.pathList}
-                    strokeWidth={4}
+                    strokeWidth={3}
                     strokeColor={color}
                     tappable={true}
                     //  cluster={false}
@@ -483,15 +532,15 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
         markers.forEach((marker) => {
             let color: string = '';
             switch (marker.status) {
-                case parcel_statuses[0].value: {
+                case parcel_statuses[0].id: {
                     color = 'blue';
                     break;
                 }
-                case parcel_statuses[1].value: {
+                case parcel_statuses[1].id: {
                     color = 'green';
                     break;
                 }
-                case parcel_statuses[2].value: {
+                case parcel_statuses[2].id: {
                     color = 'red';
                     break;
                 }
@@ -501,7 +550,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                 <Polygon
                     key={marker.id}
                     coordinates={marker.pathList}
-                    strokeWidth={4}
+                    strokeWidth={3}
                     strokeColor={color}
                     tappable={true}
                     // onCalloutPress={() => this.showDialog(marker)}
@@ -711,6 +760,13 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
         return _list;
     };
 
+    private onSelectLayout = (value) => {
+        this.setState({
+            layout: value,
+            shouldUpdate: true,
+        })
+    };
+
     render() {
         return (
             <View style={{flex: 1}}>
@@ -722,22 +778,38 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                                        onMapClick={this.handleMapClick}
                                        callback={this.callback}
                             />
-                            <TouchableOpacity style={localStyles.location} onPress={() => this.handleGetLocation()}>
-                                <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={24} color={COLORS.SECONDARY} style={localStyles.icon}/>
-                            </TouchableOpacity>
-                            <FabButton
-                                style={localStyles.button}
-                                onPress={() => this.handleAllowToAddPoi()}
+                            <Dropdown
+                                dropdownPosition={1}
+                                data={this.layouts}
+                                ref={(ref) => { this.select = ref }}
+                                containerStyle={localStyles.pickerContainer}
+                                pickerStyle={localStyles.pickerItem}
+                                itemColor={COLORS.TEXT_COLOR}
+                                selectedItemColor={COLORS.PRIMARY}
+                                onChangeText={this.onSelectLayout}
+                                value={this.state.layout}
+                                renderBase={() => (
+                                    <MaterialIcon
+                                        name={Platform.OS === 'ios' ? 'layers' : 'layers'} size={24} color={COLORS.SECONDARY}
+                                    />
+                                )}
                             />
-                            <View style={[localStyles.tooltip, this.props.allowAddPoi ? localStyles.visible : localStyles.hidden]}>
-                                <Text style={localStyles.message}>Click on the map to set the location</Text>
-                            </View>
+                        <TouchableOpacity style={localStyles.location} onPress={() => this.handleGetLocation()}>
+                            <Icon name={Platform.OS === 'ios' ? 'ios-locate' : 'md-locate'} size={24} color={COLORS.SECONDARY} style={localStyles.icon}/>
+                        </TouchableOpacity>
+                        <FabButton
+                            style={localStyles.button}
+                            onPress={() => this.handleAllowToAddPoi()}
+                        />
+                        <View style={[localStyles.tooltip, this.props.allowAddPoi ? localStyles.visible : localStyles.hidden]}>
+                            <Text style={localStyles.message}>Click on the map to set the location</Text>
                         </View>
-                    ) : null
-                }
-            </View>
-        )
-    }
+                    </View>
+                ) : null
+            }
+        </View>
+    )
+}
 }
 
 const localStyles = StyleSheet.create({
@@ -789,49 +861,68 @@ const localStyles = StyleSheet.create({
     message: {
         color: COLORS.PRIMARY,
     },
+    pickerContainer: {
+        position: 'absolute',
+        top: 120,
+        right: 20,
+        zIndex: 25,
+        width: 50,
+        height: 50,
+        backgroundColor: COLORS.PRIMARY,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    pickerItem: {
+        width: 150,
+        left: null,
+        right: 0,
+        marginRight: 10,
+        marginTop: 24
+    }
 });
 
 
 const mapStateToProps = (state: any) => ({
-    connection: connectionSelector(state),
-    isDrawerOpen: drawerStateSelector(state),
-    mapCenter: state[moduleName].mapCenter,
-    selected_powerlines: powerlineSelector(state),
-    dateFilter: state[moduleName].dateFilter,
-    project: locationSelector(state),
-    allowAddPoi: state[moduleName].allowAddPoi,
+connection: connectionSelector(state),
+isDrawerOpen: drawerStateSelector(state),
+mapCenter: state[moduleName].mapCenter,
+selected_powerlines: powerlineSelector(state),
+dateFilter: state[moduleName].dateFilter,
+project: locationSelector(state),
+allowAddPoi: state[moduleName].allowAddPoi,
 
-    stations: locationStationsSelector(state),
-    showStations: state[moduleName].showStations,
-    stationList: state[moduleName].stationList,
+stations: locationStationsSelector(state),
+showStations: state[moduleName].showStations,
+stationList: state[moduleName].stationList,
 
-    poles: locationPolesSelector(state),
-    showPoles: state[moduleName].showPoles,
-    polesList: state[moduleName].polesList,
+poles: locationPolesSelector(state),
+showPoles: state[moduleName].showPoles,
+polesList: state[moduleName].polesList,
 
-    parcels: locationParcelsSelector(state),
-    showParcels: state[moduleName].showParcels,
-    parcelList: state[moduleName].parcelList,
+parcels: locationParcelsSelector(state),
+showParcels: state[moduleName].showParcels,
+parcelList: state[moduleName].parcelList,
 
-    segments: locationSegmentsSelector(state),
-    showSegments: state[moduleName].showSegments,
-    segmentList: state[moduleName].segmentList,
+segments: locationSegmentsSelector(state),
+showSegments: state[moduleName].showSegments,
+segmentList: state[moduleName].segmentList,
 
-    pois: locationPoisSelector(state),
-    showPois: state[moduleName].showPois,
-    poiList: state[moduleName].poiList,
+pois: locationPoisSelector(state),
+showPois: state[moduleName].showPois,
+poiList: state[moduleName].poiList,
 
-    search: searchSelector(state),
+search: searchSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
-    bindActionCreators({
-        showDialogContent,
-        showAlert,
-        changeControls,
-        fetchCategories,
-        fetchCategoriesOffline,
-    }, dispatch)
+bindActionCreators({
+    showDialogContent,
+    showAlert,
+    changeControls,
+    fetchCategories,
+    fetchCategoriesOffline,
+}, dispatch)
 );
 
 export default connect(mapStateToProps, mapDispatchToProps)(MapScreen);

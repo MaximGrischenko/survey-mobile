@@ -62,36 +62,21 @@ export const segment_operation_type = [
 export const parcel_statuses = [
     {
         id: 1,
-        value: 1,
-        title: 'Undefined'
+        value: 'Niezweryfikowane',
+        title: 'Niezweryfikowane'
     },
     {
         id: 2,
-        value: 2,
-        title: 'Permission grandted'
+        value: 'Zgoda',
+        title: 'Zgoda'
     },
     {
         id: 3,
-        value: 3,
-        title: 'no permission'
+        value: 'Brak Zgody',
+        title: 'Brak Zgody'
     },
 ];
 
-/*
-*
-* <Field
-                                        key={el.name}
-                                        onChangeText={this.onFieldChange(el.name)}
-                                        label={el.title}
-                                        placeholder={el.name}
-                                        value={state[el.name]}
-                                        data={el.options.map((el: any) => ({
-                                            label: el.text,
-                                            value: el.value
-                                        }))}
-                                        disabled={el.disabled}
-                                        component={Dropdown}
-                                    /> */
 
 export const segment_statuses = [
     {
