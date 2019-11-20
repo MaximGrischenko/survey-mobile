@@ -127,7 +127,7 @@ class MapViewer extends Component<IMapProps, IMapState> {
                                 region={{...region}}
                                 ref={ref => this.map = ref}
                                 mapType={layout.charAt(0).toLowerCase() + layout.slice(1)}
-                                maxZoomLevel={this.state.options.maxZoom}
+                                // maxZoomLevel={this.state.options.maxZoom}
                                 onMapReady={() => {
                                     this.setState({
                                         layers: {
@@ -174,7 +174,7 @@ class MapViewer extends Component<IMapProps, IMapState> {
                                 provider={PROVIDER_GOOGLE}
                                 region={{...region}}
                                 ref={ref => this.map = ref}
-                                maxZoomLevel={this.state.options.maxZoom}
+                                // maxZoomLevel={this.state.options.maxZoom}
                                 mapType={layout.charAt(0).toLowerCase() + layout.slice(1)}
                                 onPress={(event) => {
                                    this.props.onMapClick(event)
