@@ -4,7 +4,7 @@ import {bindActionCreators} from 'redux';
 import MainModalDialog, {TYPES} from "../main.modal";
 
 import {
-    changeControls,
+    changeControls, drawerStateSelector,
     errorSelector,
     locationSelector,
     locationsSelector,
@@ -14,7 +14,7 @@ import {isSuperAdminSelector, userSelector} from "../../../../redux/modules/auth
 import {categorySelector} from "../../../../redux/modules/admin";
 import {
     setDialogDeleteButton,
-    setDialogSaveButton,
+    setDialogSaveButton, setDialogShowButton,
     showAlert,
     showDialogContent
 } from "../../../../redux/modules/dialogs";
@@ -35,11 +35,13 @@ class EditPoiDialog extends MainModalDialog {
         this.type = TYPES.POI;
         this.canDelete = false;
         this.editTitle = true;
+        this.canDisplay = true;
     }
 
     componentWillMount(): void {
         const {id} = this.state;
         this.canDelete = !!id;
+        this.canDisplay = !!id;
     }
 
     componentDidMount(): void {
@@ -103,6 +105,7 @@ class EditPoiDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
+    isDrawerOpen: drawerStateSelector(state),
     itemsList: state[moduleName].poiList,
     isAdmin: isSuperAdminSelector(state),
     error: errorSelector(state),
@@ -117,6 +120,7 @@ const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
         setDialogSaveButton,
         setDialogDeleteButton,
+        setDialogShowButton,
         showDialogContent,
         showAlert,
         changeControls,

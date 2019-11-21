@@ -5,10 +5,9 @@ import {
     StyleSheet,
     View,
     TouchableOpacity,
-    Platform, Dimensions, Image, TextInput,
+    Platform, Dimensions, TextInput,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { DrawerActions } from 'react-navigation-drawer';
 import LogOutComponent from '../logout.component';
 import {COLORS} from "../../styles/colors";
 import {changeSettings, searchSelector} from "../../redux/modules/auth";
@@ -36,7 +35,7 @@ class TablesHeader extends Component<IMapProps> {
             <View style={localStyles.container}>
                 <View style={localStyles.header}>
                     <TouchableOpacity onPress={() => {
-                        navigation.navigate('Main');
+                        navigation.navigate('MapScreen');
                         this.props.changeControls({
                             name: 'isTablesOpen',
                             value: false
@@ -48,7 +47,7 @@ class TablesHeader extends Component<IMapProps> {
                         <Icon name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'} size={30} />
                         <TextInput
                             style={localStyles.input}
-                            placeholder={'Search your data'}
+                            placeholder={'Szukaj danych'}
                             placeholderTextColor={COLORS.TEXT_COLOR}
                             onChangeText={this.onChangeText}
                             value={this.props.search}

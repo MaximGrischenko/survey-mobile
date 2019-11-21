@@ -2,14 +2,14 @@ import React from 'react';
 import {createDrawerNavigator} from 'react-navigation-drawer';
 import {createAppContainer} from "react-navigation";
 import {Dimensions} from "react-native";
-import MapScreen from '../screens/map';
+import MapController from '../screens/map';
 
 import DrawerScreen from '../screens/drawer';
 
 const DrawerNavigator = createDrawerNavigator(
     {
-        Home: {
-            screen: MapScreen,
+        MapScreen: {
+            screen: MapController,
         }
     },
     {
@@ -17,7 +17,7 @@ const DrawerNavigator = createDrawerNavigator(
         hideStatusBar: false,
         drawerBackgroundColor: 'rgba(255,255,255, 1)',
         overlayColor: '#c3c3c3',
-        initialRouteName: 'Home',
+        initialRouteName: 'MapScreen',
         drawerWidth: Dimensions.get("window").width,
         drawerPosition: 'left',
         contentOptions: {

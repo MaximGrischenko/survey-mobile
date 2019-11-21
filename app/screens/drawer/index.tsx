@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
 
 import DrawerMenu from "./views/drawer.menu";
 
-import {Text, View, StyleSheet, ScrollView, Image} from "react-native";
+import {Text, View, StyleSheet, ScrollView} from "react-native";
 import {COLORS} from "../../styles/colors";
 import DrawerProjects from "./views/drawer.projects";
 import DrawerPowerlines from './views/drawer.powerlines';

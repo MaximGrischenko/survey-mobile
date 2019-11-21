@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-
-import {View, Text, TouchableOpacity, Dimensions, Platform, StyleSheet} from "react-native";
+import {View, TouchableOpacity, Dimensions, Platform, StyleSheet} from "react-native";
 import Modal from 'react-native-modal';
 import {PrimaryButton} from '../buttons/primary.button';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -10,7 +9,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {
     contentSelector,
     dialogDeleteBtnSelector,
-    dialogSaveBtnSelector,
+    dialogSaveBtnSelector, dialogShowBtnSelector,
     showDialogContent
 } from "../../redux/modules/dialogs";
 import {COLORS} from "../../styles/colors";
@@ -22,6 +21,7 @@ interface IMapProps {
     allowAddPoi: any,
     dialogSaveBtn: any,
     dialogDeleteBtn: any,
+    dialogShowBtn: any,
     content: any,
     alertText: any,
 }
@@ -30,6 +30,7 @@ class DialogContainer extends Component<IMapProps> {
     static defaultProps: {
         dialogSaveBtn: null,
         dialogDeleteBtn: null,
+        dialogShowBtn: null,
     };
 
     private onClose = () => {
@@ -45,9 +46,12 @@ class DialogContainer extends Component<IMapProps> {
     private renderHeader = () => {
         return (
             <View style={localStyles.header}>
+                {
+                    this.props.dialogShowBtn ? this.props.dialogShowBtn : null
+                }
                 <View style={localStyles.title}>{this.props.content ? this.props.content.header : null}</View>
                 <TouchableOpacity onPress={this.onClose}>
-                    <Icon size={30} style={{paddingRight: 10}}
+                    <Icon size={30} style={{paddingHorizontal: 20}}
                           name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} />
                 </TouchableOpacity>
             </View>
@@ -91,9 +95,8 @@ class DialogContainer extends Component<IMapProps> {
                 backdropTransitionOutTiming={250}
                 style={{
                     maxWidth: Dimensions.get('window').width*0.9,
-                    maxHeight: Dimensions.get('window').height*0.9,
+                    maxHeight: Dimensions.get('window').height*0.95,
                     borderRadius: 5,
-                    top: 30,
                     paddingTop: 10,
                     paddingBottom: 10,
                     backgroundColor: COLORS.BACKGROUND,
@@ -104,7 +107,7 @@ class DialogContainer extends Component<IMapProps> {
                     <View style={localStyles.container}>
                         {content ? content.content : null}
                     </View>
-                    {this.renderControls('Cancel', this.onClose)}
+                    {this.renderControls('Anuluj', this.onClose)}
                 </View>
             </Modal>
         )
@@ -119,8 +122,10 @@ const localStyles = StyleSheet.create({
     header: {
         display: 'flex',
         flexDirection: 'row',
-        paddingTop: 20,
-        paddingBottom: 20,
+        height: 40,
+        alignItems: 'center',
+        // paddingTop: 20,
+        // paddingBottom: 20,
     },
     title: {
         display: 'flex',
@@ -132,7 +137,7 @@ const localStyles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: 10,
+        paddingVertical: 5,
         paddingHorizontal: 10,
     },
     group: {
@@ -147,6 +152,7 @@ const mapStateToProps = (state: any) => ({
     allowAddPoi: state[moduleName].allowAddPoi,
     dialogSaveBtn: dialogSaveBtnSelector(state),
     dialogDeleteBtn: dialogDeleteBtnSelector(state),
+    dialogShowBtn: dialogShowBtnSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (

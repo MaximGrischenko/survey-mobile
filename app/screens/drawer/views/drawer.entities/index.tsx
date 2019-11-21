@@ -107,11 +107,7 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 name: 'showPoles',
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
-                        <Text style={styles}>Electrical pole ({this.props.poles.length})</Text>
-                        {/*<SvgUri source={require('../../../../../assets/images/pole.svg')}*/}
-                        {/*        width={20}*/}
-                        {/*        height={20}*/}
-                        {/*/>*/}
+                        <Text style={styles}>Słupy ({this.props.poles.length})</Text>
                         <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-pole.png')}/>
                     </View>
                 )
@@ -120,11 +116,7 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 name: 'showSegments',
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
-                        <Text style={styles}>Powerline segment ({this.props.segments.length})</Text>
-                        {/*<SvgUri source={require('../../../../../assets/images/segment.svg')}*/}
-                        {/*        width={20}*/}
-                        {/*        height={20}*/}
-                        {/*/>*/}
+                        <Text style={styles}>Przęsła ({this.props.segments.length})</Text>
                         <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-segment.png')}/>
                     </View>
                 ),
@@ -137,11 +129,7 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 name: 'showStations',
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
-                        <Text style={styles}>Stations ({this.props.stations.length})</Text>
-                        {/*<SvgUri source={require('../../../../../assets/images/station.svg')}*/}
-                        {/*        width={20}*/}
-                        {/*        height={20}*/}
-                        {/*/>*/}
+                        <Text style={styles}>Stacje ({this.props.stations.length})</Text>
                         <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-station.png')}/>
                     </View>
                 )
@@ -150,11 +138,7 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 name: 'showParcels',
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
-                        <Text style={styles}>Land parcel ({this.props.parcels.length})</Text>
-                        {/*<SvgUri source={require('../../../../../assets/images/parcel.svg')}*/}
-                        {/*        width={20}*/}
-                        {/*        height={20}*/}
-                        {/*/>*/}
+                        <Text style={styles}>Działki ({this.props.parcels.length})</Text>
                         <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-parcel.png')}/>
                     </View>
                 ),
@@ -167,11 +151,7 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
                 name: 'showPois',
                 title: ({styles}) => (
                     <View style={localStyles.entity}>
-                        <Text style={styles}>POI ({this.props.pois.length})</Text>
-                        {/*<SvgUri source={require('../../../../../assets/images/poi.svg')}*/}
-                        {/*        width={20}*/}
-                        {/*        height={20}*/}
-                        {/*/>*/}
+                        <Text style={styles}>Punkty POI ({this.props.pois.length})</Text>
                         <Image style={{width: 20, height: 20, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-poi.png')}/>
                     </View>
                 ),
@@ -184,7 +164,7 @@ class DrawerEntities extends Component<IMapProps, IMapState> {
 
         return (
             <View style={localStyles.container}>
-                <Text style={localStyles.title}>Select Entities:</Text>
+                <Text style={localStyles.title}>Wybierz warstwę:</Text>
                 <View>
                     {
                         elements.map((el: any) => {

@@ -55,7 +55,7 @@ class AppHeader extends Component<IMapProps> {
                                 <Icon name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'} size={30} />
                                 <TextInput
                                     style={localStyles.input}
-                                    placeholder={'Search your data'}
+                                    placeholder={'Szukaj danych'}
                                     placeholderTextColor={COLORS.TEXT_COLOR}
                                     onChangeText={this.onChangeText}
                                     value={this.props.search}

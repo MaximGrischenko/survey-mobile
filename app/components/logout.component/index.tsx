@@ -23,7 +23,7 @@ class LogOutComponent extends Component<IMapProps> {
 
     _signOutAsync = async() => {
         this.Menu.hide();
-        await AsyncStorage.clear();
+        await AsyncStorage.removeItem('access_token');
         this.props.signOut();
     };
 

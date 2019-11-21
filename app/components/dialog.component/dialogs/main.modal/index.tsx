@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
+import NavigationService from '../../../../app.navigator/navigation.service';
 import {Upload, Pole, Parcel, Segment, Station, Category, Project, Powerline} from "../../../../entities";
 import {segment_statuses, parcel_statuses, segment_operation_type} from "../../../../redux/utils";
-
 import {Form, Field} from 'react-native-validate-form';
 import {
     View,
     Text,
     StyleSheet,
-    ScrollView, Alert,
+    ScrollView, Alert, Platform, TouchableOpacity,
 } from 'react-native';
 import { Dropdown } from 'react-native-material-dropdown';
 import {required} from "../../../../utils/validators";
@@ -18,6 +18,7 @@ import {PrimaryButton} from "../../../buttons/primary.button";
 import DateTimePicker from "react-native-modal-datetime-picker";
 
 import UploadComponent from "../../../upload.component";
+import Icon from "react-native-vector-icons/Feather";
 
 interface IMapProps {
     isAdmin: any,
@@ -27,6 +28,7 @@ interface IMapProps {
     selectedItem: any,
     location: any,
     connection: boolean,
+    isDrawerOpen: boolean,
     categories: Array<Category>,
     projects: Array<Project>,
     powerlines: Array<Powerline>,
@@ -41,6 +43,7 @@ interface IMapProps {
     onAddItemOffline: Function,
     setDialogSaveButton: Function,
     setDialogDeleteButton: Function,
+    setDialogShowButton: Function,
     showAlert: Function,
     showDialogContent: Function
 }
@@ -69,6 +72,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     protected title: string = '';
     protected type: number = TYPES.NONE;
     protected canDelete: boolean = false;
+    protected canDisplay: boolean = false;
     static defaultProps: {
         categories: [],
         projects: [],
@@ -98,9 +102,9 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         };
     }
 
-
     private select: any = null;
     private form: any = null;
+    private region: any = null;
 
     componentDidMount(): void {
         if(this.canDelete) {
@@ -108,9 +112,18 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                 (
                     <PrimaryButton
                         style={{width: 70, marginRight: 10}}
-                        title={'Delete'}
+                        title={'Usunąć'}
                         onPress={this.handleDelete}
                     />
+                )
+            )
+        }
+        if(this.canDisplay) {
+            this.props.setDialogShowButton(
+                (
+                    <TouchableOpacity style={{paddingHorizontal: 20}} onPress={this.handleDisplay}>
+                        <Icon size={24} name={Platform.OS === 'ios' ? 'map-pin' : 'map-pin'}/>
+                    </TouchableOpacity>
                 )
             )
         }
@@ -118,7 +131,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             (
                 <PrimaryButton
                     style={{width: 70, marginRight: 10}}
-                    title={'Save'}
+                    title={'Zapisz'}
                     onPress={this.handleSubmit}
                 />
             )
@@ -128,6 +141,11 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     componentWillUnmount(): void {
         this.props.setDialogSaveButton(null);
         this.props.setDialogDeleteButton(null);
+        this.props.setDialogShowButton(null);
+
+        if(this.region) {
+            NavigationService.navigate('MapScreen', {region: this.region}, {isDrawerOpen: this.props.isDrawerOpen});
+        }
     }
 
     componentWillReceiveProps(nextProps: any, nextContext: any): void {
@@ -167,22 +185,8 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     };
 
     private handleSubmit = () => {
-        // const fields = this.getFields();
         const formErrors = [];
         const fieldError = {};
-        // const editItem: any = {
-        //     ...this.state,
-        // };
-        //
-        // fields.forEach((field) => {
-        //
-        //     console.log('name', field.name);
-        //     console.log('item', editItem);
-        //    if(!editItem[field.name]) {
-        //        console.log('inner');
-        //        formErrors.push({name: field.name, error: 'This is required field'});
-        //    }
-        // });
         let result: any = this.form.validate();
 
         result.map((field) => {
@@ -197,6 +201,35 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             formErrors,
             fieldError
         });
+    };
+
+    private handleDisplay = () => {
+
+        const editItem: any = {
+            ...this.state,
+        };
+
+        if(this.type === TYPES.POI || this.type === TYPES.POLE || this.type === TYPES.STATION) {
+            const location = editItem.points.toGPS();
+            this.region = {...location, latitudeDelta: 0.005, longitudeDelta: 0.005};
+            editItem.points
+        } else if(this.type === TYPES.PARCEL || this.type === TYPES.SEGMENT) {
+            const location = editItem.pathList[Math.round(editItem.pathList.length / 2)];
+            this.region = {...location, latitudeDelta: 0.005, longitudeDelta: 0.005};
+        }
+        if(this.type === TYPES.POI) {
+            this.props.changeControls({name: 'showPois', value: true});
+        }  else if(this.type === TYPES.POLE) {
+            this.props.changeControls({name: 'showPoles', value: true});
+        } else if(this.type === TYPES.STATION) {
+            this.props.changeControls({name: 'showStations', value: true});
+        } else if(this.type === TYPES.PARCEL) {
+            this.props.changeControls({name: 'showParcels', value: true});
+        } else if(this.type === TYPES.SEGMENT) {
+            this.props.changeControls({name: 'showSegments', value: true});
+        }
+
+        this.handleSubmit();
     };
 
     protected handleSave = async () => {
@@ -240,11 +273,11 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             '',
             [
                 {
-                    text: 'Delete',
+                    text: 'Usunąć',
                     onPress: () => this.onDelete(editItem),
                 },
                 {
-                    text: 'Cancel',
+                    text: 'Anuluj',
                     onPress: () => console.log('Cancel pressed'),
                     style: 'cancel'
                 }
@@ -345,7 +378,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                         text: el
                     })),
                     name: 'vegetation_status',
-                    title: 'Vegetation status',
+                    title: 'Zadrzewienie',
                     disabled:!isAdmin
                 },
                 {
@@ -354,7 +387,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     min: 0,
                     max: 10,
                     name: 'distance_lateral',
-                    title: 'Distance lateral'
+                    title: 'Odległość bok'
                 },
                 {
                     type: 2,
@@ -362,7 +395,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     min: 0,
                     max: 15,
                     name: 'distance_bottom',
-                    title: 'Distance bottom'
+                    title: 'Odległość dół'
                 },
                 ...Segment.edit_keys.map((el: string) => ({
                     title: el,
@@ -402,7 +435,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     {
                         type: 3,
                         name: 'operation_type',
-                        title: 'Operation type',
+                        title: 'Rodzaj zabiegu',
                         options: segment_operation_type.map((el: any) => ({
                             value: el.value,
                             text: el.text,
@@ -427,7 +460,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                 fields.push(
                     {
                         name: 'time_for_next_entry',
-                        title: 'time for next entry'
+                        title: 'Następne wejście'
                     }
                 );
             }
@@ -479,11 +512,9 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     };
 
     private confirm = () => {
-
     };
 
     private cancel = () => {
-
     };
 
     protected _render() {
@@ -506,7 +537,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                             if(el.type === 2) {
                                 return (
                                     <View key={el.name} style={localStyles.distance}>
-                                        <Text style={localStyles.label}>{el.name}:</Text>
+                                        <Text style={localStyles.label}>{el.title}:</Text>
                                         <NumericInput
                                             value={state[el.name]}
                                             minValue={el.min}
@@ -527,7 +558,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                         <MultiSelect
                                             hideSubmitButton={true}
                                             uniqueKey={'name'}
-                                            selectText={el.name}
+                                            selectText={el.title}
                                             styleDropdownMenuSubsection={{height: 60, paddingLeft: 10}}
                                             styleInputGroup={{height: 60, justifyContent: 'flex-end', flexDirection: 'row'}}
                                             ref={(ref) => { this.select = ref }}
@@ -569,8 +600,8 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                                     <Field
                                         required
                                         key={el.name}
-                                        label={el.name}
-                                        placeholder={`Enter ${el.name}`}
+                                        label={el.title}
+                                        placeholder={`Wpisz ${el.title}`}
                                         component={TextField}
                                         validations={[required]}
                                         name={el.name}
@@ -589,8 +620,8 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                             <View style={localStyles.title}>
                                 <Field
                                     required
-                                    label={"Title"}
-                                    placeholder={`Enter title`}
+                                    label={"Tytuł"}
+                                    placeholder={`Wpisz tytuł`}
                                     component={TextField}
                                     validations={[required]}
                                     name={'title'}
@@ -604,8 +635,8 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     }
                     <Field
                         component={TextField}
-                        label={'Notes'}
-                        placeholder="Enter notes"
+                        label={'Komentarz'}
+                        placeholder="Wpisz komentarz"
                         name={ 'comment'}
                         multiline={true}
                         numberOfLines={5}

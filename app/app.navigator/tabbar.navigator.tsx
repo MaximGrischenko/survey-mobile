@@ -12,11 +12,11 @@ import PoleList from '../screens/lists/pole.list';
 import PoiList from '../screens/lists/poi.list';
 
 const TabNavigator = createMaterialTopTabNavigator({
-        Poles: PoleList,
-        Stations: StationList,
-        Pois: PoiList,
-        Parcels: ParcelList,
-        Segments: SegmentList,
+        Słupy: PoleList,
+        Stacje: StationList,
+        "Punkty POI": PoiList,
+        Działki: ParcelList,
+        Przęsła: SegmentList,
     },
     {
         tabBarComponent: props => (
@@ -24,7 +24,7 @@ const TabNavigator = createMaterialTopTabNavigator({
                 <MaterialTopTabBar {...props} />
             </SafeAreaView>
         ),
-        initialRouteName: 'Stations',
+        initialRouteName: 'Stacje',
         hideStatusBar: false,
         tabBarPosition: 'top',
         swipeEnabled: false,
@@ -38,7 +38,7 @@ const TabNavigator = createMaterialTopTabNavigator({
             },
             labelStyle: {
                 textAlign: 'center',
-                fontSize: 9,
+                fontSize: 10,
                 //textTransform: 'lowercase'
             },
             indicatorStyle: {

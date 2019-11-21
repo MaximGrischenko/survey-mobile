@@ -105,7 +105,7 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
         const {authError} = this.props;
         return (
             <View style={localStyles.container}>
-                <Text style={localStyles.title}>Welcome</Text>
+                <Text style={localStyles.title}>Witaj</Text>
                 <Form
                     style={localStyles.form}
                     ref={(ref) => this.SignInForm = ref}
@@ -117,7 +117,7 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
                         customStyle={localStyles.field}
                         required
                         label={'Email'}
-                        placeholder='Enter email'
+                        placeholder='Wpisz email'
                         component={TextField}
                         validations={[required, email]}
                         error={this.state.fieldError['email']}
@@ -129,9 +129,9 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
                     <Field
                         customStyle={localStyles.field}
                         required
-                        label={'Password'}
+                        label={'Hasło'}
                         secureTextEntry={true}
-                        placeholder='Enter password'
+                        placeholder='Wpisz hasło'
                         component={TextField}
                         validations={[required]}
                         error={this.state.fieldError['password']}
@@ -142,12 +142,12 @@ class SignInScreen extends React.Component<IMapProps, IMapState> {
                 <PrimaryButton
                     variant={'secondary'}
                     style={localStyles.link}
-                    title={'Forgot password?'}
+                    title={'Zapomniałeś hasła?'}
                     onPress={this.onForgotPsw}
                 />
                 <PrimaryButton
                     style={localStyles.controls}
-                    title={'Sign in'}
+                    title={'Zaloguj'}
                     disabled={this.props.loading}
                     onPress={this.submitForm}
                 />

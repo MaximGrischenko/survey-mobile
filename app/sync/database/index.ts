@@ -288,7 +288,7 @@ export class DBAdapter implements IAdapter {
         return new Promise(async (resolve, reject) => {
             if(DBAdapter.database !== undefined) {
                 const syncPiper = new PromisePiper();
-                const processes = [
+                const actions = [
                     {
                         action: 'update',
                     },
@@ -296,7 +296,7 @@ export class DBAdapter implements IAdapter {
                         action: 'delete'
                     }
                 ];
-                processes.forEach((process) => {
+                actions.forEach((process) => {
                     this.tables.map((table) => {
                         syncPiper.pipe((resolve, reject) => {
                             this.update(table, timestamp, process.action).then((syncResult)  => {

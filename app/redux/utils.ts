@@ -44,18 +44,23 @@ export const moment = (date) => {
 export const segment_operation_type = [
     {
         id: 1,
-        value: 'mulcher giraffe',
-        text: 'mulcher giraffe'
+        value: 'mulczer',
+        text: 'mulczer'
     },
     {
         id: 2,
-        value: 'chainsaw',
-        text: 'chainsaw'
+        value: 'żyrafa',
+        text: 'żyrafa'
     },
     {
         id: 3,
-        value: 'arborists',
-        text: 'arborists'
+        value: 'piła',
+        text: 'piła'
+    },
+    {
+        id: 4,
+        value: 'arboryści',
+        text: 'arboryści'
     }
 ];
 

@@ -14,21 +14,21 @@ class DrawerFilter extends Component<IMapProps> {
     state = {
         dates: [
             {
-                title: 'All',
+                title: 'Wszystkie',
                 value: 'All',
             },
             {
-                title: 'Today ',
+                title: 'Dzisiaj ',
                 subtitle: moment().format('l'),
                 value: moment().utc().toString()
             },
             {
-                title: 'Last 7 days ',
+                title: 'Ostatnie 7 dni ',
                 subtitle: moment().subtract(7, 'days').format('l'),
                 value: moment().subtract(7, 'days').utc().toString()
             },
             {
-                title: 'Last 30 days ',
+                title: 'Ostatnie 30 dni ',
                 subtitle: moment().subtract(30, 'days').format('l'),
                 value: moment().subtract(30, 'days').utc().toString()
             }
@@ -44,7 +44,7 @@ class DrawerFilter extends Component<IMapProps> {
         const {dateFilter} = this.props;
         return (
             <View style={localStyles.container}>
-                <Text style={localStyles.title}>Record Updated:</Text>
+                <Text style={localStyles.title}>Aktualizacja rekordu:</Text>
                 <View>
                     {
                         dates.map((el: any) => {

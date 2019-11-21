@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Provider} from 'react-redux';
 import store from './app/redux';
 
+import NavigationService from './app/app.navigator/navigation.service';
 import AppNavigator from './app/app.navigator/index';
 import DialogContainer from './app/components/dialog.component';
 import AlertContainer from './app/components/dialog.component/dialogs/alert.dialog';
@@ -99,7 +100,7 @@ export default class App extends Component {
         }
         return (
             <Provider store={store}>
-                <AppNavigator />
+                <AppNavigator ref={ref => NavigationService.setNavigator(ref)}/>
                 <DialogContainer />
                 <AlertContainer />
             </Provider>

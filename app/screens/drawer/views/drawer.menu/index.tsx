@@ -465,25 +465,15 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
             <React.Fragment>
                 <View style={localStyles.container}>
                     <TouchableOpacity style={localStyles.item} onPress={() => this.synchronization()}>
-                        {/*<SvgUri*/}
-                        {/*    width={Dimensions.get('window').width * 0.2}*/}
-                        {/*    height={28}*/}
-                        {/*    source={require('../../../../../assets/images/sync.svg')}*/}
-                        {/*/>*/}
                         <Image style={{width: 36, height: 30}} source={require('../../../../../assets/images/drawer-sync.png')}/>
-                        <Text style={{marginTop: 10}}>Sync</Text>
+                        <Text style={{marginTop: 10}}>Syncrhonizuj</Text>
                     </TouchableOpacity>
 
                     <View style={localStyles.divider}/>
 
                     <TouchableOpacity style={localStyles.item} onPress={() => {navigation.dispatch(DrawerActions.toggleDrawer())}}>
-                        {/*<SvgUri*/}
-                        {/*    width={Dimensions.get('window').width * 0.2}*/}
-                        {/*    height={28}*/}
-                        {/*    source={require('../../../../../assets/images/map.svg')}*/}
-                        {/*/>*/}
                         <Image style={{width: 30, height: 30, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-map.png')}/>
-                        <Text style={{marginTop: 10}}>Map</Text>
+                        <Text style={{marginTop: 10}}>Mapa</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={localStyles.item} onPress={() => {
                         navigation.navigate('Tables');
@@ -492,13 +482,8 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                             value: true
                         })
                     }}>
-                        {/*<SvgUri*/}
-                        {/*    width={Dimensions.get('window').width * 0.2}*/}
-                        {/*    height={28}*/}
-                        {/*    source={require('../../../../../assets/images/table.svg')}*/}
-                        {/*/>*/}
                         <Image style={{width: 30, height: 30, resizeMode: 'center'}} source={require('../../../../../assets/images/drawer-list.png')}/>
-                        <Text style={{marginTop: 10}}>List</Text>
+                        <Text style={{marginTop: 10}}>Lista</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{height: 28, flexDirection: 'row', justifyContent: 'space-between'}}>

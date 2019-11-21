@@ -6,6 +6,7 @@ import {merge} from "immutable";
 
 interface IMapProps {
     layout: any,
+    zooming: boolean,
     initialized: boolean,
     shouldUpdate: boolean,
     showUserLocation: boolean,
@@ -56,6 +57,10 @@ class MapViewer extends Component<IMapProps, IMapState> {
     private timeout: any;
 
     componentDidUpdate(prevProps: Readonly<IMapProps>, prevState: Readonly<IMapState>, snapshot?: any): void {
+        if(this.state.layers.expanded.isReady && this.props.zooming) {
+            const region = {...this.props.region, latitudeDelta: 0.006, longitudeDelta: 0.006};
+            this.relocation(region, 500);
+        }
         this.timeout = setTimeout(() => {
             this.props.callback({status: 'updated'})
         }, 2000);
@@ -138,7 +143,7 @@ class MapViewer extends Component<IMapProps, IMapState> {
                                                 isReady: false
                                             }
                                         },
-                                    })
+                                    });
                                 }}
                                 onPress={(event) => this.props.onMapClick(event)}
                                 superClusterOptions={{...this.state.options}}
@@ -181,18 +186,16 @@ class MapViewer extends Component<IMapProps, IMapState> {
                                 }}
                                 superClusterOptions={{...this.props.options}}
                                 onMapReady={() => {
-                                    setTimeout(() => {
-                                        this.setState({
-                                            layers: {
-                                                expanded: {
-                                                    isReady: false
-                                                },
-                                                merged: {
-                                                    isReady: true
-                                                }
+                                    this.setState({
+                                        layers: {
+                                            expanded: {
+                                                isReady: false
                                             },
-                                        })
-                                    }, 10)
+                                            merged: {
+                                                isReady: true
+                                            }
+                                        },
+                                    });
                                 }}
                                 priorityMarker={
                                     showUserLocation ? (

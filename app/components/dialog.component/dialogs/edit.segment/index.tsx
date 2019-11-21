@@ -3,14 +3,19 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import MainModalDialog, {TYPES} from "../main.modal";
 import {
-    changeControls,
+    changeControls, drawerStateSelector,
     errorSelector,
     lastGeoPostionsSelector,
     locationSelector,
     moduleName
 } from "../../../../redux/modules/map";
 import {isSuperAdminSelector} from "../../../../redux/modules/auth";
-import {showDialogContent, setDialogSaveButton, setDialogDeleteButton} from "../../../../redux/modules/dialogs";
+import {
+    showDialogContent,
+    setDialogSaveButton,
+    setDialogDeleteButton,
+    setDialogShowButton
+} from "../../../../redux/modules/dialogs";
 import {addSegments, editSegmentOffline, editSegments} from "../../../../redux/modules/map/segments";
 import {connectionSelector} from "../../../../redux/modules/connect";
 
@@ -20,6 +25,7 @@ class EditSegmentDialog extends MainModalDialog {
         this.title = 'Segment';
         this.type = TYPES.SEGMENT;
         this.canDelete = false;
+        this.canDisplay = true;
         this.editTitle = false;
     }
 
@@ -29,6 +35,7 @@ class EditSegmentDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
+    isDrawerOpen: drawerStateSelector(state),
     itemsList: state[moduleName].segmentList,
     error: errorSelector(state),
     location: locationSelector(state),
@@ -42,6 +49,7 @@ const mapDispatchToProps = (dispatch: any) => (
         changeControls,
         setDialogSaveButton,
         setDialogDeleteButton,
+        setDialogShowButton,
         showDialogContent,
         editItem: editSegments,
         editItemOffline: editSegmentOffline,

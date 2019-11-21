@@ -50,7 +50,7 @@ export default class MainList extends Component<IMapProps> {
                         <EditStationDialog selectedItem={entity} />
                     ),
                     header: (
-                        <Text>Edit Stations ({entity.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Stacje ({entity.id})</Text>
                     )
                 }
             )
@@ -61,7 +61,7 @@ export default class MainList extends Component<IMapProps> {
                         <EditParcelDialog selectedItem={entity} />
                     ),
                     header: (
-                        <Text>Edit Parcel ({entity.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Działki ({entity.id})</Text>
                     )
                 }
             )
@@ -72,7 +72,7 @@ export default class MainList extends Component<IMapProps> {
                         <EditPoleDialog selectedItem={entity}/>
                     ),
                     header: (
-                        <Text>Edit Pole ({entity.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Słupy ({entity.id})</Text>
                     )
                 }
             )
@@ -83,7 +83,7 @@ export default class MainList extends Component<IMapProps> {
                         <EditSegmentDialog selectedItem={entity}/>
                     ),
                     header: (
-                        <Text>Edit Segment ({entity.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Przęsło ({entity.id})</Text>
                     )
                 }
             )
@@ -94,7 +94,7 @@ export default class MainList extends Component<IMapProps> {
                         <EditPoiDialog selectedItem={entity}/>
                     ),
                     header: (
-                        <Text>Edit Poi ({entity.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Poi ({entity.id})</Text>
                     )
                 }
             )
@@ -154,7 +154,7 @@ export default class MainList extends Component<IMapProps> {
             <View style={localStyles.wrapper}>
                 {
                     !selectedList.length ? (
-                        <Text style={localStyles.warning}>Please select some Project</Text>
+                        <Text style={localStyles.warning}>Proszę wybrać projekt</Text>
                     ) : (
                         <View style={localStyles.wrapper}>
                             <ScrollView contentContainerStyle={localStyles.scroll}>
@@ -183,6 +183,11 @@ export default class MainList extends Component<IMapProps> {
 const localStyles = StyleSheet.create({
     wrapper: {
         flex: 1,
+    },
+    title: {
+        width: '100%',
+        textAlign: 'center',
+        textAlignVertical: 'center'
     },
     scroll: {
         flex: 1,

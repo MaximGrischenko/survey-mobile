@@ -22,7 +22,7 @@ class DrawerProjects extends Component<IMapProps> {
     private onShowProjects = () => {
         this.props.showDialogContent({
             content: <ProjectList />,
-            header: <Text>Select Project</Text>
+            header: <Text>Wybierz projekt</Text>
         })
     };
 
@@ -31,7 +31,7 @@ class DrawerProjects extends Component<IMapProps> {
         return (
             <View style={localStyles.container}>
                 <View style={localStyles.titleContainer}>
-                    <Text style={localStyles.filter}>Project: </Text>
+                    <Text style={localStyles.filter}>Projekt: </Text>
                     {
                         project ? (
                             <Text>{project.title}</Text>
@@ -39,7 +39,7 @@ class DrawerProjects extends Component<IMapProps> {
                     }
                 </View>
                 <PrimaryButton
-                    title={'Select Project'}
+                    title={'Wybierz projekt'}
                     onPress={this.onShowProjects}
                 />
             </View>

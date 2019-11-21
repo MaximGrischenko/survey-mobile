@@ -3,14 +3,19 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import MainModalDialog, {TYPES} from "../main.modal";
 import {
-    changeControls,
+    changeControls, drawerStateSelector,
     errorSelector,
     lastGeoPostionsSelector,
     locationSelector,
     moduleName,
 } from "../../../../redux/modules/map";
 import {isSuperAdminSelector} from "../../../../redux/modules/auth";
-import {setDialogDeleteButton, setDialogSaveButton, showDialogContent} from "../../../../redux/modules/dialogs";
+import {
+    setDialogDeleteButton,
+    setDialogSaveButton,
+    setDialogShowButton,
+    showDialogContent
+} from "../../../../redux/modules/dialogs";
 import {addPoleParcel, editParcel, editParcelOffline} from "../../../../redux/modules/map/parcels";
 import {connectionSelector} from "../../../../redux/modules/connect";
 
@@ -20,6 +25,7 @@ class EditSParcelDialog extends MainModalDialog {
         this.title = 'Parcel';
         this.type = TYPES.PARCEL;
         this.canDelete = false;
+        this.canDisplay = true;
         this.editTitle = false;
     }
 
@@ -29,6 +35,7 @@ class EditSParcelDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
+    isDrawerOpen: drawerStateSelector(state),
     itemsList: state[moduleName].parcelList,
     error: errorSelector(state),
     location: locationSelector(state),
@@ -44,6 +51,7 @@ const mapDispatchToProps = (dispatch: any) => (
         showDialogContent,
         setDialogSaveButton,
         setDialogDeleteButton,
+        setDialogShowButton,
         addItem: addPoleParcel,
         editItem: editParcel,
         editItemOffline: editParcelOffline

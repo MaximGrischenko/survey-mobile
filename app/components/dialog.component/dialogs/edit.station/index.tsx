@@ -3,10 +3,21 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
 import MainModalDialog, {TYPES} from "../main.modal";
-import {errorSelector, locationSelector, moduleName} from "../../../../redux/modules/map";
+import {
+    changeControls,
+    drawerStateSelector,
+    errorSelector,
+    locationSelector,
+    moduleName
+} from "../../../../redux/modules/map";
 import {isSuperAdminSelector} from "../../../../redux/modules/auth";
 import {editStation, editStationOffline} from "../../../../redux/modules/map/stations";
-import {setDialogDeleteButton, setDialogSaveButton, showDialogContent} from "../../../../redux/modules/dialogs";
+import {
+    setDialogDeleteButton,
+    setDialogSaveButton,
+    setDialogShowButton,
+    showDialogContent
+} from "../../../../redux/modules/dialogs";
 import {connectionSelector} from "../../../../redux/modules/connect";
 
 class EditStationDialog extends MainModalDialog {
@@ -15,6 +26,7 @@ class EditStationDialog extends MainModalDialog {
         this.title = 'Station';
         this.type = TYPES.STATION;
         this.canDelete = false;
+        this.canDisplay = true;
         this.editTitle = false;
     }
 
@@ -24,6 +36,7 @@ class EditStationDialog extends MainModalDialog {
 }
 
 const mapStateToProps = (state: any) => ({
+    isDrawerOpen: drawerStateSelector(state),
     itemsList: state[moduleName].stationList,
     error: errorSelector(state),
     location: locationSelector(state),
@@ -33,8 +46,10 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => (
     bindActionCreators({
+        changeControls,
         setDialogSaveButton,
         setDialogDeleteButton,
+        setDialogShowButton,
         showDialogContent,
         editItem: editStation,
         editItemOffline: editStationOffline

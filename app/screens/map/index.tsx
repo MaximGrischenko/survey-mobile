@@ -1,5 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import {NavigationParams, NavigationScreenProp, NavigationState} from "react-navigation";
 import MapViewer from './map.viewer';
 import {
     Alert,
@@ -56,6 +57,7 @@ import {COLORS} from "../../styles/colors";
 import {FabButton} from "../../components/buttons/fab.button";
 
 interface IMapProps {
+    navigation: NavigationScreenProp<NavigationState, NavigationParams>;
     connection: boolean;
     isDrawerOpen: boolean;
     mapCenter: GPSCoordinate;
@@ -103,10 +105,11 @@ interface IMapState {
     expanded: boolean,
     merged: boolean,
     initialized: boolean,
+    zooming: boolean,
     shouldUpdate: boolean,
 }
 
-class MapScreen extends React.Component<IMapProps, IMapState> {
+class MapController extends React.Component<IMapProps, IMapState> {
     private cluster: Array<any> = [];
     private stationList: any;
     private segmentList: any;
@@ -131,6 +134,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
         merged: true,
         shouldUpdate: true,
         initialized: false,
+        zooming: false,
         layout: 'Standard',
         options: {
             radius: 40,
@@ -161,27 +165,6 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
            await this.props.fetchCategoriesOffline();
         }
 
-
-        // const region = {...this.props.mapCenter, latitudeDelta: 0.1, longitudeDelta: 0.1};
-        //
-        // let location = await AsyncStorage.getItem('location');
-        //
-        // if(location) {
-        //     const GEOPosition = JSON.parse(location);
-        //     region.latitude = GEOPosition.coords.latitude;
-        //     region.longitude = GEOPosition.coords.longitude;
-        //
-        //     this.setState({
-        //         location: {...GEOPosition.coords},
-        //         showUserLocation: true
-        //     });
-        //     await applyGEOPosition(location);
-        // }
-        //
-        // await this.setState({
-        //     region,
-        // });
-
         let locationResult = null;
         let {status} = await Permissions.askAsync(Permissions.LOCATION);
 
@@ -203,13 +186,15 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
         await Location.watchPositionAsync({
             accuracy: Location.Accuracy.BestForNavigation, timeInterval: 1000, distanceInterval: 1
         }, async (location) => {
-            this.setState({
-                location: {...location.coords},
-                shouldUpdate: true,
-                showUserLocation: true,
-            });
+            if(!_.isEqual(this.state.location, location.coords)) {
+                this.setState({
+                    location: {...location.coords},
+                    shouldUpdate: true,
+                    showUserLocation: true,
+                });
 
-            await applyGEOPosition(location);
+                await applyGEOPosition(location);
+            }
         });
     }
 
@@ -218,6 +203,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
+
         if(nextProps.isDrawerOpen !== this.props.isDrawerOpen && nextProps.isDrawerOpen) {
             this.cluster = [];
             this.setState({
@@ -229,11 +215,6 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
             shouldUpdate: true,
         });
 
-        // if(nextProps.connection !== this.props.connection && nextProps.connection) {
-        //     this.props.fetchCategories();
-        // } else if(nextProps.connection !== this.props.connection && !nextProps.connection) {
-        //     this.props.fetchCategoriesOffline();
-        // }
         if(nextProps.stationList !== this.stationList || nextProps.showStations !== this.props.showStations) {
             this.renderStations(nextProps.stations, nextProps.showStations, nextProps.search);
             this.stationList = nextProps.stationList;
@@ -276,6 +257,13 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                 region
             })
         }
+
+        if(nextProps.navigation.state.params) {
+            this.setState({
+                zooming: true,
+                region: nextProps.navigation.state.params.region
+            })
+        }
     }
 
     private showDialog = (marker) => {
@@ -287,7 +275,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                         <EditStationDialog selectedItem={marker} />
                     ),
                     header: (
-                        <Text>Edit Stations ({marker.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Stacje ({marker.id})</Text>
                     )
                 }
             );
@@ -298,7 +286,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                         <EditParcelDialog selectedItem={marker}/>
                     ),
                     header: (
-                        <Text>Edit Parcel ({marker.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Działki ({marker.id})</Text>
                     )
                 }
             );
@@ -309,7 +297,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                         <EditPoleDialog selectedItem={marker} />
                     ),
                     header: (
-                        <Text>Edit Pole ({marker.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Słupy ({marker.id})</Text>
                     )
                 }
             );
@@ -320,7 +308,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                         <EditSegmentDialog selectedItem={marker} />
                     ),
                     header: (
-                        <Text>Edit Segment ({marker.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Przęsło ({marker.id})</Text>
                     )
                 }
             );
@@ -331,7 +319,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                         <EditPoiDialog selectedItem={marker} />
                     ),
                     header: (
-                        <Text>Edit Poi ({marker.id})</Text>
+                        <Text style={localStyles.title}>Edytuj Poi ({marker.id})</Text>
                     )
                 }
             );
@@ -569,7 +557,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
         const {project, showDialogContent, showAlert} = this.props;
 
         if (!project) {
-            return showAlert('Please select Project first');
+            return showAlert('Proszę wybrać projekt');
         }
 
         Alert.alert(
@@ -663,7 +651,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                             position={new Geometry(Geometry.TYPE.POINT, coordinate)}/>
                     ),
                     header: (
-                        <Text>Add poi</Text>
+                        <Text style={[localStyles.title, {marginLeft: 44}]}>Add poi</Text>
                     )
                 }
             )
@@ -702,19 +690,20 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                 region: {
                     latitude: response.cluster.coordinate.latitude,
                     longitude: response.cluster.coordinate.longitude,
-                    latitudeDelta: 0.2,
-                    longitudeDelta: 0.2
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05
                 }
             });
         } else if(response.status === 'expand') {
             this.setState({
                 shouldUpdate: true,
                 expanded: true,
+                zooming: this.state.zooming,
                 merged: false,
                 region: {
                     ...this.state.region,
-                    latitudeDelta: 0.2,
-                    longitudeDelta: 0.2
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05
                 }
             })
         } else if(response.status === 'merge') {
@@ -734,6 +723,7 @@ class MapScreen extends React.Component<IMapProps, IMapState> {
                 expandCluster: false,
                 relocate: false,
                 initialized: true,
+                zooming: false,
             })
         }
     };
@@ -830,6 +820,11 @@ const localStyles = StyleSheet.create({
         shadowOffset: {height: 10, width: 0},
         shadowRadius: 20
     },
+    title: {
+        width: '100%',
+        textAlign: 'center',
+        textAlignVertical: 'center'
+    },
     button: {
         position: 'absolute',
         bottom: 20,
@@ -925,4 +920,4 @@ bindActionCreators({
 }, dispatch)
 );
 
-export default connect(mapStateToProps, mapDispatchToProps)(MapScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(MapController);

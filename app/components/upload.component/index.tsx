@@ -72,11 +72,11 @@ class UploadComponent extends Component<IMapProps, IMapState> {
 
     private handlePick = async () => {
         Alert.alert(
-            'Upload image',
+            'Załaduj zdjęcie',
             '',
             [
                 {
-                    text: 'Take a photo', onPress: async () => {
+                    text: 'Zrób zdjęcie', onPress: async () => {
                         let picker = await ImagePicker.launchCameraAsync( {
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             allowsEditing: false,
@@ -89,7 +89,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                     }
                 },
                 {
-                    text: 'Upload image', onPress: async () => {
+                    text: 'Dodaj z galerii', onPress: async () => {
                         let picker = await ImagePicker.launchImageLibraryAsync({
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             allowsEditing: false,
@@ -190,7 +190,7 @@ class UploadComponent extends Component<IMapProps, IMapState> {
             <React.Fragment>
                 <PrimaryButton
                     style={{marginLeft: 15, marginRight: 15, marginTop: 10, borderColor: COLORS.PRIMARY, borderWidth: 1, borderRadius: 8}}
-                    title={'UPLOAD IMAGE'}
+                    title={'Załaduj zdjęcie'}
                     variant={"secondary"}
                     onPress={this.handlePick}
                 />

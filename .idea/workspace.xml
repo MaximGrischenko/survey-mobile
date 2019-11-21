@@ -2,8 +2,36 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/app/app.navigator/navigation.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.navigator/drawer.navigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.navigator/drawer.navigator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.navigator/tabbar.navigator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/app.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/app.header/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.parcel/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.parcel/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.poi/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.pole/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.pole/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.segment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.segment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.station/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/edit.station/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/logout.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/logout.component/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/tables.header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/tables.header/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/upload.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/upload.component/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/dialogs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/dialogs.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/auth/sign-in.screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/auth/sign-in.screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.entities/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.filter/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.filter/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.projects/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/lists/main.list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/lists/main.list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/map.viewer/cluster/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screens/map/map.viewer/cluster/utils.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/map.viewer/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/sync/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/index.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,8 +60,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="JavaScript File" />
-        <option value="TypeScript JSX File" />
         <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -55,7 +83,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js.last.introduce.type" value="CONST" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/components/dropdown.component" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -117,7 +145,8 @@
       <workItem from="1570460928696" duration="264932000" />
       <workItem from="1571738472324" duration="941000" />
       <workItem from="1571751086419" duration="268901000" />
-      <workItem from="1573062766031" duration="189456000" />
+      <workItem from="1573062766031" duration="190271000" />
+      <workItem from="1574248555404" duration="38495000" />
     </task>
     <servers />
   </component>
