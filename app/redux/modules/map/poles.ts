@@ -1,7 +1,7 @@
 import axios from "react-native-axios";
 import {API, appName} from "../../../config";
 import {call, put} from 'redux-saga/effects';
-import {moduleName} from './config';
+import {LIMIT_TO_LOAD, moduleName} from './config';
 
 import {DBAdapter} from "../../../sync/database";
 import {AsyncStorage} from "react-native";
@@ -116,7 +116,7 @@ export const fetchLocationPolesSaga = function* (action: any) {
             type: FETCH_LOCATION_POLES_REQUEST,
         });
         const res = yield call(() => {
-                return axios.get(`${API}api/projects/${action.payload.id}/powerlines/${action.payload.powerLineId}/poles?limit=${200}`);
+                return axios.get(`${API}api/projects/${action.payload.id}/powerlines/${action.payload.powerLineId}/poles?limit=${LIMIT_TO_LOAD}`);
             },
         );
         yield put({

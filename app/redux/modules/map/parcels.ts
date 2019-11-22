@@ -1,7 +1,7 @@
 import axios from "react-native-axios";
 import {API, appName} from "../../../config";
 import {call, put} from 'redux-saga/effects';
-import {LOADED_PROJECT_DATA, moduleName} from './config';
+import {LIMIT_TO_LOAD, LOADED_PROJECT_DATA, moduleName} from './config';
 import {DBAdapter} from "../../../sync/database";
 import {AsyncStorage} from "react-native";
 
@@ -120,14 +120,9 @@ export const fetchLocationParcelSaga = function* (action: any) {
         if (!LOADED_PROJECT_DATA.PROJECTS[action.payload.id]) LOADED_PROJECT_DATA.PROJECTS[action.payload.id] = {};
         if (!LOADED_PROJECT_DATA.PROJECTS[action.payload.id].parcels) LOADED_PROJECT_DATA.PROJECTS[action.payload.id].parcels = {startAt: 0};
         const res = yield call(() => {
-                return axios.get(`${API}api/projects/${action.payload.id}/powerlines/${action.payload.powerLineId}/parcels?limit=${200}&offset=${LOADED_PROJECT_DATA.PROJECTS[action.payload.id].parcels.startAt}`);
+                return axios.get(`${API}api/projects/${action.payload.id}/powerlines/${action.payload.powerLineId}/parcels?limit=${LIMIT_TO_LOAD}`);
             },
         );
-        // if (res.data.length) {
-        //     LOADED_PROJECT_DATA.PROJECTS[action.payload.id].parcels.startAt = res.data[res.data.length - 1].id;
-        // } else {
-        //     LOADED_PROJECT_DATA.PROJECTS[action.payload.id].parcels.startAt = -1;
-        // }
 
         yield put({
             type: FETCH_LOCATION_PARCElS_SUCCESS,
@@ -195,7 +190,7 @@ export const editParcelOfflineSaga = function* ({payload}: any) {
             title = "${escape(payload.title)}",
             wojewodztw = "${escape(payload.wojewodztw)}",
             numer = "${escape(payload.numer)}",
-            status = "${payload.staus}",
+            status = "${payload.status}",
             comment = "${escape(payload.comment)}",
             uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}

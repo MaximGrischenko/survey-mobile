@@ -265,16 +265,17 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                 const file = {
                     uri: FileSystem.documentDirectory + `uploads/${asset.path}`,
                     name: 'photo.jpg',
-                    filename :'imageName.jpg',
+                    filename: 'imageName.jpg',
                     type: 'image/jpeg'
                 };
-
                 let token = await AsyncStorage.getItem('access_token');
 
                 const response = await uploadAssetsAsync(file, token);
-                this.uploads = [...this.uploads, new Upload(response)];
 
-                resolve(response);
+                if (response) {
+                    this.uploads = [...this.uploads, new Upload(response)];
+                    resolve(response);
+                }
             } catch (error) {
                 console.log(error);
                 reject(error);
@@ -309,18 +310,20 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                                 uploads: [...this.uploads]
                             };
                             this.props.addPoi(poi);
+                            resolve({finished: true});
                         };
 
                         if(update.data.uploads.length) {
-                            this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
-                                await finalize();
-                                this.uploads = [];
+                            this.uploadAssetsPiper(update.data.uploads).finally( (uploadResult) => {
                                 console.log('Upload poi assets success', uploadResult);
-                            }, async (rejectReason) => {
+                                finalize();
+                                this.uploads = [];
+                            }, (rejectReason) => {
                                 console.log('Upload poi assets error', rejectReason);
                             });
                         } else {
                             await this.props.addPoi(update.data);
+                            resolve({finished: true});
                         }
                     } else if(update.action === 'edit') {
                         const finalize = () => {
@@ -329,17 +332,19 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                                 uploads: [...this.uploads]
                             };
                             this.props.editPoi(poi);
+                            resolve({finished: true});
                         };
 
                         if(update.data.uploads.length) {
-                            this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
-                                await finalize();
-                                this.uploads = [];
+                            this.uploadAssetsPiper(update.data.uploads).finally( (uploadResult) => {
                                 console.log('Upload poi assets success', uploadResult);
-                            }, async (rejectReason) => {
+                                finalize();
+                                this.uploads = [];
+                            }, (rejectReason) => {
                                 console.log('Upload poi assets error', rejectReason);
                             });
                         } else {
+                            resolve({finished: true});
                             await this.props.editPoi(update.data);
                         }
                     } else if(update.action === 'remove') {
@@ -351,10 +356,12 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                                     console.log(error);
                                 } finally {
                                     await this.props.removePoi(update.data);
+                                    resolve({finished: true});
                                 }
                             });
                         } else {
                             await this.props.removePoi(update.data);
+                            resolve({finished: true});
                         }
                     }
                 } else if (update.type === 'station') {
@@ -364,18 +371,20 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                             uploads: [...this.uploads]
                         };
                         this.props.editStation(station);
+                        resolve({finished: true});
                     };
 
                     if(update.data.uploads.length) {
-                        this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
-                            await finalize();
-                            this.uploads = [];
+                        this.uploadAssetsPiper(update.data.uploads).finally( (uploadResult) => {
                             console.log('Upload station assets success', uploadResult);
-                        }, async (rejectReason) => {
+                            finalize();
+                            this.uploads = [];
+                        }, (rejectReason) => {
                             console.log('Upload station assets error', rejectReason);
                         });
                     } else {
                         await this.props.editStation(update.data);
+                        resolve({finished: true});
                     }
                 } else if (update.type === 'segment') {
                     const finalize = () => {
@@ -384,18 +393,20 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                             uploads: [...this.uploads]
                         };
                         this.props.editSegments(segment);
+                        resolve({finished: true});
                     };
 
                     if(update.data.uploads.length) {
-                        this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
-                            await finalize();
-                            this.uploads = [];
+                        this.uploadAssetsPiper(update.data.uploads).finally( (uploadResult) => {
                             console.log('Upload segment assets success', uploadResult);
-                        }, async (rejectReason) => {
+                            finalize();
+                            this.uploads = [];
+                        }, (rejectReason) => {
                             console.log('Upload segment assets error', rejectReason);
                         });
                     } else {
                         await this.props.editSegments(update.data);
+                        resolve({finished: true});
                     }
                 } else if (update.type === 'pole') {
                     const finalize = () => {
@@ -404,18 +415,20 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                             uploads: [...this.uploads]
                         };
                         this.props.editPole(pole);
+                        resolve({finished: true});
                     };
 
                     if(update.data.uploads.length) {
-                        this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
-                            await finalize();
-                            this.uploads = [];
+                        this.uploadAssetsPiper(update.data.uploads).finally( (uploadResult) => {
                             console.log('Upload pole assets success', uploadResult);
-                        }, async (rejectReason) => {
+                            finalize();
+                            this.uploads = [];
+                        }, (rejectReason) => {
                             console.log('Upload pole assets error', rejectReason);
                         });
                     } else {
                         await this.props.editPole(update.data);
+                        resolve({finished: true});
                     }
                 } else if (update.type === 'parcel') {
                     const finalize = () => {
@@ -424,21 +437,22 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
                             uploads: [...this.uploads]
                         };
                         this.props.editParcel(parcel);
+                        resolve({finished: true});
                     };
 
                     if(update.data.uploads.length) {
                         this.uploadAssetsPiper(update.data.uploads).finally(async (uploadResult) => {
+                            console.log('Upload parcel assets success', uploadResult);
                             await finalize();
                             this.uploads = [];
-                            console.log('Upload parcel assets success', uploadResult);
                         }, async (rejectReason) => {
                             console.log('Upload parcel assets error', rejectReason);
                         });
                     } else {
                         await this.props.editParcel(update.data);
+                        resolve({finished: true});
                     }
                 }
-                setTimeout(() => resolve({finished: true}), 500);
             } catch (error) {
                 reject(error);
             }
