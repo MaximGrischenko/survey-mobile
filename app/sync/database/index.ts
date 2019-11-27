@@ -123,10 +123,22 @@ export class DBAdapter implements IAdapter {
     //     })
     // }
 
+    public write = async (update) => {
+        return new Promise(async (resolve, reject) => {
+            await this.executeSQL(update).then((result) => {
+                console.log('Success');
+                resolve(result);
+            }).catch((error) => {
+                console.log('Error', error);
+                reject(error);
+            });
+        })
+    };
+
     public insert = async (insert, select) => {
         return new Promise(async (resolve, reject) => {
             await this.executeSQL(insert)
-            .then(async (response)=> {
+            .then(async (response) => {
                 if(response) {
                     this.select(select).then((response) => {
                         resolve(response);

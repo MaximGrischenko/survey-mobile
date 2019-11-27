@@ -10,6 +10,7 @@ import {
     ScrollView, Alert, Platform, TouchableOpacity,
 } from 'react-native';
 import { Dropdown } from 'react-native-material-dropdown';
+import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import {required} from "../../../../utils/validators";
 import {TextField} from 'react-native-material-textfield';
 import MultiSelect from "react-native-multiple-select";
@@ -18,7 +19,9 @@ import {PrimaryButton} from "../../../buttons/primary.button";
 import DateTimePicker from "react-native-modal-datetime-picker";
 
 import UploadComponent from "../../../upload.component";
-import Icon from "react-native-vector-icons/Feather";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+import {Linking} from "expo";
 
 interface IMapProps {
     isAdmin: any,
@@ -68,6 +71,7 @@ export const TYPES = {
 };
 
 export default class MainModalDialog extends Component<IMapProps, IMapState> {
+    private menu: any;
     protected editTitle: boolean = false;
     protected title: string = '';
     protected type: number = TYPES.NONE;
@@ -122,7 +126,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             this.props.setDialogShowButton(
                 (
                     <TouchableOpacity style={{paddingHorizontal: 20}} onPress={this.handleDisplay}>
-                        <Icon size={24} name={Platform.OS === 'ios' ? 'map-pin' : 'map-pin'}/>
+                        <Icon size={30} name={Platform.OS === 'ios' ? 'google-maps' : 'google-maps'}/>
                     </TouchableOpacity>
                 )
             )
@@ -143,10 +147,28 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
         this.props.setDialogDeleteButton(null);
         this.props.setDialogShowButton(null);
 
+        //TODO Navigate to internal map
+        // if(this.region) {
+        //     NavigationService.navigate('MapScreen', {region: this.region}, {isDrawerOpen: this.props.isDrawerOpen});
+        // }
+
         if(this.region) {
-            NavigationService.navigate('MapScreen', {region: this.region}, {isDrawerOpen: this.props.isDrawerOpen});
+            const location = `${this.region.latitude},${this.region.longitude}`;
+            const url = Platform.select({
+                ios: `maps:${location}`,
+                android: `geo:${location}?center=${location}&q=${location}&z=16&`,
+            });
+
+            Linking.canOpenURL(url).then(supported => {
+                if (!supported) {
+                    console.log('Can\'t handle url: ' + url);
+                } else {
+                    return Linking.openURL(url);
+                }
+            }).catch(err => console.error('An error occurred', err));
         }
     }
+
 
     componentWillReceiveProps(nextProps: any, nextContext: any): void {
         if (nextProps.itemsList !== this.props.itemsList) {
@@ -204,32 +226,36 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
     };
 
     private handleDisplay = () => {
-
         const editItem: any = {
             ...this.state,
         };
 
         if(this.type === TYPES.POI || this.type === TYPES.POLE || this.type === TYPES.STATION) {
             const location = editItem.points.toGPS();
-            this.region = {...location, latitudeDelta: 0.005, longitudeDelta: 0.005};
+            //TODO Navigate to internal map
+            // this.region = {...location, latitudeDelta: 0.005, longitudeDelta: 0.005};
+            this.region = {...location};
             editItem.points
         } else if(this.type === TYPES.PARCEL || this.type === TYPES.SEGMENT) {
             const location = editItem.pathList[Math.round(editItem.pathList.length / 2)];
-            this.region = {...location, latitudeDelta: 0.005, longitudeDelta: 0.005};
-        }
-        if(this.type === TYPES.POI) {
-            this.props.changeControls({name: 'showPois', value: true});
-        }  else if(this.type === TYPES.POLE) {
-            this.props.changeControls({name: 'showPoles', value: true});
-        } else if(this.type === TYPES.STATION) {
-            this.props.changeControls({name: 'showStations', value: true});
-        } else if(this.type === TYPES.PARCEL) {
-            this.props.changeControls({name: 'showParcels', value: true});
-        } else if(this.type === TYPES.SEGMENT) {
-            this.props.changeControls({name: 'showSegments', value: true});
+            //TODO Navigate to internal map
+            // this.region = {...location, latitudeDelta: 0.005, longitudeDelta: 0.005};
+            this.region = {...location};
         }
 
         this.handleSubmit();
+        //TODO Navigate to internal map
+        // if(this.type === TYPES.POI) {
+        //     this.props.changeControls({name: 'showPois', value: true});
+        // }  else if(this.type === TYPES.POLE) {
+        //     this.props.changeControls({name: 'showPoles', value: true});
+        // } else if(this.type === TYPES.STATION) {
+        //     this.props.changeControls({name: 'showStations', value: true});
+        // } else if(this.type === TYPES.PARCEL) {
+        //     this.props.changeControls({name: 'showParcels', value: true});
+        // } else if(this.type === TYPES.SEGMENT) {
+        //     this.props.changeControls({name: 'showSegments', value: true});
+        // }
     };
 
     protected handleSave = async () => {

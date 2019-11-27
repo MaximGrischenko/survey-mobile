@@ -171,13 +171,40 @@ export const editItemSaga = function* (action: any) {
         yield put({
             type: EDIT_SEGMENTS_REQUEST,
         });
-        const res = yield call(() => {
+        const response = yield call(() => {
                 return axios.put(`${API}api/projects/${action.payload.projectId}/segments/${action.payload.id}`, action.payload);
             },
         );
+
+        if(response.data) {
+            const update = `UPDATE segments SET
+                title = "${escape(response.data.data.title)}",
+                comment = "${escape(response.data.data.comment)}",
+                nazwa_ciagu_id = "${escape(response.data.data.nazwa_ciagu_id)}",
+                przeslo = "${escape(response.data.data.przeslo)}",
+                status = "${escape(response.data.data.status)}",
+                vegetation_status = "${response.data.data.vegetation_status}",
+                distance_lateral = "${response.data.data.distance_lateral}",
+                distance_bottom = "${response.data.data.distance_bottom}",
+                shutdown_time = "${response.data.data.shutdown_time}",
+                operation_type = "${escape(response.data.data.operation_type)}",
+                time_for_next_entry = "${escape(response.data.data.time_for_next_entry)}",
+                updatedAt = ${Date.now()}
+            WHERE id = ${response.data.data.id}`;
+
+            const dbAdapter = DBAdapter.getInstance();
+            const result = yield call(async () => {
+                return await dbAdapter.write(update);
+            });
+
+            if(result) {
+                console.log('Updated', result);
+            }
+        }
+
         yield put({
             type: EDIT_SEGMENTS_SUCCESS,
-            payload: res.data.data
+            payload: response.data.data
         });
 
     } catch (error) {
@@ -207,7 +234,7 @@ export const editSegmentOfflineSaga = function* ({payload}: any) {
             time_for_next_entry = "${escape(payload.time_for_next_entry)}",
             uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}
-            WHERE id = ${payload.id}`;
+        WHERE id = ${payload.id}`;
 
         const select = `SELECT * FROM segments WHERE id = ${payload.id}`;
         const dbAdapter = DBAdapter.getInstance();

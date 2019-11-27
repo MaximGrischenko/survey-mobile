@@ -24,7 +24,7 @@ export default class SliderEntry extends Component<IMapProps> {
     private renderImage () {
         const {data: {path}, even, parallax, parallaxProps, connection, expanded} = this.props;
 
-        let url = '';
+        let url = "";
         if(connection) {
             url = `${API}resources`;
         } else {

@@ -238,13 +238,47 @@ export const addPoiSaga = function* (action: any) {
         yield put({
             type: ADD_POI_REQUEST,
         });
-        const res = yield call(() => {
+        const response = yield call(() => {
                 return axios.post(`${API}api/projects/${action.payload.projectId}/poi`, action.payload);
             }
         );
+
+        if(response) {
+            const update = `INSERT OR IGNORE INTO pois (
+                id,
+                title,
+                points,
+                comment,
+                userId,
+                projectId,
+                categoryId,
+                createdAt,
+                updatedAt,
+                deletedAt) VALUES (
+                ${response.data.id},
+                "${escape(response.data.title)}", 
+                "${escape(JSON.stringify(response.data.points))}",
+                "${escape(response.data.comment)}", 
+                ${response.data.userId}, 
+                ${response.data.projectId}, 
+                ${response.data.categoryId},
+                ${Date.now()}, 
+                ${Date.now()}, 
+                ${null}
+            )`;
+
+            const dbAdapter = DBAdapter.getInstance();
+            const result = yield call(async () => {
+                return await dbAdapter.write(update);
+            });
+            if(result) {
+                console.log('Updated', result);
+            }
+        }
+
         yield put({
             type: ADD_POI_SUCCESS,
-            payload: res.data
+            payload: response.data
         });
     } catch (error) {
         yield put({
@@ -262,7 +296,7 @@ export const removePoiOfflineSaga = function* (action: any) {
 
         const clear = `DELETE FROM pois WHERE id = ${action.payload.id}`;
         const dbAdapter = DBAdapter.getInstance();
-        const res = yield call(async () => {
+        const result = yield call(async () => {
             return await dbAdapter.clear(clear);
         });
 
@@ -306,10 +340,17 @@ export const removePoiSaga = function* (action: any) {
         yield put({
             type: DELETE_POI_REQUEST,
         });
-        const res = yield call(() => {
+        const response = yield call(() => {
                 return axios.delete(`${API}api/projects/${action.payload.projectId}/poi/${action.payload.id}`,);
             },
         );
+
+        const clear = `DELETE FROM pois WHERE id = ${action.payload.id}`;
+        const dbAdapter = DBAdapter.getInstance();
+        const result = yield call(async () => {
+            return await dbAdapter.clear(clear);
+        });
+
         yield put({
             type: POI_DELETE_SUCCESS,
             payload: action.payload
@@ -328,13 +369,34 @@ export const editPoiSaga = function* (action: any) {
         yield put({
             type: EDIT_POI_REQUEST,
         });
-        const res = yield call(() => {
+        const response = yield call(() => {
                 return axios.put(`${API}api/projects/${action.payload.projectId}/poi/${action.payload.id}`, action.payload);
             },
         );
+
+        if(response.data) {
+            const update = `UPDATE pois SET
+                title = "${escape(response.data.data.title)}",
+                description = "${escape(response.data.data.description)}",
+                projectId = "${response.data.data.projectId}",
+                categoryId = "${response.data.data.categoryId}",
+                comment = "${escape(response.data.data.comment)}",
+                updatedAt = ${Date.now()}
+            WHERE id = ${response.data.data.id}`;
+
+            const dbAdapter = DBAdapter.getInstance();
+            const result = yield call(async () => {
+                return await dbAdapter.write(update);
+            });
+
+            if(result) {
+                console.log('Updated', result);
+            }
+        }
+
         yield put({
             type: POI_EDIT_SUCCESS,
-            payload: res.data.data
+            payload: response.data.data
         });
 
     } catch (error) {
@@ -359,7 +421,7 @@ export const editPoiOfflineSaga = function* ({payload}: any) {
             comment = "${escape(payload.comment)}",
             uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}
-            WHERE id = ${payload.id}`;
+        WHERE id = ${payload.id}`;
 
         const select = `SELECT * FROM pois WHERE id = ${payload.id}`;
         const dbAdapter = DBAdapter.getInstance();

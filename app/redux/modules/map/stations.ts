@@ -87,13 +87,14 @@ export const fetchLocationStationSaga = function* (action: any) {
         });
         if (!LOADED_PROJECT_DATA.PROJECTS[action.payload.id]) LOADED_PROJECT_DATA.PROJECTS[action.payload.id] = {};
         if (!LOADED_PROJECT_DATA.PROJECTS[action.payload.id].stations) LOADED_PROJECT_DATA.PROJECTS[action.payload.id].stations = {startAt: 0};
-        const res = yield call(() => {
+        const response = yield call(() => {
                 return axios.get(`${API}api/projects/${action.payload.id}/stations?limit=${LIMIT_TO_LOAD}&offset=${LOADED_PROJECT_DATA.PROJECTS[action.payload.id].stations.startAt}`);
             },
         );
+
         yield put({
             type: FETCH_LOCATION_STATIONS_SUCCESS,
-            payload: res.data.rows
+            payload: response.data.rows
         });
 
     } catch (error) {
@@ -169,13 +170,33 @@ export const editItemSaga = function* (action: any) {
         yield put({
             type: EDIT_STATIONS_REQUEST,
         });
-        const res = yield call(() => {
+        const response = yield call(() => {
                 return axios.put(`${API}api/projects/${action.payload.projectId}/stations/${action.payload.id}`, action.payload);
             },
         );
+
+        if(response.data) {
+            const update = `UPDATE stations SET
+                title = "${escape(response.data.data.title)}",
+                nazw_stac = "${escape(response.data.data.nazw_stac)}",
+                num_eksp_s = "${escape(response.data.data.num_eksp_s)}",
+                comment = "${escape(response.data.data.comment)}",
+                updatedAt = ${Date.now()}
+            WHERE id = ${response.data.data.id}`;
+
+            const dbAdapter = DBAdapter.getInstance();
+            const result = yield call(async () => {
+                return await dbAdapter.write(update);
+            });
+
+            if(result) {
+                console.log('Updated', result);
+            }
+        }
+
         yield put({
             type: EDIT_STATIONS_SUCCESS,
-            payload: res.data.data
+            payload: response.data.data
         });
 
     } catch (error) {

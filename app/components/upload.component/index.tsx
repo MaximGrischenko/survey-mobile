@@ -81,7 +81,6 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             allowsEditing: false,
                             quality: 0.5,
-                           // aspect: [4, 3],
                             exif: true,
                         });
 
@@ -94,7 +93,6 @@ class UploadComponent extends Component<IMapProps, IMapState> {
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
                             allowsEditing: false,
                             quality: 0.5,
-                          //  aspect: [4, 3],
                             exif: true,
                         });
 

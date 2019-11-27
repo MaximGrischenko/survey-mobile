@@ -159,13 +159,33 @@ export const editItemSaga = function* (action: any) {
         yield put({
             type: EDIT_POLE_REQUEST,
         });
-        const res = yield call(() => {
+        const response = yield call(() => {
                 return axios.put(`${API}api/projects/${action.payload.projectId}/poles/${action.payload.id}`, action.payload);
             },
         );
+
+        if(response.data) {
+            const update = `UPDATE poles SET
+                title = "${escape(response.data.data.title)}",
+                num_slup = "${escape(response.data.data.num_slup)}",
+                powerLineId = "${response.data.data.powerLineId}",
+                comment = "${escape(response.data.data.comment)}",
+                updatedAt = ${Date.now()}
+            WHERE id = ${response.data.data.id}`;
+
+            const dbAdapter = DBAdapter.getInstance();
+            const result = yield call(async () => {
+                return await dbAdapter.write(update);
+            });
+
+            if(result) {
+                console.log('Updated', result);
+            }
+        }
+
         yield put({
             type: EDIT_POLE_SUCCESS,
-            payload: res.data.data
+            payload: response.data.data
         });
 
     } catch (error) {
@@ -189,7 +209,7 @@ export const editPoleOfflineSaga = function* ({payload}: any) {
             comment = "${escape(payload.comment)}",
             uploads = "${escape(JSON.stringify(payload.uploads))}",
             updatedAt = ${Date.now()}
-            WHERE id = ${payload.id}`;
+        WHERE id = ${payload.id}`;
 
         const select = `SELECT * FROM poles WHERE id = ${payload.id}`;
         const dbAdapter = DBAdapter.getInstance();

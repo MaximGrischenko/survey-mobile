@@ -164,13 +164,34 @@ export const editParcelSaga = function* (action: any) {
         yield put({
             type: EDIT_PARCElS_REQUEST,
         });
-        const res = yield call(() => {
+        const response = yield call(() => {
                 return axios.put(`${API}api/projects/${action.payload.projectId}/parcels/${action.payload.id}`, action.payload);
             },
         );
+
+        if(response.data) {
+            const update = `UPDATE parcels SET
+                title = "${escape(response.data.data.title)}",
+                wojewodztw = "${escape(response.data.data.wojewodztw)}",
+                numer = "${escape(response.data.data.numer)}",
+                status = "${response.data.data.status}",
+                comment = "${escape(response.data.data.comment)}",
+                updatedAt = ${Date.now()}
+            WHERE id = ${response.data.data.id}`;
+
+            const dbAdapter = DBAdapter.getInstance();
+            const result = yield call(async () => {
+                return await dbAdapter.write(update);
+            });
+
+            if(result) {
+                console.log('Updated', result);
+            }
+        }
+
         yield put({
             type: EDIT_PARCElS_SUCCESS,
-            payload: res.data.data
+            payload: response.data.data
         });
 
     } catch (error) {

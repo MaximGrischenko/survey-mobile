@@ -51,7 +51,7 @@ class DialogContainer extends Component<IMapProps> {
                 }
                 <View style={localStyles.title}>{this.props.content ? this.props.content.header : null}</View>
                 <TouchableOpacity onPress={this.onClose}>
-                    <Icon size={30} style={{paddingHorizontal: 20}}
+                    <Icon size={32} style={{paddingHorizontal: 20}}
                           name={Platform.OS === 'ios' ? 'ios-close' : 'md-close'} />
                 </TouchableOpacity>
             </View>

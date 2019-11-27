@@ -3,10 +3,18 @@
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/upload.component/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/upload.component/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/uploads.preview/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/uploads.preview/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/poi.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/redux/modules/map/poles.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/poles.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/stations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/stations.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/sync/database/axiosPiper_backup.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/sync/database/backup.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/sync/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/index.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -37,6 +45,7 @@
         <option value="JavaScript File" />
         <option value="TypeScript File" />
         <option value="TypeScript JSX File" />
+        <option value="CSS File" />
       </list>
     </option>
   </component>
@@ -59,6 +68,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js.last.introduce.type" value="CONST" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -122,7 +132,7 @@
       <workItem from="1571751086419" duration="268901000" />
       <workItem from="1573062766031" duration="190271000" />
       <workItem from="1574248555404" duration="48741000" />
-      <workItem from="1574435740220" duration="1718000" />
+      <workItem from="1574435740220" duration="46736000" />
     </task>
     <servers />
   </component>
