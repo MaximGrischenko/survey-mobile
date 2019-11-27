@@ -478,7 +478,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         return (
             <React.Fragment>
                 <View style={localStyles.container}>
-                    <TouchableOpacity style={localStyles.item} onPress={() => this.synchronization()}>
+                    <TouchableOpacity style={localStyles.item} activeOpacity={!this.props.connection ? 1 : 0.7} disabled={!this.props.connection} onPress={() => this.synchronization()}>
                         <Image style={{width: 36, height: 30}} source={require('../../../../../assets/images/drawer-sync.png')}/>
                         <Text style={{marginTop: 10}}>Syncrhonizuj</Text>
                     </TouchableOpacity>
@@ -517,6 +517,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         )
     }
 }
+
 const localStyles = StyleSheet.create({
     container: {
         display: 'flex',

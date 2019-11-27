@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
-
-import DrawerMenu from "./views/drawer.menu";
-
 import {Text, View, StyleSheet, ScrollView} from "react-native";
 import {COLORS} from "../../styles/colors";
+import Notifier from '../../components/offline.notifier';
+import DrawerMenu from "./views/drawer.menu";
 import DrawerProjects from "./views/drawer.projects";
 import DrawerPowerlines from './views/drawer.powerlines';
 import DrawerEntities from "./views/drawer.entities";
@@ -17,7 +16,7 @@ class DrawerScreen extends Component<IMapProps> {
     render() {
         return (
             <View style={localStyles.container}>
-                <Text style={{paddingTop: 105}}></Text>
+                <Notifier />
                 <DrawerMenu navigation={this.props.navigation}/>
                 <ScrollView>
                     <DrawerProjects />

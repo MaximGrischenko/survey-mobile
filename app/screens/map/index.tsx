@@ -203,7 +203,6 @@ class MapController extends React.Component<IMapProps, IMapState> {
     }
 
     componentWillReceiveProps(nextProps: Readonly<IMapProps>, nextContext: any): void {
-
         if(nextProps.isDrawerOpen !== this.props.isDrawerOpen && nextProps.isDrawerOpen) {
             this.cluster = [];
             this.setState({
@@ -911,13 +910,13 @@ search: searchSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => (
-bindActionCreators({
-    showDialogContent,
-    showAlert,
-    changeControls,
-    fetchCategories,
-    fetchCategoriesOffline,
-}, dispatch)
+    bindActionCreators({
+        showDialogContent,
+        showAlert,
+        changeControls,
+        fetchCategories,
+        fetchCategoriesOffline,
+    }, dispatch)
 );
 
 export default connect(mapStateToProps, mapDispatchToProps)(MapController);
