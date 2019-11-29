@@ -3,12 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/entities/types/Segment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Segment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.sync/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/offline.notifier/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/map/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/map/index.tsx" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,6 +53,11 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
@@ -85,15 +89,15 @@
       <recent name="$PROJECT_DIR$/app/components/tables.header" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
+  <component name="ServiceViewManager">
+    <option name="viewStates">
       <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
       </list>
     </option>
   </component>
@@ -124,7 +128,8 @@
       <workItem from="1571751086419" duration="268901000" />
       <workItem from="1573062766031" duration="190271000" />
       <workItem from="1574248555404" duration="48741000" />
-      <workItem from="1574435740220" duration="50584000" />
+      <workItem from="1574435740220" duration="52662000" />
+      <workItem from="1574962861179" duration="7778000" />
     </task>
     <servers />
   </component>

@@ -265,7 +265,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                 ...this.state,
             };
             if (this.type === TYPES.SEGMENT) {
-                if (editItem.operation_type) editItem.operation_type = editItem.operation_type ? editItem.operation_type.join(",") : '';
+                if (editItem.operation_type) editItem.operation_type = editItem.operation_type ? editItem.operation_type.join(", ") : '';
             }
 
             if (this.type === TYPES.PARCEL) {

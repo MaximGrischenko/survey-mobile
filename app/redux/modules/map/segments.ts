@@ -269,6 +269,7 @@ export const editSegmentOfflineSaga = function* ({payload}: any) {
                 ...data
             }
         };
+
         const stored = yield call(async () => {
             return await AsyncStorage.getItem('updates');
         });

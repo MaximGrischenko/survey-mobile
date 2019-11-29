@@ -172,6 +172,7 @@ class DrawerMenu extends Component<IMapProps, IMapState> implements Observer {
         await this.state.database.resetDB();
         await this.state.database.initDB();
         await AsyncStorage.removeItem('status');
+        await AsyncStorage.removeItem('updates');
     };
 
     private finalize = async () => {
