@@ -93,7 +93,7 @@ export class DBAdapter implements IAdapter {
         },
         {
             name: 'parcels',
-            create: 'CREATE TABLE IF NOT EXISTS parcels(id INTEGER, comment VARCHAR(255), title VARCHAR(255), points TEXT, wojewodztw VARCHAR(255), gmina VARCHAR(255), description VARCHAR(255), numer VARCHAR(255), status INTEGER DEFAULT 1, userId INTEGER, powerLineId INTEGER, projectId INTEGER, uploads TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
+            create: 'CREATE TABLE IF NOT EXISTS parcels(id INTEGER, comment VARCHAR(255), title VARCHAR(255), points TEXT, wojewodztw VARCHAR(255), gmina VARCHAR(255), description VARCHAR(255), ownership VARCHAR(255), numer VARCHAR(255), status INTEGER DEFAULT 1, userId INTEGER, powerLineId INTEGER, projectId INTEGER, uploads TEXT, createdAt TIMESTAMP WITH TIME ZONE NOT NULL, updatedAt TIMESTAMP WITH TIME ZONE NOT NULL, deletedAt TIMESTAMP WITH TIME ZONE, UNIQUE(id))',
             delete: 'DROP TABLE IF EXISTS parcels'
         },
         {
@@ -109,19 +109,8 @@ export class DBAdapter implements IAdapter {
     ];
 
     private connect(): Promise<WebSQLDatabase> {
-        return new Promise((resolve => SQLite.openDatabase("survey", "1.0", "demo", 1024 * 1000 * 1000, resolve)));
+        return new Promise((resolve => SQLite.openDatabase("survey", "1.0", "survey local db", 1024 * 1000 * 1000, resolve)));
     }
-
-
-    // public close(): Promise<void> {
-    //     if(this.database === undefined) {
-    //         return Promise.reject("[db] Database was not open; unable to close.");
-    //     }
-    //
-    //     return this.database.close().then(status => {
-    //         this.database = undefined;
-    //     })
-    // }
 
     public write = async (update) => {
         return new Promise(async (resolve, reject) => {
@@ -668,7 +657,7 @@ export class DBAdapter implements IAdapter {
                                 } break;
                                 case 'parcels': {
                                     if(response.data.rows.length) {
-                                        query = `INSERT OR REPLACE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, uploads, createdAt, updatedAt, deletedAt) VALUES`;
+                                        query = `INSERT OR REPLACE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, ownership, numer, status, userId, powerLineId, projectId, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                         const list = response.data.rows;
                                         const chunksPiper = new PromisePiper();
                                         while (list.length) {
@@ -686,6 +675,7 @@ export class DBAdapter implements IAdapter {
                                                     "${escape(item.wojewodztw)}",
                                                     "${escape(item.gmina)}",
                                                     "${escape(item.description)}",
+                                                    "${escape(item.ownership)}",
                                                     "${escape(item.numer)}",
                                                     ${item.status},
                                                     ${item.userId},
@@ -1408,7 +1398,7 @@ export class DBAdapter implements IAdapter {
                         } break;
                         case 'parcels': {
                             if(response.data.rows.length) {
-                                query = `INSERT OR IGNORE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, numer, status, userId, powerLineId, projectId, uploads, createdAt, updatedAt, deletedAt) VALUES`;
+                                query = `INSERT OR IGNORE INTO parcels (id, comment, title, points, wojewodztw, gmina, description, ownership, numer, status, userId, powerLineId, projectId, uploads, createdAt, updatedAt, deletedAt) VALUES`;
                                 const list = response.data.rows;
                                 const chunksPiper = new PromisePiper();
                                 while (list.length) {
@@ -1426,6 +1416,7 @@ export class DBAdapter implements IAdapter {
                                             "${escape(item.wojewodztw)}",
                                             "${escape(item.gmina)}",
                                             "${escape(item.description)}",
+                                            "${escape(item.ownership)}",
                                             "${escape(item.numer)}",
                                             ${item.status},
                                             ${item.userId},

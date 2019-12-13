@@ -82,6 +82,34 @@ export const parcel_statuses = [
     },
 ];
 
+export const parcel_ownership = [
+    {
+        id: 1,
+        value: 'Forest',
+        title: 'Forest'
+    },
+    {
+        id: 2,
+        value: 'Waters',
+        title: 'Waters'
+    },
+    {
+        id: 3,
+        value: 'Roads',
+        title: 'Roads'
+    },
+    {
+        id: 4,
+        value: 'Private',
+        title: 'Private'
+    },
+    {
+        id: 5,
+        value: 'Other',
+        title: 'Other'
+    }
+];
+
 
 export const segment_statuses = [
     {

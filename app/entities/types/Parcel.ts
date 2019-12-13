@@ -7,6 +7,8 @@ export class Parcel extends Main {
     wojewodztw: string;
     gmina: string;
     numer: string;
+    owmership: string;
+
     static edit_keys: Array<string> = [
         'wojewodztw',
         'numer',
@@ -19,6 +21,7 @@ export class Parcel extends Main {
         this.gmina = data.gmina || '';
         this.numer = data.numer || '';
         this.wojewodztw = data.wojewodztw || '';
+        this.owmership = data.owmership || '';
 
         this.pathList = [];
         for (let j = 0; j < this.points.coordinates.length; j++) {
@@ -30,8 +33,6 @@ export class Parcel extends Main {
             }
         }
         if (data instanceof Parcel) return data;
-
-
     }
 
     editKeys() {

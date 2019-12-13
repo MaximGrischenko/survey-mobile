@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import NavigationService from '../../../../app.navigator/navigation.service';
 import {Upload, Pole, Parcel, Segment, Station, Category, Project, Powerline} from "../../../../entities";
-import {segment_statuses, parcel_statuses, segment_operation_type} from "../../../../redux/utils";
+import {segment_statuses, parcel_statuses, segment_operation_type, parcel_ownership} from "../../../../redux/utils";
 import {Form, Field} from 'react-native-validate-form';
 import {
     View,
@@ -279,10 +279,7 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
             }
             if(this.props.onFinishEditItem instanceof Function) this.props.onFinishEditItem();
         } catch (e) {
-            // toast.show(e.response ? e.response.data.error || e.response.data.message : e.meesage || e, {
-            //     position: toast.POSITION.TOP_LEFT
-            // });
-        } finally {
+            console.log(e.message);
         }
     };
 
@@ -367,6 +364,11 @@ export default class MainModalDialog extends Component<IMapProps, IMapState> {
                     title: 'Status',
                     name: 'status',
                     options: parcel_statuses
+                },
+                {
+                    title: 'Ownership',
+                    name: 'ownership',
+                    options: parcel_ownership
                 },
                 ...Parcel.edit_keys.map((el: string) => ({
                     title: el,

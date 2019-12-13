@@ -94,6 +94,7 @@ export const fetchParcelsOfflineSaga = function* (action: any) {
                 wojewodztw: unescape(el.wojewodztw),
                 gmina: unescape(el.gmina),
                 description: unescape(el.description),
+                ownership: unescape(el.ownership),
                 numer: unescape(el.numer),
                 uploads: JSON.parse(unescape(el.uploads)),
                 points: JSON.parse(unescape(el.points))
@@ -173,6 +174,7 @@ export const editParcelSaga = function* (action: any) {
             const update = `UPDATE parcels SET
                 title = "${escape(response.data.data.title)}",
                 wojewodztw = "${escape(response.data.data.wojewodztw)}",
+                ownership = "${escape(response.data.data.ownership)}",
                 numer = "${escape(response.data.data.numer)}",
                 status = "${response.data.data.status}",
                 comment = "${escape(response.data.data.comment)}",
@@ -210,6 +212,7 @@ export const editParcelOfflineSaga = function* ({payload}: any) {
         const insert = `UPDATE parcels SET
             title = "${escape(payload.title)}",
             wojewodztw = "${escape(payload.wojewodztw)}",
+            ownership = "${escape(payload.ownership)}",
             numer = "${escape(payload.numer)}",
             status = "${payload.status}",
             comment = "${escape(payload.comment)}",
@@ -229,6 +232,7 @@ export const editParcelOfflineSaga = function* ({payload}: any) {
                 ...el,
                 title: unescape(el.title),
                 wojewodztw: unescape(el.wojewodztw),
+                ownership: unescape(el.ownership),
                 numer: unescape(el.numer),
                 status: el.status,
                 comment: unescape(el.comment) === 'null' ? '' : unescape(el.comment),

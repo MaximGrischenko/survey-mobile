@@ -4,9 +4,11 @@
     <list default="true" id="a59898ac-3350-419e-9421-55437a6508c1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/components/dialog.component/dialogs/main.modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/entities/types/Segment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Segment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/segments.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/screens/drawer/views/drawer.menu/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/entities/types/Parcel.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/entities/types/Parcel.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/modules/map/parcels.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/redux/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/redux/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/sync/database/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/sync/database/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,7 +131,9 @@
       <workItem from="1573062766031" duration="190271000" />
       <workItem from="1574248555404" duration="48741000" />
       <workItem from="1574435740220" duration="52662000" />
-      <workItem from="1574962861179" duration="7778000" />
+      <workItem from="1574962861179" duration="9097000" />
+      <workItem from="1575278220946" duration="232000" />
+      <workItem from="1575370010836" duration="19055000" />
     </task>
     <servers />
   </component>
@@ -151,6 +155,13 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="532" y="301" width="667" height="480" key="find.popup" timestamp="1576169001030">
+      <screen x="0" y="23" width="1920" height="1116" />
+    </state>
+    <state x="626" y="314" width="667" height="476" key="find.popup/-1920.23.1920.1057/0.23.1920.1108@0.23.1920.1108" timestamp="1575032119003" />
+    <state x="532" y="301" width="667" height="480" key="find.popup/-1920.23.1920.1057/0.23.1920.1116@0.23.1920.1116" timestamp="1576169001030" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
